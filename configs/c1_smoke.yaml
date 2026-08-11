@@ -1,0 +1,55 @@
+# C1 smoke test - local RTX 3050 (6GB), catches bugs, produces no reportable number.
+#
+# The point of this run is that it finishes without crashing. 500 examples for
+# one epoch cannot train a detector, so nothing it prints belongs in the report
+# or on a slide. It exists to prove the data path, the loss mask, the AMP setup
+# and the evaluation all work before any Kaggle quota is spent.
+#
+# max_length 1024 is a memory concession, not the real setting. The longest
+# sequence in RAGTruth is 2,628 tokens, so at 1024 some contexts are truncated
+# here and the F1 would be depressed even if the model were good. c1_base.yaml
+# uses 3072, which truncates nothing.
+#
+# data.limit is a stratified sample, not the first 500 lines. build_examples
+# writes records grouped by task, so a head-of-file sample would be 500
+# summarization examples and the run would never exercise QA or data-to-text.
+
+run_name: c1-smoke
+seed: 42
+
+data:
+  train_file: data/processed/ragtruth_train.jsonl
+  test_file: data/processed/ragtruth_test.jsonl
+  limit: 500
+  val_fraction: 0.10
+  calib_fraction: 0.10
+  max_length: 1024
+
+model:
+  name: answerdotai/ModernBERT-base
+  gradient_checkpointing: false
+
+train:
+  epochs: 1
+  batch_size: 2
+  grad_accum: 4
+  lr: 3.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  max_grad_norm: 1.0
+  precision: auto        # RTX 3050 is Ampere, so this resolves to bf16
+  group_by_length: false
+  num_workers: 0         # Windows spawns workers; 0 avoids re-pickling the tokenizer
+  class_weights: null
+  log_every: 5
+  eval_batch_size: 2
+
+output:
+  dir: results/c1/smoke
+  save_best: false       # a 500-example checkpoint is not worth 600MB on disk
+  select_on: example.f1
+
+wandb:
+  enabled: false         # a smoke run would pollute the experiment log
+  project: trustrag-c1
+  entity: null

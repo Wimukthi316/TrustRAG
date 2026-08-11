@@ -1,0 +1,60 @@
+# C1 full training run - Kaggle P100 16GB or T4x2.
+#
+# Every number reported for C1 must come from a run using this file, or a file
+# derived from it and committed next to the result. Do not edit values here to
+# chase a score; copy it to a new name so the run that produced a number can
+# always be reconstructed.
+#
+# max_length 3072: the longest sequence in the RAGTruth corpus measured 2,628
+# tokens with the ModernBERT-base tokenizer, so 3072 truncates nothing and the
+# answer is never cut. ModernBERT supports 8192, but using it here would cost
+# memory for zero benefit on this corpus.
+#
+# UNVERIFIED, adjust after the first Kaggle launch: batch_size 4 at 3072 tokens
+# is an estimate, not a measurement. If it OOMs, halve batch_size and double
+# grad_accum -- the effective batch of 16 stays the same and the run stays
+# comparable. gradient_checkpointing: true is the next lever after that; it
+# trades roughly 30% throughput for a large memory saving.
+#
+# precision: auto resolves to bf16 on T4-generation and newer, fp16 on the P100
+# (Pascal has no bf16). fp16 brings a GradScaler in automatically.
+
+run_name: c1-modernbert-base
+seed: 42
+
+data:
+  train_file: data/processed/ragtruth_train.jsonl
+  test_file: data/processed/ragtruth_test.jsonl
+  limit: null
+  val_fraction: 0.05     # ~755 responses, enough to rank epochs
+  calib_fraction: 0.10   # ~1,509 responses held out for C2 conformal calibration
+  max_length: 3072
+
+model:
+  name: answerdotai/ModernBERT-base
+  gradient_checkpointing: false
+
+train:
+  epochs: 4
+  batch_size: 4
+  grad_accum: 4          # effective batch 16
+  lr: 3.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  max_grad_norm: 1.0
+  precision: auto
+  group_by_length: true  # RAGTruth lengths span 171-2,628 tokens; grouping cuts padding
+  num_workers: 2         # Kaggle is Linux, so workers fork cheaply
+  class_weights: null    # try [1.0, 3.0, 3.0] only if recall is the bottleneck
+  log_every: 20
+  eval_batch_size: 8
+
+output:
+  dir: results/c1/modernbert-base
+  save_best: true
+  select_on: example.f1  # the metric compared against LettuceDetect's 79.22%
+
+wandb:
+  enabled: true
+  project: trustrag-c1
+  entity: null

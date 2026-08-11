@@ -16,6 +16,7 @@ evaluate>=0.4
 seqeval>=1.2.2
 sentencepiece>=0.2
 safetensors>=0.4
+pyyaml>=6.0          # training configs; arrives as a transitive dep, pinned here on purpose
 
 # --- C2: calibration + conformal ---
 scikit-learn>=1.5
