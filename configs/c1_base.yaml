@@ -10,11 +10,21 @@
 # answer is never cut. ModernBERT supports 8192, but using it here would cost
 # memory for zero benefit on this corpus.
 #
-# UNVERIFIED, adjust after the first Kaggle launch: batch_size 4 at 3072 tokens
+# Optimiser settings match what LettuceDetect reports: AdamW, lr 1e-5, weight
+# decay 0.01, batch size 8, 6 epochs. Matching them is the point -- the claim is
+# "we reproduced and extended LettuceDetect", and that claim is much harder to
+# argue with if a gap in F1 could be explained away by a different learning rate.
+#
+# CAVEAT, must be checked before this goes in the report: those hyperparameters
+# reached us through a secondary review of the LettuceDetect paper, not the paper
+# itself. Verify them against arXiv:2502.17125 directly.
+#
+# UNVERIFIED, adjust after the first Kaggle launch: batch_size 2 at 3072 tokens
 # is an estimate, not a measurement. If it OOMs, halve batch_size and double
-# grad_accum -- the effective batch of 16 stays the same and the run stays
+# grad_accum -- the effective batch of 8 stays the same and the run stays
 # comparable. gradient_checkpointing: true is the next lever after that; it
-# trades roughly 30% throughput for a large memory saving.
+# trades roughly 30% throughput for a large memory saving. If there is GPU
+# headroom instead, raise batch_size to 4 and drop grad_accum to 2.
 #
 # precision: auto resolves to bf16 on T4-generation and newer, fp16 on the P100
 # (Pascal has no bf16). fp16 brings a GradScaler in automatically.
@@ -35,10 +45,10 @@ model:
   gradient_checkpointing: false
 
 train:
-  epochs: 4
-  batch_size: 4
-  grad_accum: 4          # effective batch 16
-  lr: 3.0e-5
+  epochs: 6              # LettuceDetect trains for 6
+  batch_size: 2
+  grad_accum: 4          # effective batch 8, matching LettuceDetect
+  lr: 1.0e-5             # LettuceDetect's reported learning rate
   weight_decay: 0.01
   warmup_ratio: 0.06
   max_grad_norm: 1.0
