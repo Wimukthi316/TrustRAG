@@ -46,6 +46,7 @@ from src.c2_calibration.calibration import (
     format_calibration_table,
     reliability_bins,
 )
+from src.common.schema import SCHEMA_VERSION
 from src.c2_calibration.conformal import (
     area_under_risk_coverage,
     check_coverage,
@@ -234,6 +235,66 @@ def analyse(
             }
             for b in reliability_bins(test_cal, test_labels)
         ],
+    }
+
+
+def build_serving_artifact(
+    calib: Sequence[Dict[str, Any]],
+    result: Dict[str, Any],
+    score_key: str,
+    detector: str,
+) -> Dict[str, Any]:
+    """Everything the FastAPI backend needs to reproduce this C2 layer at request time.
+
+    Two pieces:
+
+    * the fitted calibrator, as JSON rather than a pickle;
+    * the sorted non-conformity scores from the calibration split.
+
+    Storing the raw scores rather than a table of thresholds means the server can
+    answer *any* alpha the user moves the slider to, exactly, by recomputing the
+    ceil((n+1)(1-alpha)) quantile. A precomputed table would either restrict the
+    slider to the alphas that happened to be in it, or invite interpolation
+    between thresholds -- and interpolating a conformal quantile silently voids
+    the finite-sample guarantee it exists to provide.
+
+    Span unit only. The demo highlights spans, and the token-level score array
+    runs to a couple of hundred thousand floats, which is a lot of JSON for
+    something nothing serves.
+    """
+    calib_scores, calib_labels, _ = span_units(calib, score_key)
+    calibrator_name = result["calibration"]["selected"]
+
+    from src.c2_calibration.calibration import all_calibrators
+
+    calibrator = next(c for c in all_calibrators() if c.name == calibrator_name)
+    calibrator.fit(calib_scores, calib_labels)
+    calibrated = calibrator.transform(calib_scores)
+
+    nonconformity = [
+        float(1.0 - p) if y == 1 else float(p)
+        for p, y in zip(calibrated, calib_labels)
+    ]
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "detector": detector,
+        "unit": "span",
+        "score_key": score_key,
+        "calibrator": calibrator.to_dict(),
+        "n_calibration": len(nonconformity),
+        "nonconformity_sorted": sorted(nonconformity),
+        # Recorded so a stale artifact is obvious rather than silently wrong.
+        "test_ece_before": result["calibration"]["before"]["ece"],
+        "test_ece_after": result["calibration"]["after"]["ece"],
+        "coverage_at_alpha_0.1": next(
+            (
+                row["empirical_coverage"]
+                for row in result["conformal"]["coverage"]
+                if abs(row["alpha"] - 0.1) < 1e-9
+            ),
+            None,
+        ),
     }
 
 
@@ -429,6 +490,18 @@ def main() -> int:
     with path.open("w", encoding="utf-8") as handle:
         json.dump(results, handle, indent=2)
     print(f"\nwrote {path}")
+
+    artifact = build_serving_artifact(
+        calib, results["span"], args.score_key, detector=str(args.test)
+    )
+    artifact_path = out_dir / "c2_artifact.json"
+    with artifact_path.open("w", encoding="utf-8") as handle:
+        json.dump(artifact, handle)
+    print(
+        f"wrote {artifact_path} "
+        f"({artifact['calibrator']['name']}, "
+        f"{artifact['n_calibration']:,} calibration scores)"
+    )
 
     # Aug 17 trigger point: a coverage violation invalidates the central claim,
     # so it must fail the process rather than sit in a log.

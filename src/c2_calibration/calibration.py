@@ -191,7 +191,14 @@ def calibration_report(
 
 
 class Calibrator:
-    """Common interface: fit on the calibration split, transform anything else."""
+    """Common interface: fit on the calibration split, transform anything else.
+
+    `to_dict` / `from_dict` exist so a fitted calibrator can be written to JSON
+    and reloaded by the FastAPI backend. Deliberately JSON rather than pickle:
+    the artifact is a file the server loads at startup, and unpickling is
+    arbitrary code execution. It also keeps the artifact readable, which matters
+    when someone asks at the viva what the deployed model is actually doing.
+    """
 
     name = "identity"
 
@@ -203,6 +210,28 @@ class Calibrator:
 
     def params(self) -> Dict[str, float]:
         return {}
+
+    def to_dict(self) -> Dict[str, object]:
+        return {"name": self.name, **self.params()}
+
+
+def calibrator_from_dict(payload: Dict[str, object]) -> "Calibrator":
+    """Rebuild a fitted calibrator from `to_dict` output."""
+    name = str(payload["name"])
+    if name == "uncalibrated" or name == "identity":
+        return IdentityCalibrator()
+    if name == "temperature":
+        return TemperatureCalibrator(temperature=float(payload["temperature"]))
+    if name == "platt":
+        return PlattCalibrator(
+            slope=float(payload["slope"]), intercept=float(payload["intercept"])
+        )
+    if name == "isotonic":
+        return IsotonicCalibrator.from_breakpoints(
+            [float(x) for x in payload["x_thresholds"]],  # type: ignore[union-attr]
+            [float(y) for y in payload["y_thresholds"]],  # type: ignore[union-attr]
+        )
+    raise ValueError(f"unknown calibrator {name!r}")
 
 
 class IdentityCalibrator(Calibrator):
@@ -302,20 +331,45 @@ class IsotonicCalibrator(Calibrator):
     """
 
     name: str = field(default="isotonic", init=False)
-    _model: Optional[object] = field(default=None, init=False, repr=False)
+    _x: Optional[np.ndarray] = field(default=None, init=False, repr=False)
+    _y: Optional[np.ndarray] = field(default=None, init=False, repr=False)
 
     def fit(self, probs: Sequence[float], labels: Sequence[int]) -> "IsotonicCalibrator":
         from sklearn.isotonic import IsotonicRegression
 
         model = IsotonicRegression(y_min=0.0, y_max=1.0, out_of_bounds="clip")
         model.fit(_as_array(probs), _as_array(labels))
-        self._model = model
+        # Keep the breakpoints rather than the estimator. Predicting from them
+        # with np.interp reproduces sklearn's own clipped piecewise-linear
+        # interpolation exactly, and it serialises to plain JSON, so the backend
+        # never has to unpickle anything.
+        self._x = np.asarray(model.X_thresholds_, dtype=np.float64)
+        self._y = np.asarray(model.y_thresholds_, dtype=np.float64)
         return self
 
+    @classmethod
+    def from_breakpoints(
+        cls, x_thresholds: Sequence[float], y_thresholds: Sequence[float]
+    ) -> "IsotonicCalibrator":
+        calibrator = cls()
+        calibrator._x = np.asarray(x_thresholds, dtype=np.float64)
+        calibrator._y = np.asarray(y_thresholds, dtype=np.float64)
+        return calibrator
+
     def transform(self, probs: Sequence[float]) -> np.ndarray:
-        if self._model is None:
+        if self._x is None or self._y is None:
             raise RuntimeError("fit() must be called before transform()")
-        return np.clip(self._model.predict(_as_array(probs)), 0.0, 1.0)
+        clipped = np.clip(_as_array(probs), self._x[0], self._x[-1])
+        return np.clip(np.interp(clipped, self._x, self._y), 0.0, 1.0)
+
+    def to_dict(self) -> Dict[str, object]:
+        if self._x is None or self._y is None:
+            raise RuntimeError("fit() must be called before to_dict()")
+        return {
+            "name": self.name,
+            "x_thresholds": [float(v) for v in self._x],
+            "y_thresholds": [float(v) for v in self._y],
+        }
 
 
 def all_calibrators() -> List[Calibrator]:

@@ -8,13 +8,21 @@ keyword matches with hard-coded probabilities, not model output. They must never
 appear in a slide, a table or the report. Every reported number has to come from
 a trained model evaluated on RAGTruth.
 
-Planned replacement sequence, enabled by the shared schema:
-    1. StubDetector        - placeholder scores, lets the frontend be built
-    2. LettuceDetectAdapter - real probabilities from the public
-                             KRLabsOrg/lettucedect-large-modernbert-en-v1 checkpoint
-    3. C1Detector          - our own fine-tuned ModernBERT
+Replacement sequence, enabled by the shared schema:
+    1. StubDetector           - placeholder scores, lets the frontend be built
+    2. LettuceDetectDetector  - DONE. Real probabilities from the public
+                                KRLabsOrg/lettucedect-large-modernbert-en-v1
+                                checkpoint, wrapped in the C2 calibration and
+                                conformal layer. See lettucedetect_detector.py.
+    3. C1Detector             - our own fine-tuned ModernBERT, once Kaggle
+                                training finishes. Same file, different model id
+                                and artifact path.
 
 Nothing upstream of analyze() changes across those three steps.
+
+Which one serves is decided by the TRUSTRAG_DETECTOR environment variable and
+resolved in get_detector(). The stub is the default so that the test suite and a
+plain `uvicorn` start never trigger a 1.6GB model download.
 """
 
 from __future__ import annotations
@@ -159,9 +167,36 @@ class StubDetector:
         return merged
 
 
-# Module-level singleton the API depends on.
-_detector: Detector = StubDetector()
+# Module-level singleton the API depends on. Resolved once, lazily, so importing
+# this module never loads a model.
+_detector: Detector | None = None
 
 
 def get_detector() -> Detector:
+    """The detector this process serves.
+
+    Falls back to the stub, loudly, if the configured real detector cannot be
+    built. A demo that quietly serves placeholder scores while the health badge
+    claims otherwise is the worst possible failure mode for this project, so the
+    fallback prints and `model_version` still says "stub-v0".
+    """
+    global _detector
+    if _detector is not None:
+        return _detector
+
+    try:
+        from backend.app.services.lettucedetect_detector import build_from_env
+
+        configured = build_from_env()
+    except Exception as exc:  # noqa: BLE001 - never let config kill the server
+        print(f"real detector could not be configured ({exc}); serving the stub")
+        configured = None
+
+    _detector = configured or StubDetector()
     return _detector
+
+
+def set_detector(detector: Detector) -> None:
+    """Override the singleton. For tests and for a future admin endpoint."""
+    global _detector
+    _detector = detector

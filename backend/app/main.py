@@ -32,7 +32,9 @@ app = FastAPI(
     title="TrustRAG API",
     description=(
         "Span-level calibrated hallucination detection for RAG. "
-        "Currently backed by a placeholder detector; scores are not model output."
+        "Which detector serves is set by TRUSTRAG_DETECTOR; unset means the "
+        "placeholder, whose scores are NOT model output. Check "
+        "/api/health -- detector_loaded is false whenever the stub is serving."
     ),
     version="0.1.0",
 )
