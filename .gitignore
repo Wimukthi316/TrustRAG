@@ -39,6 +39,8 @@ wandb/
 results/**/*.npy
 results/**/*.pkl
 results/**/predictions*.json
+results/**/*.log
+results/**/best/
 
 # --- figures are regenerated; keep only final ones under paper/ ---
 results/**/*.png
