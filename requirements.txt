@@ -1,0 +1,45 @@
+# TrustRAG - Python 3.11
+#
+# TORCH NOTE: this file does NOT pin a CUDA build. `pip install torch` from PyPI
+# gives you whatever the default wheel is for your platform, which may be CPU-only.
+# Wimukthi has an RTX 3050 (6GB), so for local GPU work install torch separately
+# from the official selector at https://pytorch.org/get-started/locally/ and
+# verify with: python -c "import torch; print(torch.cuda.is_available())"
+# On Kaggle, torch is preinstalled -- do not reinstall it there.
+
+# --- core ML ---
+torch>=2.4
+transformers>=4.48
+datasets>=3.0
+accelerate>=1.0
+evaluate>=0.4
+seqeval>=1.2.2
+sentencepiece>=0.2
+safetensors>=0.4
+
+# --- C2: calibration + conformal ---
+scikit-learn>=1.5
+netcal>=1.3
+torchmetrics>=1.4
+numpy>=1.26
+scipy>=1.13
+pandas>=2.2
+
+# --- plots / results ---
+matplotlib>=3.9
+
+# --- backend ---
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pydantic>=2.9
+python-multipart>=0.0.12
+
+# --- tracking / env ---
+wandb>=0.18
+python-dotenv>=1.0
+huggingface-hub>=0.26
+
+# --- dev ---
+pytest>=8.3
+ruff>=0.7
+httpx>=0.27

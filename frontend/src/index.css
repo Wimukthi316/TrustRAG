@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+@theme {
+  --color-flag: oklch(0.62 0.21 25);
+  --color-abstain: oklch(0.75 0.15 75);
+  --color-pass: oklch(0.65 0.15 155);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}

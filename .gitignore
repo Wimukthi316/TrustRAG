@@ -1,0 +1,53 @@
+# --- secrets ---
+.env
+.env.local
+*.key
+
+# --- python ---
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# --- node ---
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+*.tsbuildinfo
+
+# --- data (never commit; RAGTruth/RAGBench are large and licensed) ---
+data/raw/
+data/processed/
+*.jsonl
+!data/**/.gitkeep
+
+# --- model artefacts ---
+checkpoints/
+*.pt
+*.bin
+*.safetensors
+wandb/
+
+# --- results: keep small JSON metrics, drop heavy dumps ---
+results/**/*.npy
+results/**/*.pkl
+results/**/predictions*.json
+
+# --- figures are regenerated; keep only final ones under paper/ ---
+results/**/*.png
+
+# --- editor / os ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- setup logs ---
+_*.log
