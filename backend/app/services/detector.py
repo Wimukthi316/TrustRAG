@@ -3,17 +3,18 @@
 Right now this is a STUB. It produces structurally valid AnalysisResult objects
 so the React frontend can be built and demoed before C1 exists.
 
-⚠️  THE NUMBERS THIS FILE PRODUCES ARE FAKE. They are deterministic keyword
-matches with hard-coded probabilities. Never put them in a slide, a table or the
-report. Every real number must come from a trained model evaluated on RAGTruth.
+WARNING: the scores this file produces are placeholders. They are deterministic
+keyword matches with hard-coded probabilities, not model output. They must never
+appear in a slide, a table or the report. Every reported number has to come from
+a trained model evaluated on RAGTruth.
 
-Swap plan (this is the whole point of the JSON contract):
-    Step 1 (now)      -> StubDetector, fake scores, frontend gets built
-    Step 2 (~Aug 13)  -> LettuceDetectAdapter, real probs from the public
-                         KRLabsOrg/lettucedect-large-modernbert-en-v1 checkpoint
-    Step 3 (~Aug 14)  -> C1Detector, our own fine-tuned ModernBERT
+Planned replacement sequence, enabled by the shared schema:
+    1. StubDetector        - placeholder scores, lets the frontend be built
+    2. LettuceDetectAdapter - real probabilities from the public
+                             KRLabsOrg/lettucedect-large-modernbert-en-v1 checkpoint
+    3. C1Detector          - our own fine-tuned ModernBERT
 
-Nothing upstream of `analyze()` changes across those three steps.
+Nothing upstream of analyze() changes across those three steps.
 """
 
 from __future__ import annotations
@@ -116,10 +117,10 @@ class StubDetector:
     def _decide(score: float, alpha: float) -> ConformalDecision:
         """Placeholder decision rule.
 
-        ⚠️  THIS IS NOT CONFORMAL PREDICTION. Real C2 derives the threshold as
-        the ceil((n+1)(1-alpha))/n empirical quantile of non-conformity scores
-        on a held-out calibration split. This is two magic numbers. It will be
-        replaced wholesale by src/c2_calibration/conformal.py.
+        This is NOT conformal prediction. Real C2 derives the threshold as the
+        ceil((n+1)(1-alpha))/n empirical quantile of non-conformity scores on a
+        held-out calibration split. What follows is two magic numbers, and will
+        be replaced wholesale by src/c2_calibration/conformal.py.
         """
         upper = 1.0 - alpha / 2
         lower = 0.5

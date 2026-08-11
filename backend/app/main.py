@@ -32,7 +32,7 @@ app = FastAPI(
     title="TrustRAG API",
     description=(
         "Span-level calibrated hallucination detection for RAG. "
-        "⚠️ Currently backed by a STUB detector -- scores are fake."
+        "Currently backed by a placeholder detector; scores are not model output."
     ),
     version="0.1.0",
 )

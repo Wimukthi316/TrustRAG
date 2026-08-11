@@ -51,3 +51,7 @@ Thumbs.db
 
 # --- setup logs ---
 _*.log
+
+# --- personal working notes, kept outside version control ---
+notes/
+CLAUDE.md

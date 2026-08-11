@@ -145,7 +145,7 @@ function SpanDetail({ span, result }: { span: Span; result: AnalysisResult }) {
       )}
       {result.model_version === "stub-v0" && (
         <p className="mt-3 rounded bg-amber-100 px-2 py-1 text-xs text-amber-900">
-          ⚠️ Stub detector — these numbers are placeholders, not model output.
+          Placeholder detector — these numbers are not model output.
         </p>
       )}
     </div>

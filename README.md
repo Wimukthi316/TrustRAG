@@ -2,7 +2,7 @@
 
 **Span-Level Calibrated Hallucination Detection for Retrieval-Augmented Generation**
 
-SLIIT IT4010 Research Project (CDAP) · Wimukthi (IT22244970) · Supervisor: Mr. Samadhi Rathnayaka · CoEAI
+SLIIT IT4010 Research Project (CDAP) · Wimukthi Gunarathna (IT22244970) · Supervisor: Mr. Samadhi Rathnayaka · CoEAI
 
 RAG systems hallucinate — RAGTruth reports 43.1% of responses from six leading
 LLMs contained hallucinated content even with relevant context supplied. Existing
@@ -15,28 +15,40 @@ TrustRAG attaches to any RAG pipeline and returns, per span: where the
 hallucination is, a calibrated confidence, and a conformal decision
 (flag / abstain / pass) carrying a distribution-free coverage guarantee.
 
-> ⚠️ **Current state: scaffold only.** The backend runs a `StubDetector` whose
-> scores are keyword-matching placeholders. No model has been trained. No number
-> produced by this repo today is real. See `notes/STATUS.md`.
+> **Current state: scaffold.** The backend runs a placeholder detector whose
+> scores are keyword-matching heuristics. No model has been trained yet, so no
+> number produced by this repository is a real result.
 
 ## Components
 
 | | What | Status |
 |---|---|---|
-| **C1** | Span-level hallucination detector (ModernBERT token classification) | in scope |
-| **C2** | Calibration + conformal abstention — **the novelty** | in scope |
-| C3 | Error taxonomy, explanation, bounded agent | deferred |
-| C4 | Retrieval-attribution alignment | deferred |
+| **C1** | Span-level hallucination detector (ModernBERT token classification) | in progress |
+| **C2** | Calibration + conformal abstention | in progress |
+| C3 | Error taxonomy, explanation, bounded verification agent | planned |
+| C4 | Retrieval-attribution alignment | planned |
 
-## Quick start
+## Requirements
 
-Requires Python 3.11 and Node 20+ (Node 24 LTS installed).
+- Python 3.11
+- Node.js 20 or later
+- A CUDA GPU is optional locally; training targets Kaggle (P100 / T4)
+
+## Setup
 
 ```powershell
-# one-time setup
+git clone https://github.com/Wimukthi316/TrustrRAG.git
+cd TrustrRAG
+
 powershell -ExecutionPolicy Bypass -File scripts\setup_env.ps1
 powershell -ExecutionPolicy Bypass -File scripts\setup_frontend.ps1
 
+copy .env.example .env    # then fill in HF_TOKEN and WANDB_API_KEY
+```
+
+## Running
+
+```powershell
 # terminal 1 — API on :8000
 .\.venv\Scripts\python.exe -m uvicorn backend.app.main:app --reload --port 8000
 
@@ -45,51 +57,59 @@ cd frontend
 npm run dev
 ```
 
-Open http://localhost:5173 and click **Load example**. API docs are at
-http://127.0.0.1:8000/docs.
+Open <http://localhost:5173> and click **Load example**.
+Interactive API docs: <http://127.0.0.1:8000/docs>.
+
+## Tests
+
+```powershell
+.\.venv\Scripts\python.exe -m pytest -q
+```
 
 ## Layout
 
 ```
-src/common/schema.py       ⭐ the frozen JSON contract — every component speaks this
+src/common/schema.py       the shared JSON contract — every component speaks this
 src/c1_detector/           preprocessing, training, evaluation
 src/c2_calibration/        temperature scaling, ECE, split conformal
+src/c3_explanation/        error taxonomy and explanation
+src/c4_attribution/        evidence alignment
 backend/app/main.py        FastAPI: /api/health, /api/analyze, /api/example
-backend/app/services/      detector implementations (stub → LettuceDetect → C1)
-frontend/src/types.ts      TypeScript mirror of schema.py — keep them in sync
+backend/app/services/      detector implementations
+frontend/src/types.ts      TypeScript mirror of schema.py — keep in sync
 notebooks/                 thin Kaggle notebooks: clone, install, call src/
-notes/STATUS.md            ⭐ current state, updated every session
-notes/ACCOUNTS.md          the manual signup steps
-CLAUDE.md                  standing context for Claude Code
+eval/                      evaluation entry points
+results/                   metric dumps (gitignored)
+configs/                   training configs
 ```
 
-## The contract
+## The data contract
 
 `src/common/schema.py` defines `Span` and `AnalysisResult`. C1 fills the detection
-fields, C2 fills calibration and conformal fields, C3 and C4 fill theirs if they
-ever ship. Unset fields are `null` and the UI degrades gracefully.
+fields, C2 the calibration and conformal fields, C3 and C4 theirs. Unset fields are
+`null` and the UI degrades gracefully, so components can ship independently.
 
-`frontend/src/types.ts` mirrors it by hand. **Change both in the same commit.**
+`frontend/src/types.ts` mirrors it by hand — **change both in the same commit.**
 
-## Push to GitHub
-
-Create an **empty** private repo named `trustrag` (no README, no .gitignore),
-then:
-
-```powershell
-git remote add origin https://github.com/<your-username>/trustrag.git
-git push -u origin main
-```
+Validators enforce that `answer[start:end] == span.text` and that no span runs past
+the end of the answer, which catches offset-mapping errors early.
 
 ## Data
 
-Neither dataset is committed — `data/` is gitignored.
+Neither dataset is committed; `data/` is gitignored.
 
-- **RAGTruth** (Niu et al., ACL 2024, arXiv:2401.00396, MIT) — span supervision
-- **RAGBench** (arXiv:2407.11005, CC-BY-4.0, `rungalileo/ragbench`) — OOD test only
+- **RAGTruth** — Niu et al., ACL 2024, arXiv:2401.00396, MIT licence. 2,965
+  instances, 17,790 responses, 14,289 human-annotated hallucination spans,
+  450-instance test split, three task types, four error categories. Used for span
+  supervision.
+- **RAGBench** — arXiv:2407.11005, CC-BY-4.0, `rungalileo/ragbench`. Used only as
+  an out-of-distribution test set.
 
 ## Baseline
 
 `KRLabsOrg/lettucedect-large-modernbert-en-v1` — 79.22% example-level F1 as
-reported by its authors. The spelling "lettucedect" is their own typo; copy it
-exactly.
+reported by its authors. Note the model ID is spelled "lettucedect".
+
+## Licence
+
+Academic project. Datasets and pretrained models retain their own licences.
