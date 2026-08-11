@@ -57,3 +57,4 @@ _*.log
 # --- personal working notes, kept outside version control ---
 notes/
 CLAUDE.md
+results/c1/smoke/
