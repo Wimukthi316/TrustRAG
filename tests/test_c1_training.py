@@ -36,10 +36,13 @@ from src.c1_detector.evaluate_c1 import (  # noqa: E402
     evaluate,
     example_metrics,
     prf,
+    probability_summary,
     repair_iob2,
     span_char_metrics,
     span_overlap_metrics,
     spans_from_tag_ids,
+    spans_from_token_mask,
+    threshold_sweep,
     token_metrics,
 )
 from src.c1_detector.train_c1 import deep_merge, get_metric, load_config  # noqa: E402
@@ -467,6 +470,53 @@ def test_dump_probabilities_labels_spans_and_aggregates(tmp_path):
     assert hit["n_tokens"] == 2
     assert miss["is_hallucinated"] is False
     assert row["gold_spans"] == [{"start": 0, "end": 2, "text": "ab"}]
+
+
+def test_spans_from_token_mask_merges_runs_and_trims_whitespace():
+    answer = "ab cd ef"
+    offsets = [(0, 2), (2, 5), (5, 8)]  # "ab", " cd", " ef"
+    assert spans_from_token_mask([True, True, False], offsets, answer) == [(0, 5)]
+    assert spans_from_token_mask([False, True, False], offsets, answer) == [(3, 5)]
+    assert spans_from_token_mask([False, False, False], offsets, answer) == []
+
+
+def test_probability_summary_separates_gold_positive_from_negative():
+    predictions = [
+        {
+            "gold_ids": [OUTSIDE, B_HAL, I_HAL, OUTSIDE],
+            "token_probs": [0.1, 0.9, 0.7, 0.3],
+        }
+    ]
+    summary = probability_summary(predictions)
+    assert summary["n_tokens"] == 4
+    assert summary["n_gold_positive"] == 2
+    assert summary["mean_on_gold_positive"] == pytest.approx(0.8)
+    assert summary["mean_on_gold_negative"] == pytest.approx(0.2)
+    assert summary["max"] == pytest.approx(0.9)
+
+
+def test_threshold_sweep_finds_spans_argmax_would_miss():
+    """The case the smoke run hit: every probability under 0.5, so argmax predicts
+    nothing, but the model has still separated the classes."""
+    answer = "abcdef"
+    predictions = [
+        {
+            "answer": answer,
+            "gold_spans": [(0, 3)],
+            "pred_spans": [],  # what argmax produced
+            "gold_ids": [B_HAL, I_HAL, I_HAL, OUTSIDE, OUTSIDE, OUTSIDE],
+            "token_probs": [0.4, 0.45, 0.42, 0.02, 0.01, 0.03],
+            "answer_offsets": [(i, i + 1) for i in range(6)],
+        }
+    ]
+    rows = {row["threshold"]: row for row in threshold_sweep(predictions)}
+    assert rows[0.5]["n_pred_spans"] == 0
+    assert rows[0.3]["n_pred_spans"] == 1
+    assert rows[0.3]["example"]["f1"] == pytest.approx(1.0)
+
+    # Lowering the cutoff can never predict fewer spans than raising it.
+    counts = [row["n_pred_spans"] for row in threshold_sweep(predictions)]
+    assert counts == sorted(counts, reverse=True)
 
 
 # --------------------------------------------------------------------------

@@ -432,6 +432,141 @@ def format_report(metrics: Dict[str, Any]) -> str:
 
 
 # --------------------------------------------------------------------------
+# Diagnostics: what the model actually believes
+# --------------------------------------------------------------------------
+
+
+def _trim_to_text(answer: str, start: int, end: int) -> Optional[Span]:
+    """Shrink a span past leading and trailing whitespace. None if nothing is left."""
+    while start < end and answer[start].isspace():
+        start += 1
+    while end > start and answer[end - 1].isspace():
+        end -= 1
+    return (start, end) if end > start else None
+
+
+def spans_from_token_mask(
+    mask: Sequence[bool], offsets: Sequence[Tuple[int, int]], answer: str
+) -> List[Span]:
+    """Merge runs of hallucinated tokens into trimmed character spans.
+
+    The threshold-sweep equivalent of bio_to_char_spans: it works from a
+    per-token boolean rather than from BIO ids, so two adjacent spans merge into
+    one. That is a real limitation of any threshold view and the reason the
+    model is trained with BIO in the first place.
+    """
+    spans: List[Span] = []
+    current: Optional[List[int]] = None
+    for flag, (start, end) in zip(mask, offsets):
+        if flag:
+            if current is None:
+                current = [start, end]
+            else:
+                current[1] = end
+        elif current is not None:
+            spans.append((current[0], current[1]))
+            current = None
+    if current is not None:
+        spans.append((current[0], current[1]))
+    return [t for t in (_trim_to_text(answer, s, e) for s, e in spans) if t is not None]
+
+
+def _quantile(sorted_values: Sequence[float], q: float) -> float:
+    if not sorted_values:
+        return 0.0
+    index = min(len(sorted_values) - 1, max(0, int(round(q * (len(sorted_values) - 1)))))
+    return sorted_values[index]
+
+
+def probability_summary(predictions: Sequence[Dict[str, Any]]) -> Dict[str, float]:
+    """Distribution of P(hallucinated) over answer tokens, gold-positive vs gold-negative.
+
+    This is what tells a degenerate run apart from an undertrained one. A model
+    that predicts no spans at argmax may still separate the two classes -- its
+    scores are simply all below 0.5. A model whose positive and negative means
+    are identical has learned nothing, and no threshold will rescue it.
+    """
+    positive: List[float] = []
+    negative: List[float] = []
+    for item in predictions:
+        for gold, prob in zip(item["gold_ids"], item["token_probs"]):
+            if gold == IGNORE_INDEX:
+                continue
+            (positive if gold in (B_HAL, I_HAL) else negative).append(prob)
+
+    every = sorted(positive + negative)
+    return {
+        "n_tokens": len(every),
+        "n_gold_positive": len(positive),
+        "mean": sum(every) / len(every) if every else 0.0,
+        "p50": _quantile(every, 0.50),
+        "p95": _quantile(every, 0.95),
+        "p99": _quantile(every, 0.99),
+        "max": every[-1] if every else 0.0,
+        "mean_on_gold_positive": sum(positive) / len(positive) if positive else 0.0,
+        "mean_on_gold_negative": sum(negative) / len(negative) if negative else 0.0,
+    }
+
+
+def threshold_sweep(
+    predictions: Sequence[Dict[str, Any]],
+    thresholds: Sequence[float] = (0.1, 0.2, 0.3, 0.5, 0.7, 0.9),
+) -> List[Dict[str, Any]]:
+    """Re-decode spans at each P(hallucinated) cutoff and score them.
+
+    Costs nothing extra -- the probabilities are already in hand, so this is
+    arithmetic, not another forward pass. Two uses: it proves the span decoder
+    works even when argmax predicts nothing, and it is the operating-point sweep
+    C2 needs before it can choose one.
+    """
+    rows: List[Dict[str, Any]] = []
+    for threshold in thresholds:
+        rescored = []
+        for item in predictions:
+            mask = [p >= threshold for p in item["token_probs"]]
+            rescored.append(
+                {
+                    "gold_spans": item["gold_spans"],
+                    "pred_spans": spans_from_token_mask(
+                        mask, item["answer_offsets"], item["answer"]
+                    ),
+                }
+            )
+        rows.append(
+            {
+                "threshold": threshold,
+                "n_pred_spans": sum(len(r["pred_spans"]) for r in rescored),
+                "example": example_metrics(rescored),
+                "span_overlap": span_overlap_metrics(rescored),
+            }
+        )
+    return rows
+
+
+def format_diagnostics(predictions: Sequence[Dict[str, Any]]) -> str:
+    """Probability distribution plus a threshold sweep, as printable text."""
+    summary = probability_summary(predictions)
+    lines = [
+        "--- P(hallucinated) over answer tokens ---",
+        f"  tokens {summary['n_tokens']:,} of which gold-positive "
+        f"{summary['n_gold_positive']:,}",
+        f"  mean {summary['mean']:.4f}  p50 {summary['p50']:.4f}  "
+        f"p95 {summary['p95']:.4f}  p99 {summary['p99']:.4f}  "
+        f"max {summary['max']:.4f}",
+        f"  mean on gold-positive tokens {summary['mean_on_gold_positive']:.4f}  "
+        f"vs gold-negative {summary['mean_on_gold_negative']:.4f}",
+        "--- threshold sweep (span decode, not argmax) ---",
+        "  thresh   pred spans   example F1   overlap F1",
+    ]
+    for row in threshold_sweep(predictions):
+        lines.append(
+            f"  {row['threshold']:<8.2f} {row['n_pred_spans']:>10,} "
+            f"{row['example']['f1']:>12.4f} {row['span_overlap']['f1']:>12.4f}"
+        )
+    return "\n".join(lines)
+
+
+# --------------------------------------------------------------------------
 # Probability dump for C2
 # --------------------------------------------------------------------------
 

@@ -57,8 +57,18 @@ if ($exit -ne 0) {
 
 Write-Host "`n== smoke test passed ==" -ForegroundColor Green
 Write-Host "The F1 numbers above are meaningless -- 500 examples, one epoch." -ForegroundColor Yellow
-Write-Host "What matters is that the loss moved, all three tasks appeared in the" -ForegroundColor Yellow
-Write-Host "per-task breakdown, and 'answers truncated' was 0." -ForegroundColor Yellow
+Write-Host "What matters:" -ForegroundColor Yellow
+Write-Host "  - the loss moved" -ForegroundColor Yellow
+Write-Host "  - all three tasks appeared in the per-task breakdown" -ForegroundColor Yellow
+Write-Host "  - 'answers truncated' was 0" -ForegroundColor Yellow
+Write-Host "  - in the diagnostics block, mean P(hal) on gold-POSITIVE tokens is" -ForegroundColor Yellow
+Write-Host "    clearly higher than on gold-negative ones" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "'pred spans 0' at argmax is EXPECTED here and is not a failure. On 400" -ForegroundColor Yellow
+Write-Host "training examples the model collapses to the majority class, so every" -ForegroundColor Yellow
+Write-Host "probability sits under 0.5. The threshold sweep is what shows whether the" -ForegroundColor Yellow
+Write-Host "span decoder works and whether the two classes separate at all. If the two" -ForegroundColor Yellow
+Write-Host "means in that block are equal, something IS wrong." -ForegroundColor Red
 Write-Host ""
 Write-Host "Next: upload data\processed\*.jsonl as a private Kaggle Dataset, then run"
 Write-Host "notebooks\c1_kaggle_train.ipynb with Save and Run All (Commit)."

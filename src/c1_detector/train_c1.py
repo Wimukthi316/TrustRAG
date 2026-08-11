@@ -47,7 +47,13 @@ from src.c1_detector.dataset import (
     subsample,
     write_split_ids,
 )
-from src.c1_detector.evaluate_c1 import evaluate, format_report, predict
+from src.c1_detector.evaluate_c1 import (
+    evaluate,
+    format_diagnostics,
+    format_report,
+    predict,
+    probability_summary,
+)
 
 # Fast tokenizers warn loudly when used inside forked DataLoader workers. The
 # tokenisation here is per-item and single-threaded anyway, so silence it.
@@ -376,6 +382,13 @@ def train(config: Dict[str, Any], device: torch.device) -> Dict[str, Any]:
         metrics = evaluate(predictions)
         print(format_report(metrics))
 
+        # Argmax can predict nothing at all early in training, which makes every
+        # F1 above 0.0000 and hides whether the model has learned anything. The
+        # probability distribution and the threshold sweep tell those two cases
+        # apart, and cost nothing -- the probabilities are already computed.
+        diagnostics = probability_summary(predictions)
+        print(format_diagnostics(predictions))
+
         score = get_metric(metrics, out_cfg["select_on"])
         history.append(
             {
@@ -384,6 +397,7 @@ def train(config: Dict[str, Any], device: torch.device) -> Dict[str, Any]:
                 "select_on": out_cfg["select_on"],
                 "score": score,
                 "metrics": metrics,
+                "probability_summary": diagnostics,
             }
         )
         _log(
