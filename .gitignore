@@ -58,3 +58,4 @@ _*.log
 notes/
 CLAUDE.md
 results/c1/smoke/
+results/demo_pids.txt

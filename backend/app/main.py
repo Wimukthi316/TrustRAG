@@ -17,6 +17,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from contextlib import asynccontextmanager  # noqa: E402
+
 from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
@@ -28,7 +30,46 @@ from src.common.schema import (  # noqa: E402
     HealthResponse,
 )
 
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    """Warm the detector before accepting traffic.
+
+    The first forward pass costs about 7 seconds on the RTX 3050 -- weights,
+    CUDA context, kernel autotuning -- and every one after it costs about 44 ms.
+    Paying that on startup instead of on the first click is the difference
+    between a demo that feels instant and one the panel thinks is broken.
+
+    Never fatal: a server that refuses to start because warmup failed is worse
+    than a server whose first request is slow.
+    """
+    detector = get_detector()
+    warmup = getattr(detector, "warmup", None)
+    if callable(warmup):
+        try:
+            print(f"warming {detector.model_version} ...", flush=True)
+            # Through the threadpool rather than on the event loop, because
+            # warmup blocks for several seconds and the loop should not.
+            #
+            # Measured, so that nobody repeats the investigation: warmup takes
+            # the first request from about 9,300 ms down to about 350 ms, and
+            # every request after it runs at 41-47 ms on the RTX 3050. A
+            # stubborn ~300 ms remains on the very first request and its cause
+            # is NOT identified. Two hypotheses were tested and both were
+            # wrong: warming more input lengths did not help, and neither did
+            # warming inside this threadpool on the theory that CUDA
+            # initialises per thread. Left as is -- 350 ms once is not worth
+            # more time when the deadline is the binding constraint.
+            from starlette.concurrency import run_in_threadpool
+
+            elapsed = await run_in_threadpool(warmup)
+            print(f"detector warm in {elapsed:.1f}s", flush=True)
+        except Exception as exc:  # noqa: BLE001
+            print(f"warmup failed ({exc}); the first request will be slow")
+    yield
+
+
 app = FastAPI(
+    lifespan=lifespan,
     title="TrustRAG API",
     description=(
         "Span-level calibrated hallucination detection for RAG. "
