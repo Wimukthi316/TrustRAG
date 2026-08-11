@@ -14,7 +14,9 @@
 | JSON contract (`src/common/schema.py`) | ✅ written — **needs team sign-off before it is truly frozen** |
 | FastAPI backend | ✅ boots, stub detector only |
 | React + Vite + Tailwind frontend | ✅ span-highlight UI against the stub |
-| Accounts (Kaggle / HF / W&B / GitHub) | ⬜ not done — **blocking everything** |
+| GitHub repo + push | ✅ https://github.com/Wimukthi316/TrustrRAG.git, branch `main`, commit b013af5 |
+| HF token + W&B key in `.env` | ✅ set (regenerate both when the project ends — they were shared in a chat) |
+| Kaggle account + phone verify | ⬜ **not done — blocking all training** |
 | RAGTruth downloaded | ⬜ not started |
 | Span → BIO preprocessing | ⬜ not started |
 | C1 training launched | ⬜ not started |
@@ -53,3 +55,7 @@ can take time to come through. See `notes/ACCOUNTS.md`.
 - **2026-08-11** — Repo created. Python 3.11 + Node 24 LTS installed. Scaffold,
   JSON contract, FastAPI stub backend and React frontend written. Stack decision
   changed from Streamlit to React + Vite + Tailwind + FastAPI.
+  10 tests pass, vite build passes. Pushed to GitHub (b013af5).
+  `notes/KT_HANDOFF.md` and `notes/PROMPT_FOR_NEW_CHAT.md` written so a fresh
+  chat needs no re-explanation. Torch is still CPU-only — CUDA build not
+  installed yet (optional, local GPU is for smoke tests only).
