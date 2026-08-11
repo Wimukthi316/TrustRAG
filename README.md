@@ -70,7 +70,12 @@ Interactive API docs: <http://127.0.0.1:8000/docs>.
 
 ```
 src/common/schema.py       the shared JSON contract — every component speaks this
-src/c1_detector/           preprocessing, training, evaluation
+src/c1_detector/
+  download_ragtruth.py     fetch response.jsonl and source_info.jsonl into data/raw
+  ragtruth_labels.py       raw dataset strings -> schema.py enums
+  build_examples.py        join the two files, validate offsets, write data/processed
+  bio.py                   character spans <-> BIO token labels
+  inspect_examples.py      print examples for hand-checking the offsets
 src/c2_calibration/        temperature scaling, ECE, split conformal
 src/c3_explanation/        error taxonomy and explanation
 src/c4_attribution/        evidence alignment
@@ -104,6 +109,34 @@ Neither dataset is committed; `data/` is gitignored.
   supervision.
 - **RAGBench** — arXiv:2407.11005, CC-BY-4.0, `rungalileo/ragbench`. Used only as
   an out-of-distribution test set.
+
+### Preparing RAGTruth
+
+```powershell
+.\.venv\Scripts\python.exe -m src.c1_detector.download_ragtruth
+.\.venv\Scripts\python.exe -m src.c1_detector.build_examples
+.\.venv\Scripts\python.exe -m src.c1_detector.inspect_examples --n 10 --with-spans
+```
+
+`build_examples` reproduces the statistics table published in the RAGTruth
+repository (instances, responses, hallucinated responses and spans, per task) and
+prints ours beside theirs. If any bucket disagrees, the join or the label parsing
+is wrong and nothing downstream can be trusted.
+
+It also re-slices every published label out of its own response and reports any
+that do not match, so a shifted offset is a printed error rather than a silently
+mislabelled token.
+
+`inspect_examples` exists for the check no assertion can do: reading the
+hallucinated spans in context and confirming they are actually hallucinations.
+Run it before the first training run.
+
+Verified on 2026-08-11: all 20 cells of the published statistics table reproduce
+exactly, no published label fails to slice out its own text, and 127 overlapping
+labels merge into a neighbour leaving 14,162 non-overlapping spans. With
+ModernBERT-base at `max_length=4096`, the BIO round trip preserves the span count
+on all 7,664 responses that carry spans and decodes 7,595 of them exactly; the
+longest sequence in the corpus is 2,628 tokens, so nothing is truncated.
 
 ## Baseline
 
