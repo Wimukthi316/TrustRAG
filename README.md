@@ -37,8 +37,8 @@ hallucination is, a calibrated confidence, and a conformal decision
 ## Setup
 
 ```powershell
-git clone https://github.com/Wimukthi316/TrustrRAG.git
-cd TrustrRAG
+git clone https://github.com/Wimukthi316/TrustRAG.git
+cd TrustRAG
 
 powershell -ExecutionPolicy Bypass -File scripts\setup_env.ps1
 powershell -ExecutionPolicy Bypass -File scripts\setup_frontend.ps1
