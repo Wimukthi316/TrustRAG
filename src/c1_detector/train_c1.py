@@ -148,10 +148,15 @@ def set_seed(seed: int) -> None:
 def resolve_precision(preference: str, device: torch.device) -> str:
     """Pick the autocast dtype.
 
-    bf16 where the hardware has it (Ampere and later, so the RTX 3050 and
-    Kaggle's T4 generation onwards), otherwise fp16. The distinction matters on
-    Kaggle: the P100 is Pascal and has no bf16 at all, so a config that demands
-    bf16 there fails or silently falls back.
+    bf16 only where the silicon actually has it: compute capability 8.0 and
+    above, which is Ampere onwards. That covers the RTX 3050 (sm_86). Kaggle's
+    T4 is sm_75 and its P100 is sm_60, so both get fp16.
+
+    Do NOT use torch.cuda.is_bf16_supported() for this. Since torch 2.6 it
+    reports emulated bf16 as supported, and it was observed returning True on a
+    Kaggle P100 -- a Pascal card with no bf16 hardware at all. Acting on that
+    would select a dtype the GPU emulates in software. Compute capability is the
+    honest test.
 
     fp16 needs a GradScaler because its dynamic range underflows gradients;
     bf16 does not. Both cases are handled below.
@@ -161,7 +166,8 @@ def resolve_precision(preference: str, device: torch.device) -> str:
     if preference != "auto":
         return preference
     try:
-        return "bf16" if torch.cuda.is_bf16_supported() else "fp16"
+        major, _ = torch.cuda.get_device_capability(device)
+        return "bf16" if major >= 8 else "fp16"
     except Exception:
         return "fp16"
 

@@ -45,7 +45,12 @@ from src.c1_detector.evaluate_c1 import (  # noqa: E402
     threshold_sweep,
     token_metrics,
 )
-from src.c1_detector.train_c1 import deep_merge, get_metric, load_config  # noqa: E402
+from src.c1_detector.train_c1 import (  # noqa: E402
+    deep_merge,
+    get_metric,
+    load_config,
+    resolve_precision,
+)
 
 WORD = re.compile(r"\S+")
 
@@ -548,3 +553,31 @@ def test_load_config_rejects_unknown_top_level_keys(tmp_path):
     path.write_text("trian:\n  epochs: 1\n", encoding="utf-8")
     with pytest.raises(ValueError, match="unknown top-level config keys"):
         load_config(path)
+
+
+def test_resolve_precision_picks_bf16_only_on_ampere_and_later(monkeypatch):
+    """A P100 reported bf16 as supported on Kaggle. It is sm_60 and has none.
+
+    torch.cuda.is_bf16_supported() counts software emulation, so the choice has
+    to come from the compute capability instead. sm_60 (P100) and sm_75 (T4) get
+    fp16; sm_86 (the RTX 3050 in this project) gets bf16.
+    """
+    import torch
+
+    device = torch.device("cuda")
+
+    for capability, expected in (((6, 0), "fp16"), ((7, 5), "fp16"), ((8, 6), "bf16")):
+        monkeypatch.setattr(
+            torch.cuda, "get_device_capability", lambda _=None, c=capability: c
+        )
+        monkeypatch.setattr(torch.cuda, "is_bf16_supported", lambda *a, **k: True)
+        assert resolve_precision("auto", device) == expected, capability
+
+
+def test_resolve_precision_honours_an_explicit_preference(monkeypatch):
+    import torch
+
+    monkeypatch.setattr(torch.cuda, "get_device_capability", lambda _=None: (8, 6))
+    assert resolve_precision("fp32", torch.device("cuda")) == "fp32"
+    assert resolve_precision("fp16", torch.device("cuda")) == "fp16"
+    assert resolve_precision("auto", torch.device("cpu")) == "fp32"
