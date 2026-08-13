@@ -471,6 +471,29 @@ def spans_from_token_mask(
     return [t for t in (_trim_to_text(answer, s, e) for s, e in spans) if t is not None]
 
 
+def spans_from_bio_ids(
+    ids: Sequence[int], offsets: Sequence[Tuple[int, int]], answer: str
+) -> List[Span]:
+    """Character spans from per-answer-token BIO ids.
+
+    The decoder used for every reported C1 number: `predict` takes argmax over
+    the three logits and this turns those tags into the character offsets the UI
+    highlights. Unlike `spans_from_token_mask` a B-HAL restarts the span, so two
+    adjacent hallucinations stay two spans.
+
+    Serving imports this rather than reimplementing it. The C2 calibrator and the
+    conformal quantile were fitted on spans produced here, so a server that
+    decoded differently would be applying a calibration fitted on one span
+    population to another one -- no error, wrong guarantee.
+    """
+    decoded: List[Span] = []
+    for start_index, end_index in spans_from_tag_ids(ids):
+        if start_index >= len(offsets) or end_index > len(offsets):
+            continue
+        decoded.append((offsets[start_index][0], offsets[end_index - 1][1]))
+    return [t for t in (_trim_to_text(answer, s, e) for s, e in decoded) if t is not None]
+
+
 def _quantile(sorted_values: Sequence[float], q: float) -> float:
     if not sorted_values:
         return 0.0

@@ -40,7 +40,11 @@ results/**/*.npy
 results/**/*.pkl
 results/**/predictions*.json
 results/**/*.log
+results/**/*.log.err
 results/**/best/
+# One-off diagnostics written while debugging a run. Useful at the time,
+# never part of the record.
+results/_debug_*.py
 
 # --- figures are regenerated; keep only final ones under paper/ ---
 results/**/*.png

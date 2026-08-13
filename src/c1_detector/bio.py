@@ -235,6 +235,23 @@ def assert_round_trip(
 # --------------------------------------------------------------------------
 
 
+def build_first_sequence(question: Optional[str], context: str) -> str:
+    """The first encoder sequence for C1: question, blank line, context.
+
+    Lives here and is imported by the serving code rather than being written out
+    twice. Training reads it through `encode_example`; the API reads it through
+    `backend/app/services/lettucedetect_detector.format_prompt(style="c1")`. If
+    the two ever disagree the model is served inputs it never saw in training,
+    which costs accuracy and raises no error anywhere -- so there is exactly one
+    implementation and a test asserts the server uses it.
+
+    Deliberately has no instruction template. RAGTruth's own `prompt` field and
+    LettuceDetect's templates both add one; ours does not, and that difference is
+    recorded in the report's method section.
+    """
+    return f"{question}\n\n{context}" if question and question.strip() else context
+
+
 def encode_example(
     tokenizer: Any,
     record: Dict[str, Any],
@@ -261,7 +278,7 @@ def encode_example(
         )
 
     answer = record["answer"]
-    first = f"{record['question']}\n\n{record['context']}" if record.get("question") else record["context"]
+    first = build_first_sequence(record.get("question"), record["context"])
 
     encoding = tokenizer(
         first,

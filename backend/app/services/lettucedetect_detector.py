@@ -1,13 +1,20 @@
-"""A real detector for the API: LettuceDetect scores, C2 calibration and conformal.
+"""A real detector for the API: model scores, C2 calibration and conformal.
 
-This is step 2 of the three-step swap described in detector.py. Every number it
-returns comes from a model and from a calibration set, not from a heuristic. The
-one thing it is not is *our* detector -- that arrives when C1 finishes training,
-and the change will be the model id and the artifact path.
+Serves either checkpoint. `TRUSTRAG_DETECTOR=c1` runs our own trained
+ModernBERT-base from `results/c1`; `TRUSTRAG_DETECTOR=lettucedetect` runs the
+public baseline. Every number returned comes from a model and a calibration set,
+not from a heuristic.
+
+The two are not interchangeable at the input, which is the one non-obvious thing
+in this file. C1 was trained on a bare `question\\n\\ncontext` first sequence at
+max_length 3,072; the public checkpoint was trained on its own instruction
+templates at 4,096. Sending either the other's format costs accuracy silently,
+with no error anywhere, so the format is chosen by `prompt_style` and defaulted
+per detector in `build_from_env` rather than left to the caller.
 
 The pipeline for one request:
 
-    1. Format (question, context) into the prompt LettuceDetect expects.
+    1. Format (question, context) into the first sequence this detector expects.
     2. Tokenize (prompt, answer) and take P(hallucinated) per answer token.
     3. Merge runs of tokens above `candidate_threshold` into candidate spans.
     4. Score each candidate by its mean token probability, calibrate it, and let
@@ -85,12 +92,33 @@ QA_TEMPLATE = (
 SUMMARY_TEMPLATE = "Summarize the following text:\n{text}\noutput:"
 
 
-def format_prompt(question: str, context: str, task_type: TaskType) -> str:
-    """Rebuild the prompt LettuceDetect was trained to read.
+def format_prompt(
+    question: str,
+    context: str,
+    task_type: TaskType,
+    style: str = "lettucedetect",
+) -> str:
+    """Rebuild the first sequence the detector was trained to read.
 
-    Summarization and data-to-text have no user question in RAGTruth, so they
-    take the summary template. Anything with a real question takes the QA one.
+    Two styles, because the two checkpoints were trained on different inputs and
+    feeding one the other's format is a silent train/serve mismatch:
+
+    * ``lettucedetect`` -- the public checkpoint's own prompt templates, copied
+      from their repository. Summarization and data-to-text have no user
+      question in RAGTruth, so they take the summary template; anything with a
+      real question takes the QA one.
+    * ``c1`` -- our own detector. `src/c1_detector/bio.py:encode_example` builds
+      the first sequence as ``question + "\\n\\n" + context``, or the context
+      alone when there is no question, with no instruction template at all. That
+      is what every one of C1's 15,090 training records looked like, so it is
+      what the server must send.
     """
+    if style == "c1":
+        from src.c1_detector.bio import build_first_sequence
+
+        return build_first_sequence(question, context)
+    if style != "lettucedetect":
+        raise ValueError(f"unknown prompt style {style!r}; use 'lettucedetect' or 'c1'")
     if task_type in (TaskType.SUMMARIZATION, TaskType.DATA2TEXT) or not question.strip():
         return SUMMARY_TEMPLATE.format(text=context)
     # RAGTruth's QA contexts already arrive with "passage 1:" markers embedded,
@@ -157,10 +185,18 @@ class LettuceDetectDetector:
         device: Optional[str] = None,
         max_length: int = 4096,
         candidate_threshold: float = 0.5,
+        prompt_style: str = "lettucedetect",
+        label: Optional[str] = None,
+        decode: str = "threshold",
     ) -> None:
+        if decode not in ("threshold", "bio_argmax"):
+            raise ValueError(f"unknown decode {decode!r}")
         self.model_id = model_id
         self.max_length = max_length
         self.candidate_threshold = candidate_threshold
+        self.prompt_style = prompt_style
+        self.label = label
+        self.decode = decode
         self.c2 = C2Layer.load(artifact_path) if artifact_path else None
         self._device_preference = device
         self._model = None
@@ -168,8 +204,15 @@ class LettuceDetectDetector:
 
     @property
     def model_version(self) -> str:
+        """What /api/health reports and the UI badge shows.
+
+        `label` exists because a local checkpoint path ends in a directory name
+        like `best`, and "best+c2" tells a demo audience nothing about which
+        model produced the scores on screen.
+        """
         suffix = "+c2" if self.c2 else "+uncalibrated"
-        return f"{self.model_id.split('/')[-1]}{suffix}"
+        stem = self.label or self.model_id.replace("\\", "/").rstrip("/").split("/")[-1]
+        return f"{stem}{suffix}"
 
     def _ensure_loaded(self) -> None:
         """Load on first use, not at import.
@@ -188,10 +231,18 @@ class LettuceDetectDetector:
         )
         self._tokenizer = AutoTokenizer.from_pretrained(self.model_id, use_fast=True)
         model = AutoModelForTokenClassification.from_pretrained(self.model_id)
-        if model.config.num_labels != 2:
+        # The two checkpoints have different heads and the decode has to match:
+        # LettuceDetect is binary (not-hallucinated / hallucinated), C1 is
+        # 3-label BIO (O / B-HAL / I-HAL). Checking here rather than trusting
+        # configuration means a wrong pairing fails at startup with a readable
+        # message instead of producing plausible nonsense.
+        expected = 3 if self.decode == "bio_argmax" else 2
+        if model.config.num_labels != expected:
             raise RuntimeError(
-                f"{self.model_id} has {model.config.num_labels} labels; this "
-                "detector assumes the binary LettuceDetect head"
+                f"{self.model_id} has {model.config.num_labels} labels but "
+                f"decode={self.decode!r} expects {expected}. The binary "
+                "LettuceDetect head needs decode='threshold'; C1's BIO head "
+                "needs decode='bio_argmax'."
             )
         self._model = model.to(device).eval()
         self._device = device
@@ -199,7 +250,28 @@ class LettuceDetectDetector:
     def token_probabilities(
         self, prompt: str, answer: str
     ) -> Tuple[List[float], List[Tuple[int, int]]]:
-        """P(hallucinated) and character offsets for each answer token."""
+        """P(hallucinated) and character offsets for each answer token.
+
+        Collapses whichever head this checkpoint has down to one number, so the
+        rest of the pipeline does not care which model is loaded. Binary:
+        P(label 1). BIO: P(B-HAL) + P(I-HAL), matching `evaluate_c1.predict`
+        exactly -- that sum is the score C2 was calibrated on.
+        """
+        rows, offsets = self.label_probabilities(prompt, answer)
+        if self.decode == "bio_argmax":
+            from src.c1_detector.bio import B_HAL, I_HAL
+
+            return [row[B_HAL] + row[I_HAL] for row in rows], offsets
+        return [row[HALLUCINATED_INDEX] for row in rows], offsets
+
+    def label_probabilities(
+        self, prompt: str, answer: str
+    ) -> Tuple[List[List[float]], List[Tuple[int, int]]]:
+        """The full label distribution per answer token, plus character offsets.
+
+        Kept separate from `token_probabilities` because BIO decoding needs the
+        argmax over all three labels, which a collapsed score cannot give back.
+        """
         import torch
 
         from src.c1_detector.bio import ANSWER_SEQUENCE_ID
@@ -227,7 +299,7 @@ class LettuceDetectDetector:
             if sid == ANSWER_SEQUENCE_ID and offsets[i][1] > offsets[i][0]
         ]
         return (
-            [float(probs[i, HALLUCINATED_INDEX]) for i in positions],
+            [[float(v) for v in probs[i]] for i in positions],
             [tuple(offsets[i]) for i in positions],
         )
 
@@ -271,15 +343,47 @@ class LettuceDetectDetector:
             )
         return time.perf_counter() - started
 
-    def analyze(self, req: AnalyzeRequest) -> AnalysisResult:
-        from src.c1_detector.evaluate_c1 import spans_from_token_mask
+    def candidate_spans(
+        self, prompt: str, answer: str
+    ) -> Tuple[List[Tuple[int, int]], List[float], List[Tuple[int, int]]]:
+        """Propose spans, and return the token scores and offsets behind them.
 
-        started = time.perf_counter()
-        prompt = format_prompt(req.question, req.context, req.task_type)
-        token_probs, offsets = self.token_probabilities(prompt, req.answer)
+        Two decoders, one per head, and the choice is not cosmetic: C2's
+        calibrator and conformal quantile were fitted on the spans the offline
+        evaluation produced, so serving has to produce the same population.
 
+        bio_argmax  argmax over O / B-HAL / I-HAL, decoded by
+                    `evaluate_c1.spans_from_bio_ids`. This is what every reported
+                    C1 number used, and B-HAL restarts a span so two adjacent
+                    hallucinations stay separate.
+        threshold   runs of tokens with P(hallucinated) >= candidate_threshold.
+                    The binary head has no B/I distinction to exploit, so
+                    adjacent spans merge. That merging is why span-exact F1 sits
+                    far below span-overlap F1 in the baseline numbers.
+        """
+        from src.c1_detector.evaluate_c1 import (
+            spans_from_bio_ids,
+            spans_from_token_mask,
+        )
+
+        if self.decode == "bio_argmax":
+            from src.c1_detector.bio import B_HAL, I_HAL
+
+            rows, offsets = self.label_probabilities(prompt, answer)
+            token_probs = [row[B_HAL] + row[I_HAL] for row in rows]
+            tag_ids = [max(range(len(row)), key=row.__getitem__) for row in rows]
+            return spans_from_bio_ids(tag_ids, offsets, answer), token_probs, offsets
+
+        token_probs, offsets = self.token_probabilities(prompt, answer)
         mask = [p >= self.candidate_threshold for p in token_probs]
-        candidates = spans_from_token_mask(mask, offsets, req.answer)
+        return spans_from_token_mask(mask, offsets, answer), token_probs, offsets
+
+    def analyze(self, req: AnalyzeRequest) -> AnalysisResult:
+        started = time.perf_counter()
+        prompt = format_prompt(
+            req.question, req.context, req.task_type, style=self.prompt_style
+        )
+        candidates, token_probs, offsets = self.candidate_spans(prompt, req.answer)
 
         raw_scores: List[float] = []
         covered_probs: List[List[float]] = []
@@ -337,30 +441,72 @@ class LettuceDetectDetector:
 def build_from_env() -> Optional[LettuceDetectDetector]:
     """Construct from environment, or return None to leave the stub in place.
 
-        TRUSTRAG_DETECTOR       "lettucedetect" to switch on; anything else keeps the stub
+        TRUSTRAG_DETECTOR       "c1" for our own trained detector, "lettucedetect"
+                                for the public baseline checkpoint. Anything else,
+                                including unset, keeps the stub.
         TRUSTRAG_C2_ARTIFACT    path to c2_artifact.json
-        TRUSTRAG_MODEL_ID       override the checkpoint
+        TRUSTRAG_MODEL_ID       override the checkpoint (required for "c1", which
+                                lives on disk and has no hub id)
         TRUSTRAG_DEVICE         cuda / cpu
         TRUSTRAG_CANDIDATE_THRESHOLD
+        TRUSTRAG_PROMPT_STYLE   override the input format; normally left to the
+                                detector default, which is the one it trained on
+        TRUSTRAG_MAX_LENGTH
+        TRUSTRAG_MODEL_LABEL    what /api/health calls the model
+
+    The two detectors carry different defaults because they were trained on
+    different inputs and at different lengths, and getting either wrong is a
+    train/serve mismatch that shows up as quietly worse scores rather than as an
+    error. C1 trained at max_length 3,072 on a bare question/context pair; the
+    public checkpoint trained at 4,096 on its own instruction templates.
 
     Defaulting to off is deliberate: the test suite and a plain `uvicorn` start
     must not trigger a 1.6GB download.
     """
-    if os.environ.get("TRUSTRAG_DETECTOR", "").lower() != "lettucedetect":
+    choice = os.environ.get("TRUSTRAG_DETECTOR", "").lower()
+    if choice == "c1":
+        defaults = {
+            "prompt_style": "c1",
+            "max_length": 3072,
+            "label": "trustrag-c1",
+            "decode": "bio_argmax",
+        }
+    elif choice == "lettucedetect":
+        defaults = {
+            "prompt_style": "lettucedetect",
+            "max_length": 4096,
+            "label": None,
+            "decode": "threshold",
+        }
+    else:
         return None
 
     artifact = os.environ.get("TRUSTRAG_C2_ARTIFACT")
     if artifact and not Path(artifact).exists():
         raise SystemExit(
             f"TRUSTRAG_C2_ARTIFACT points at {artifact}, which does not exist. "
-            "Run scripts\\run_lettucedetect_baseline.ps1 to produce it."
+            "Run scripts\\run_lettucedetect_baseline.ps1 for the baseline, or "
+            "src.c2_calibration.run_c2 against results/c1 for our own detector."
+        )
+
+    model_id = os.environ.get("TRUSTRAG_MODEL_ID", DEFAULT_MODEL_ID)
+    if choice == "c1" and model_id == DEFAULT_MODEL_ID:
+        raise SystemExit(
+            "TRUSTRAG_DETECTOR=c1 needs TRUSTRAG_MODEL_ID pointing at the local "
+            "checkpoint, e.g. results\\c1\\modernbert-base\\best"
         )
 
     return LettuceDetectDetector(
-        model_id=os.environ.get("TRUSTRAG_MODEL_ID", DEFAULT_MODEL_ID),
+        model_id=model_id,
         artifact_path=artifact,
         device=os.environ.get("TRUSTRAG_DEVICE") or None,
         candidate_threshold=float(
             os.environ.get("TRUSTRAG_CANDIDATE_THRESHOLD", "0.5")
         ),
+        prompt_style=os.environ.get("TRUSTRAG_PROMPT_STYLE") or defaults["prompt_style"],
+        max_length=int(
+            os.environ.get("TRUSTRAG_MAX_LENGTH") or defaults["max_length"]
+        ),
+        label=os.environ.get("TRUSTRAG_MODEL_LABEL") or defaults["label"],
+        decode=defaults["decode"],
     )
