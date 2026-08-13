@@ -58,4 +58,5 @@ _*.log
 notes/
 CLAUDE.md
 results/c1/smoke/
+results/**/kaggle-smoke/
 results/demo_pids.txt
