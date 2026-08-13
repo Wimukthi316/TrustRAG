@@ -1,0 +1,1099 @@
+[
+  {
+    "id": "730",
+    "task": "summarization",
+    "n_flag": 0,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 307,
+    "context_chars": 1062,
+    "frac_marked": 0.068,
+    "frac_gold": 0.072,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Sure! Here's the summary within 42 words:\n\nA nuclear submarine at a Russian shipyard caught fire during repairs, but there's no danger of radiation or explosion as there's no ammunition or fissile materials on board. The fire started during welding work and has been extinguished, with no injuries reported.",
+    "pred": [
+      [
+        258,
+        279,
+        "has been extinguished",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        258,
+        280
+      ]
+    ]
+  },
+  {
+    "id": "854",
+    "task": "summarization",
+    "n_flag": 0,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 225,
+    "context_chars": 1135,
+    "frac_marked": 0.08,
+    "frac_gold": 0.342,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "A Lamborghini crashed into a guardrail during an Exotic Driving Experience at Walt Disney World Speedway, killing one person and injuring another. The operation, run by Petty Holdings, has been suspended until further notice.",
+    "pred": [
+      [
+        185,
+        203,
+        "has been suspended",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        147,
+        224
+      ]
+    ]
+  },
+  {
+    "id": "881",
+    "task": "summarization",
+    "n_flag": 0,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 316,
+    "context_chars": 1080,
+    "frac_marked": 0.111,
+    "frac_gold": 0.108,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Gastrointestinal illness has affected 100 people on the cruise ship Celebrity Infinity, according to the CDC. Symptoms include vomiting and diarrhea. The cause is unknown and two CDC staffers will meet the ship in San Diego on Monday. This is the third outbreak on the ship, which has a history of sanitation issues.",
+    "pred": [
+      [
+        281,
+        316,
+        "has a history of sanitation issues.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        281,
+        315
+      ]
+    ]
+  },
+  {
+    "id": "962",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 471,
+    "context_chars": 1591,
+    "frac_marked": 0.163,
+    "frac_gold": 0.2,
+    "n_pred": 1,
+    "n_gold": 2,
+    "answer": "Since August 2014, more than 25,000 people have fought Ebola infections, with over 10,000 fatalities. Over 15,000 survivors are experiencing ongoing physical and emotional trauma. Although the intensity of the outbreak has decreased, dozens of new cases are reported each week. The mixed results from efforts to stop the spread of Ebola have led to concerns about the possibility of future outbreaks. The impact of Ebola has revealed flaws in healthcare systems globally.",
+    "pred": [
+      [
+        102,
+        179,
+        "Over 15,000 survivors are experiencing ongoing physical and emotional trauma.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        0,
+        17
+      ],
+      [
+        102,
+        179
+      ]
+    ]
+  },
+  {
+    "id": "2171",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 363,
+    "context_chars": 1797,
+    "frac_marked": 0.209,
+    "frac_gold": 0.209,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Renowned physicist Stephen Hawking has collaborated with Monty Python on a new version of their classic song \"Galaxy Song\" to celebrate Record Store Day. The song, which features Hawking's signature computerized voice, includes a humorous skit and a psychedelic trip through the cosmos. Proceeds from the 7-inch single will benefit the Stephen Hawking Foundation.",
+    "pred": [
+      [
+        287,
+        363,
+        "Proceeds from the 7-inch single will benefit the Stephen Hawking Foundation.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        287,
+        363
+      ]
+    ]
+  },
+  {
+    "id": "2246",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 266,
+    "context_chars": 993,
+    "frac_marked": 0.12,
+    "frac_gold": 0.105,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Israeli military conducts airstrikes in Golan Heights against four militants who attempted to plant a bomb on the Israeli border. Three of the militants are killed, but no Israeli soldiers are hurt. The Golan is considered occupied territory despite Israeli control.",
+    "pred": [
+      [
+        165,
+        197,
+        "but no Israeli soldiers are hurt",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        169,
+        197
+      ]
+    ]
+  },
+  {
+    "id": "3915",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 452,
+    "context_chars": 2166,
+    "frac_marked": 0.186,
+    "frac_gold": 0.148,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Here is a summary of the news in 89 words:\n\nU.S. troops from two Texas bases, Fort Cavazos in Killeen and Fort Bliss in El Paso, are deploying to the Middle East to protect against drone and rocket attacks. Nearly 100 soldiers from Fort Bliss will staff a Terminal High Altitude Area Defense (THAAD) System, while the rest will join air defense headquarters elements. The 900 soldiers are part of a larger deployment of 2,000 U.S. troops to the region.",
+    "pred": [
+      [
+        368,
+        452,
+        "The 900 soldiers are part of a larger deployment of 2,000 U.S. troops to the region.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        385,
+        452
+      ]
+    ]
+  },
+  {
+    "id": "4018",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 453,
+    "context_chars": 1937,
+    "frac_marked": 0.166,
+    "frac_gold": 0.21,
+    "n_pred": 2,
+    "n_gold": 1,
+    "answer": "Here is a summary of the news in 79 words:\n\nNew York House Republicans have moved to expel Rep. George Santos from Congress due to new criminal charges and allegations of misconduct. The motion follows previous accusations of fabricated resume details. If successful, Santos would be the first member of Congress to be expelled since the Civil War. However, his party's tight majority and potential need for Republican support may save him from removal.",
+    "pred": [
+      [
+        268,
+        283,
+        "Santos would be",
+        "abstain"
+      ],
+      [
+        288,
+        348,
+        "first member of Congress to be expelled since the Civil War.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        253,
+        348
+      ]
+    ]
+  },
+  {
+    "id": "4065",
+    "task": "summarization",
+    "n_flag": 0,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 439,
+    "context_chars": 2558,
+    "frac_marked": 0.148,
+    "frac_gold": 0.169,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "The Miami Dolphins are considering trading for Washington Commanders defensive end Chase Young to bolster their struggling defensive line. Young has 5 sacks this season, while the Dolphins' current starting defensive ends have combined for only 7.5 sacks. Trading for Young would provide an immediate upgrade and give them more flexibility in extending his contract. However, it would also add to the team's already strained cap situation.",
+    "pred": [
+      [
+        190,
+        255,
+        "current starting defensive ends have combined for only 7.5 sacks.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        180,
+        254
+      ]
+    ]
+  },
+  {
+    "id": "4211",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 421,
+    "context_chars": 1994,
+    "frac_marked": 0.078,
+    "frac_gold": 0.302,
+    "n_pred": 2,
+    "n_gold": 1,
+    "answer": "The US Citizenship and Immigration Services (USCIS) will continue processing work permits for migrants even if the federal government shuts down. The agency has taken steps to expedite the process, including offering education sessions, issuing alerts, and providing mobile biometric services. However, additional funding from Congress is needed to process more applications and reduce the current 30-day processing time.",
+    "pred": [
+      [
+        386,
+        400,
+        "the current 30",
+        "abstain"
+      ],
+      [
+        401,
+        420,
+        "day processing time",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        294,
+        421
+      ]
+    ]
+  },
+  {
+    "id": "4574",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 566,
+    "context_chars": 2038,
+    "frac_marked": 0.136,
+    "frac_gold": 0.237,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Governor Abbott has condemned the recent attack on Israel and increased security measures in Texas to protect Jewish communities. He has also restricted Texas agencies from purchasing or exporting goods to the Gaza Strip with ties to Hamas. Additionally, Governor Abbott provided $4 million in grant funding to 31 Jewish organizations to increase their security and ordered the Texas flag to fly at half-staff in support of Israel. The U.S. should continue to provide diplomatic and military support to Israel to help them defend themselves and protect their rights.",
+    "pred": [
+      [
+        432,
+        509,
+        "The U.S. should continue to provide diplomatic and military support to Israel",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        432,
+        566
+      ]
+    ]
+  },
+  {
+    "id": "4779",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 592,
+    "context_chars": 3025,
+    "frac_marked": 0.088,
+    "frac_gold": 0.076,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Sure! Here's a summary of the article in 105 words or less:\n\nCalifornia Gov. Gavin Newsom is traveling to China next week to promote climate action and economic partnerships. He'll visit five cities, including Hong Kong, Guangdong, Beijing, Jiangsu, and Shanghai, where he'll meet with regional leaders, businesses, and stakeholders. The trip aims to build on California's existing partnership with China, which is the state's largest trading partner. Newsom will emphasize the importance of climate action and low-carbon economies, and he'll highlight California's experience in these areas.",
+    "pred": [
+      [
+        399,
+        451,
+        "China, which is the state's largest trading partner.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        406,
+        451
+      ]
+    ]
+  },
+  {
+    "id": "5084",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 359,
+    "context_chars": 1707,
+    "frac_marked": 0.181,
+    "frac_gold": 0.181,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "On October 20th and 21st, 2023, there were reports of surprise Northern Lights sightings in the Midwest and Plains due to a weak Coronal Mass Ejection (CME). Despite the weaker nature of this CME, many were able to view the auroras, including in states like Minnesota, Michigan, and Wisconsin. The best viewing times were between midnight and 4 am local time.",
+    "pred": [
+      [
+        294,
+        359,
+        "The best viewing times were between midnight and 4 am local time.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        294,
+        359
+      ]
+    ]
+  },
+  {
+    "id": "5199",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 508,
+    "context_chars": 2584,
+    "frac_marked": 0.069,
+    "frac_gold": 0.069,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Sure! Here's a summary of the article in 109 words:\n\nSavannah Chrisley is in a new relationship with Robert Shiver, whom she met through mutual friends. The two recently went on a double date with her brother Grayson Chrisley and his girlfriend. Savannah is happy and grateful to be in a serious dating situation after her previous breakup. She praised Robert for understanding her commitment to her siblings as their guardian and for having children, which she values as an important aspect of her own life.",
+    "pred": [
+      [
+        116,
+        151,
+        "whom she met through mutual friends",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        116,
+        151
+      ]
+    ]
+  },
+  {
+    "id": "5392",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 562,
+    "context_chars": 1982,
+    "frac_marked": 0.123,
+    "frac_gold": 0.096,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Here is a summary of the news article within 76 words:\n\nA Texas woman was sentenced to over five years in prison for her role in a multi-state bank fraud scheme. Cristina Michelle Husbands stole hundreds of thousands of dollars from banks in six states, using fake IDs and convincing others to let her access their accounts. She claimed to have been coerced into the crimes due to homelessness and drug addiction, but the true masterminds behind the fraud are still unknown. Husbands must pay $481,140 in restitution and faces additional charges in other states.",
+    "pred": [
+      [
+        254,
+        323,
+        "using fake IDs and convincing others to let her access their accounts",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        269,
+        323
+      ]
+    ]
+  },
+  {
+    "id": "5415",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 437,
+    "context_chars": 2246,
+    "frac_marked": 0.284,
+    "frac_gold": 0.284,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Texas Representative Eddie Morales proposed charging migrants $2,000 to enter the country, citing a potential revenue stream of $1.2 billion annually. He believes this could solve the issue of migrants crossing the southern border by creating a workforce agreement between governors in Mexico and Texas. However, critics argue that this plan may not address the root causes of migration and could lead to exploitation of migrant workers.",
+    "pred": [
+      [
+        313,
+        437,
+        "critics argue that this plan may not address the root causes of migration and could lead to exploitation of migrant workers.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        313,
+        437
+      ]
+    ]
+  },
+  {
+    "id": "5417",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 406,
+    "context_chars": 2246,
+    "frac_marked": 0.379,
+    "frac_gold": 0.379,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Texas Representative Eddie Morales proposes charging migrants $2,000 to enter the US, suggesting it could be a win-win for both the country and the migrants. He believes this would help regulate the number of crossings and provide a source of revenue. The idea is met with skepticism, as some argue it would only exacerbate the problem and create further hardship for those seeking to enter the US legally.",
+    "pred": [
+      [
+        252,
+        406,
+        "The idea is met with skepticism, as some argue it would only exacerbate the problem and create further hardship for those seeking to enter the US legally.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        252,
+        406
+      ]
+    ]
+  },
+  {
+    "id": "5564",
+    "task": "summarization",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 480,
+    "context_chars": 2360,
+    "frac_marked": 0.221,
+    "frac_gold": 0.079,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Two popular music superstars, Kelly Clarkson and Lionel Richie, are set to return to Las Vegas for residency shows in 2024. Clarkson's \"Love Story\" concert series is returning to the Bakkt Theater at Planet Hollywood Resort & Casino, while Richie's \"King of Hearts\" residency will continue at the Encore Theater at Wynn Las Vegas. Both shows are anticipated to be highly successful and are expected to add to Las Vegas's reputation as a premier destination for live entertainment.",
+    "pred": [
+      [
+        126,
+        232,
+        "arkson's \"Love Story\" concert series is returning to the Bakkt Theater at Planet Hollywood Resort & Casino",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        124,
+        162
+      ]
+    ]
+  },
+  {
+    "id": "7094",
+    "task": "data2text",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 402,
+    "context_chars": 2520,
+    "frac_marked": 0.104,
+    "frac_gold": 0.087,
+    "n_pred": 2,
+    "n_gold": 2,
+    "answer": "South Coast Deli-Goleta is a deli located in Goleta, California. The business offers a variety of sandwiches, salads, beverages, and chips for takeout. Customers can park on-site in a lot or on the street. The restaurant does not offer reservations and does not have outdoor seating. South Coast Deli-Goleta also provides free Wi-Fi and takeout options. The business has a rating of 4.5 stars out of 5.",
+    "pred": [
+      [
+        191,
+        204,
+        "on the street",
+        "abstain"
+      ],
+      [
+        253,
+        282,
+        "does not have outdoor seating",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        198,
+        204
+      ],
+      [
+        253,
+        282
+      ]
+    ]
+  },
+  {
+    "id": "7316",
+    "task": "data2text",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 504,
+    "context_chars": 2482,
+    "frac_marked": 0.091,
+    "frac_gold": 0.119,
+    "n_pred": 3,
+    "n_gold": 2,
+    "answer": "Brasilia Arts Cafe is a restaurant located in Santa Barbara, CA that serves juice bars, smoothies, breakfast and brunch, Brazilian, salads, and acai bowls. The restaurant is open Monday through Sunday from 4pm to 9pm and has free WiFi. Customers can park on the street or use valet parking, and reservations are accepted. The restaurant is known for its hospitality and great cooking skills. Some customers have highly recommended the restaurant for its Brazilian cuisine, ambiance, and friendly service.",
+    "pred": [
+      [
+        174,
+        200,
+        "open Monday through Sunday",
+        "abstain"
+      ],
+      [
+        206,
+        209,
+        "4pm",
+        "abstain"
+      ],
+      [
+        272,
+        289,
+        "use valet parking",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        174,
+        216
+      ],
+      [
+        272,
+        290
+      ]
+    ]
+  },
+  {
+    "id": "7580",
+    "task": "data2text",
+    "n_flag": 0,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 554,
+    "context_chars": 2961,
+    "frac_marked": 0.052,
+    "frac_gold": 0.051,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Del Pueblo Cafe is a Mexican restaurant located in Santa Barbara, California. The cafe offers outdoor seating, free WiFi, and takeout options. Customers can order from a variety of menu items including burritos, chimichangas, and enchiladas. The restaurant has received mixed reviews, with some customers praising the authentic Mexican decor and delicious food, while others have criticized the quality of the food and service. Overall, Del Pueblo Cafe appears to be a unique and cozy dining experience that serves up fresh and satisfying Mexican dishes.",
+    "pred": [
+      [
+        212,
+        241,
+        "chimichangas, and enchiladas.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        212,
+        240
+      ]
+    ]
+  },
+  {
+    "id": "8078",
+    "task": "data2text",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 594,
+    "context_chars": 3324,
+    "frac_marked": 0.072,
+    "frac_gold": 0.143,
+    "n_pred": 2,
+    "n_gold": 4,
+    "answer": "Bogo SB is a food delivery service and restaurant located in Santa Barbara, California. The business offers catering services, event planning and delivery services, as well as a variety of food options including burgers, pizza, and salads. Customers can order online or through the restaurant's mobile app, and the business offers a wide range of discounts and promotions. The restaurant features outdoor seating and free WiFi, and is open daily from 11am to 10pm. Based on customer reviews, Bogo SB is highly rated for its delicious food, easy ordering process, and excellent customer service.",
+    "pred": [
+      [
+        397,
+        412,
+        "outdoor seating",
+        "abstain"
+      ],
+      [
+        435,
+        463,
+        "open daily from 11am to 10pm",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        232,
+        238
+      ],
+      [
+        278,
+        305
+      ],
+      [
+        388,
+        412
+      ],
+      [
+        435,
+        463
+      ]
+    ]
+  },
+  {
+    "id": "10802",
+    "task": "data2text",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 501,
+    "context_chars": 2335,
+    "frac_marked": 0.192,
+    "frac_gold": 0.07,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Subway is a fast food restaurant located in Goleta, CA. It serves sandwiches and offers takeout options. According to customer reviews, the service at this location is poor, with staff appearing unfriendly and unhappy. The food quality is also reportedly lacking, with meat and cheese appearing old and crusted over. Additionally, the restaurant does not offer outdoor seating, WiFi, or reservations. The ambience is described as casual and the overall atmosphere is not recommended by some customers.",
+    "pred": [
+      [
+        405,
+        501,
+        "ambience is described as casual and the overall atmosphere is not recommended by some customers.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        401,
+        436
+      ]
+    ]
+  },
+  {
+    "id": "11451",
+    "task": "data2text",
+    "n_flag": 1,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 587,
+    "context_chars": 1882,
+    "frac_marked": 0.058,
+    "frac_gold": 0.041,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "El Rincon Bohemio-Goleta is a Mexican restaurant located in Goleta, California, with a rating of 3.5 stars. The restaurant offers outdoor seating, free WiFi, and takeout options. Reviewers have mixed opinions about the quality of the food, with some finding it average and others enjoying it. The wait staff and hostess are praised for being friendly and fun. While the restaurant does not offer valet parking, there is street parking available. Overall, El Rincon Bohemio-Goleta is a casual dining spot with a cozy atmosphere and good service, although the quality of the food may vary.",
+    "pred": [
+      [
+        411,
+        445,
+        "there is street parking available.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        420,
+        444
+      ]
+    ]
+  },
+  {
+    "id": "12458",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 448,
+    "context_chars": 975,
+    "frac_marked": 0.094,
+    "frac_gold": 0.076,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Typical weather in Indiana:\n\nIndianapolis, Indiana experiences a hot, humid climate with long, warm summers and chilly, windy winters. The temperature ranges from 22\u00b0F to 85\u00b0F throughout the year, with an average annual temperature of 61\u00b0F. Precipitation is also common in Indiana, with the wettest year recorded in 1876 at Indianapolis, measuring 57.65 inches of rain. However, the driest year was recorded in 1934, with only 24.97 inches of rain.",
+    "pred": [
+      [
+        197,
+        239,
+        "with an average annual temperature of 61\u00b0F",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        205,
+        239
+      ]
+    ]
+  },
+  {
+    "id": "12602",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 427,
+    "context_chars": 1843,
+    "frac_marked": 0.187,
+    "frac_gold": 0.187,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Based on the given passages, we know that Teresa is a female given name of Spanish, Portuguese and Italian origin. The Greek meaning of Teresa is \"reap\" or \"harvester,\" and it comes from either the Greek word \"therizein\" meaning \"to harvest, harvester,\" or from \"theros\" meaning \"summer.\" The name has roots in Spain and Portugal pre-Middle Ages. However, the Italian meaning of Teresa is not explicitly stated in the passages.",
+    "pred": [
+      [
+        347,
+        427,
+        "However, the Italian meaning of Teresa is not explicitly stated in the passages.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        347,
+        427
+      ]
+    ]
+  },
+  {
+    "id": "13210",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 549,
+    "context_chars": 1563,
+    "frac_marked": 0.188,
+    "frac_gold": 0.188,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Based on the provided passages, the answer to the question \"How long does it take to make chicken tenders in a crock pot?\" is:\n\n6-8 hours on low heat, or 4 hours on high heat.\n\nThis information can be found in passage 3, where it states that you can cook 8 chicken breasts on low for 8 hours, or for 4 hours on high if you're short on time. However, it also mentions that the chicken will still turn out fine as long as there is enough moisture, so the exact cooking time may vary depending on the specific recipe and the size of the chicken pieces.",
+    "pred": [
+      [
+        446,
+        549,
+        "so the exact cooking time may vary depending on the specific recipe and the size of the chicken pieces.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        446,
+        549
+      ]
+    ]
+  },
+  {
+    "id": "13265",
+    "task": "qa",
+    "n_flag": 0,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 514,
+    "context_chars": 1402,
+    "frac_marked": 0.216,
+    "frac_gold": 0.187,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Based on the provided passages, leasing refers to a process where a firm or individual (lessee) pays a series of contractual, periodic, tax-deductible payments to use a fixed asset owned by another party (lessor). The lessee receives the use of the asset, while the lessor retains ownership and receives regular rental payments. The lease agreement outlines the terms and conditions of the arrangement, including the duration of the lease, payment amounts, and any responsibilities and obligations of both parties.",
+    "pred": [
+      [
+        403,
+        514,
+        "including the duration of the lease, payment amounts, and any responsibilities and obligations of both parties.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        417,
+        513
+      ]
+    ]
+  },
+  {
+    "id": "14293",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "gpt-3.5-turbo-0613",
+    "answer_chars": 429,
+    "context_chars": 1517,
+    "frac_marked": 0.175,
+    "frac_gold": 0.179,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "The effect of carbon footprint is the environmental impact of an individual's lifestyle. It measures the amount of carbon dioxide and other greenhouse gases produced as a result of daily activities. A higher carbon footprint contributes to climate change and global warming. However, individuals can reduce their carbon footprint by making changes in their lifestyle choices, even small changes can make a significant difference.",
+    "pred": [
+      [
+        199,
+        274,
+        "A higher carbon footprint contributes to climate change and global warming.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        197,
+        274
+      ]
+    ]
+  },
+  {
+    "id": "14763",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "llama-2-7b-chat",
+    "answer_chars": 450,
+    "context_chars": 1626,
+    "frac_marked": 0.1,
+    "frac_gold": 0.329,
+    "n_pred": 2,
+    "n_gold": 1,
+    "answer": "Based on the provided passages, the normal value for B-type natriuretic peptide (BNP) is not explicitly stated. However, it is mentioned that BNP values tend to increase with age and are higher in women than men. Additionally, the passage states that a low level of BNP is normally found in the blood, which suggests that a normal value is around 0 or close to it. Therefore, the normal range for BNP is likely to be between 0-1 ng/mL or closer to 0.",
+    "pred": [
+      [
+        397,
+        403,
+        "BNP is",
+        "abstain"
+      ],
+      [
+        411,
+        450,
+        "to be between 0-1 ng/mL or closer to 0.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        302,
+        450
+      ]
+    ]
+  },
+  {
+    "id": "14806",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 382,
+    "context_chars": 1004,
+    "frac_marked": 0.254,
+    "frac_gold": 0.419,
+    "n_pred": 1,
+    "n_gold": 2,
+    "answer": "Based on the provided passages, I can answer the following question:\n\nQuestion: What is the current temperature in Bucharest?\n\nPassage 1 provides the current weather conditions for Bucharest, including the temperature:\n\n\"Today's temperature in Bucharest is 22\u00b0C (72\u00b0F), humidity is 82%, wind speed is 6 mph (9 km/h).\"\n\nTherefore, the current temperature in Bucharest is 22\u00b0C (72\u00b0F).",
+    "pred": [
+      [
+        220,
+        317,
+        "\"Today's temperature in Bucharest is 22\u00b0C (72\u00b0F), humidity is 82%, wind speed is 6 mph (9 km/h).\"",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        220,
+        317
+      ],
+      [
+        319,
+        382
+      ]
+    ]
+  },
+  {
+    "id": "15755",
+    "task": "qa",
+    "n_flag": 0,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 565,
+    "context_chars": 1009,
+    "frac_marked": 0.142,
+    "frac_gold": 0.142,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Based on the given passages, here's how E-Z Pass charges work:\n\nWhen you sign up for E-Z Pass, a certain amount (specifically $100 for the EZ-Tag or $25 for the TX-Tag) is charged to your credit card to establish a balance. As you drive through tolls, the system deducts the toll amounts from your balance until it reaches a certain threshold ($10 for the TX-Tag). When your balance falls below this threshold, your credit card is automatically charged again to increase your balance. This process continues until your account is closed or your balance is depleted.",
+    "pred": [
+      [
+        485,
+        565,
+        "This process continues until your account is closed or your balance is depleted.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        485,
+        565
+      ]
+    ]
+  },
+  {
+    "id": "15929",
+    "task": "qa",
+    "n_flag": 0,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 299,
+    "context_chars": 1311,
+    "frac_marked": 0.344,
+    "frac_gold": 0.361,
+    "n_pred": 2,
+    "n_gold": 1,
+    "answer": "Based on the given passages, Oracle has two CEOs, Mark Hurd and Safra Catz, because Larry Ellison, the company's founder, stepped down from his position as CEO and appointed them as co-CEOs. This decision was made to provide a smooth transition and ensure the company's continued growth and success.",
+    "pred": [
+      [
+        191,
+        244,
+        "This decision was made to provide a smooth transition",
+        "abstain"
+      ],
+      [
+        249,
+        299,
+        "ensure the company's continued growth and success.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        191,
+        299
+      ]
+    ]
+  },
+  {
+    "id": "16060",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 578,
+    "context_chars": 865,
+    "frac_marked": 0.197,
+    "frac_gold": 0.197,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Based on the given passages, here is how to perform skill moves in FIFA 16 on Xbox One:\n\nTo execute a skill move while standing, press and hold the LT button and then tap the RB button. This will allow your player to perform various skill moves such as flip fouls, step-overs, and heel-to-heel turns.\n\nYou can find more tutorials and guides on executing skill moves in FIFA 16 by visiting the official website or watching video tutorials available online. Additionally, the complete FIFA 16 Skill Moves guide with a list and tutorial videos can be found on the official website.",
+    "pred": [
+      [
+        186,
+        300,
+        "This will allow your player to perform various skill moves such as flip fouls, step-overs, and heel-to-heel turns.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        186,
+        300
+      ]
+    ]
+  },
+  {
+    "id": "16121",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "llama-2-70b-chat",
+    "answer_chars": 379,
+    "context_chars": 904,
+    "frac_marked": 0.42,
+    "frac_gold": 0.427,
+    "n_pred": 3,
+    "n_gold": 2,
+    "answer": "To quickly get rid of mice, take immediate action and seal all entry points, including pipes and vents, using steel wool pads to prevent mice from getting back in. Eliminate sources of food and shelter, and consider using humane mouse traps or natural deterrents like peppermint oil to encourage mice to leave. Prevent their return by keeping your home clean and well-maintained.",
+    "pred": [
+      [
+        207,
+        310,
+        "consider using humane mouse traps or natural deterrents like peppermint oil to encourage mice to leave.",
+        "flag"
+      ],
+      [
+        319,
+        331,
+        "their return",
+        "abstain"
+      ],
+      [
+        335,
+        379,
+        "keeping your home clean and well-maintained.",
+        "abstain"
+      ]
+    ],
+    "gold": [
+      [
+        216,
+        310
+      ],
+      [
+        311,
+        379
+      ]
+    ]
+  },
+  {
+    "id": "16360",
+    "task": "qa",
+    "n_flag": 1,
+    "model": "llama-2-13b-chat",
+    "answer_chars": 238,
+    "context_chars": 805,
+    "frac_marked": 0.382,
+    "frac_gold": 0.382,
+    "n_pred": 1,
+    "n_gold": 1,
+    "answer": "Based on the given passages, the 1099-PATR form should be attached to the taxpayer's return, specifically on Schedule C, Schedule F, or Form 4835. Therefore, the 1099-PATR form should be placed on line 6 of the 1040 form as an attachment.",
+    "pred": [
+      [
+        147,
+        238,
+        "Therefore, the 1099-PATR form should be placed on line 6 of the 1040 form as an attachment.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        147,
+        238
+      ]
+    ]
+  },
+  {
+    "id": "17060",
+    "task": "qa",
+    "n_flag": 2,
+    "model": "mistral-7B-instruct",
+    "answer_chars": 581,
+    "context_chars": 910,
+    "frac_marked": 0.454,
+    "frac_gold": 0.36,
+    "n_pred": 2,
+    "n_gold": 1,
+    "answer": "Based on the given passages, the benefits of drinking clove tea include soothing the senses and relieving stress, providing relief from muscle, joint or ligament injuries, and alleviating abdominal pain. However, the passage mentions that taking clove tea along with honey can provide additional relief from stress. The side effects mentioned in the passages are limited, but it's worth noting that clove tea may cause an allergic reaction in some people. It's also important to note that clove tea should not be consumed by pregnant women or those with certain medical conditions.",
+    "pred": [
+      [
+        316,
+        455,
+        "The side effects mentioned in the passages are limited, but it's worth noting that clove tea may cause an allergic reaction in some people.",
+        "flag"
+      ],
+      [
+        456,
+        581,
+        "It's also important to note that clove tea should not be consumed by pregnant women or those with certain medical conditions.",
+        "flag"
+      ]
+    ],
+    "gold": [
+      [
+        372,
+        581
+      ]
+    ]
+  }
+]

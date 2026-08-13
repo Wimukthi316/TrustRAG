@@ -48,12 +48,17 @@ localisation that is the whole point. The model was right; the threshold was
 wrong. If the demo needs more abstention, the honest lever is the alpha slider,
 which is a research parameter with a stated meaning, not a hidden cutoff.
 
-**Known limitation, and it is visible in the numbers.** Candidates are runs of
-consecutive above-threshold tokens, so a hallucinated clause sitting next to a
-supported one merges with it. That is why span-exact F1 is 0.1937 against
-span-overlap 0.5969 in the offline evaluation. RAGTruth's gold spans are often
-whole sentences, so merging is frequently right, but it is not always right and
-the report should say so rather than quoting only the overlap figure.
+**Known limitation, and it is visible in the numbers.** Under `decode="threshold"`
+candidates are runs of consecutive above-threshold tokens, so a hallucinated
+clause sitting next to a supported one merges with it. That is why span-exact F1
+is 0.1937 against span-overlap 0.5969 in the offline evaluation of the baseline.
+
+Do not excuse this by claiming RAGTruth annotates whole sentences. Measured on
+the processed test split, 2026-08-13: only 11.1% of the 1,517 gold spans are
+exactly one sentence, the median span is 35 characters, and the median response
+has 7% of its answer marked. The paper calls the task word-level detection and
+the data agrees. Merging is a real cost, and both figures belong in the report.
+`decode="bio_argmax"`, which C1 uses, avoids it: B-HAL restarts a span.
 """
 
 from __future__ import annotations

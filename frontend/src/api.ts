@@ -21,8 +21,10 @@ export async function getHealth(): Promise<HealthResponse> {
   return json<HealthResponse>(await fetch(`${BASE}/health`));
 }
 
-export async function getExample(): Promise<AnalyzeRequest> {
-  return json<AnalyzeRequest>(await fetch(`${BASE}/example`));
+export async function getExample(name = "ragtruth_qa"): Promise<AnalyzeRequest> {
+  return json<AnalyzeRequest>(
+    await fetch(`${BASE}/example?name=${encodeURIComponent(name)}`),
+  );
 }
 
 export async function analyze(req: AnalyzeRequest): Promise<AnalysisResult> {

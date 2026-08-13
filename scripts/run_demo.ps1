@@ -9,13 +9,17 @@
 #
 #   powershell -ExecutionPolicy Bypass -File scripts\run_demo.ps1 -Stop
 #
-# The backend takes ~30s on first start because it loads a 400M-parameter model.
-# Pass -Stub to serve the placeholder detector instead, which starts instantly
-# and is useful for frontend work.
+# -Detector c1              our own trained model. The default, and the one the
+#                           reported numbers come from.
+# -Detector lettucedetect   the public baseline, for a side-by-side comparison.
+# -Stub                     the placeholder. Starts instantly and its scores are
+#                           NOT model output; useful for frontend work only.
 
 param(
     [switch]$Stop,
     [switch]$Stub,
+    [ValidateSet("c1", "lettucedetect")]
+    [string]$Detector = "c1",
     [int]$ApiPort = 8000,
     [int]$UiPort = 5173
 )
@@ -50,12 +54,26 @@ $env:NODE_ENV = "development"
 
 if ($Stub) {
     Remove-Item Env:\TRUSTRAG_DETECTOR -ErrorAction SilentlyContinue
+    Remove-Item Env:\TRUSTRAG_MODEL_ID -ErrorAction SilentlyContinue
     Write-Host "serving the PLACEHOLDER detector -- scores are not model output" -ForegroundColor Yellow
+} elseif ($Detector -eq "c1") {
+    $artifact = Join-Path $repo "results\c2\c1\c2_artifact.json"
+    $checkpoint = Join-Path $repo "results\c1\modernbert-base\best"
+    if (-not (Test-Path $artifact)) {
+        throw "no C2 artifact at $artifact -- run src.c2_calibration.run_c2 against results\c1 first"
+    }
+    if (-not (Test-Path $checkpoint)) {
+        throw "no C1 checkpoint at $checkpoint -- unpack the Kaggle output first"
+    }
+    $env:TRUSTRAG_DETECTOR = "c1"
+    $env:TRUSTRAG_MODEL_ID = $checkpoint
+    $env:TRUSTRAG_C2_ARTIFACT = $artifact
 } else {
     $artifact = Join-Path $repo "results\c2\lettucedetect\c2_artifact.json"
     if (-not (Test-Path $artifact)) {
         throw "no C2 artifact at $artifact -- run scripts\run_lettucedetect_baseline.ps1 first"
     }
+    Remove-Item Env:\TRUSTRAG_MODEL_ID -ErrorAction SilentlyContinue
     $env:TRUSTRAG_DETECTOR = "lettucedetect"
     $env:TRUSTRAG_C2_ARTIFACT = $artifact
 }
