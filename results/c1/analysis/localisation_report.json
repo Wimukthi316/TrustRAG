@@ -1,0 +1,3857 @@
+{
+  "n_records": 2700,
+  "n_gold_spans": 1517,
+  "n_pred_spans": 2390,
+  "near_threshold_chars": 10,
+  "measured_metrics": {
+    "span_exact": {
+      "precision": 0.12133891213389121,
+      "recall": 0.1911667765326302,
+      "f1": 0.148451497312516,
+      "tp": 290,
+      "fp": 2100,
+      "fn": 1227
+    },
+    "span_overlap": {
+      "precision": 0.41380753138075316,
+      "recall": 0.6519446275543836,
+      "f1": 0.5062707960071666,
+      "tp": 989,
+      "fp": 1401,
+      "fn": 528
+    }
+  },
+  "derived_from_buckets": {
+    "overlap_tp": 989,
+    "overlap_fp": 1401,
+    "overlap_fn": 528,
+    "exact_tp": 290,
+    "gold_never_touched": 503,
+    "pred_touching_no_gold": 1134,
+    "surplus_pred_from_splits": 267,
+    "surplus_gold_from_merges": 25
+  },
+  "reconciles_with_measured_metrics": true,
+  "overall": {
+    "buckets": {
+      "exact": {
+        "components": 290,
+        "gold": 290,
+        "pred": 290
+      },
+      "boundary": {
+        "components": 504,
+        "gold": 504,
+        "pred": 504
+      },
+      "merge": {
+        "components": 19,
+        "gold": 44,
+        "pred": 19
+      },
+      "split": {
+        "components": 176,
+        "gold": 176,
+        "pred": 443
+      },
+      "tangled": {
+        "components": 0,
+        "gold": 0,
+        "pred": 0
+      },
+      "missed": {
+        "components": 503,
+        "gold": 503,
+        "pred": 0
+      },
+      "spurious": {
+        "components": 1134,
+        "gold": 0,
+        "pred": 1134
+      }
+    },
+    "boundary": {
+      "n_groups": 504,
+      "pred_strictly_inside_gold": 305,
+      "start_edge_delta": {
+        "0": 129,
+        "1": 2,
+        "2": 15,
+        "3-5": 119,
+        "6-10": 58,
+        ">10": 181
+      },
+      "end_edge_delta": {
+        "0": 208,
+        "1": 199,
+        "2": 1,
+        "3-5": 6,
+        "6-10": 22,
+        ">10": 68
+      },
+      "which_edge_wrong": {
+        "both": 167,
+        "start only": 208,
+        "end only": 129
+      },
+      "shape": {
+        "undershoot": 131,
+        "near": 278,
+        "overrun": 93,
+        "shifted": 2
+      }
+    }
+  },
+  "per_task": {
+    "data2text": {
+      "buckets": {
+        "exact": {
+          "components": 226,
+          "gold": 226,
+          "pred": 226
+        },
+        "boundary": {
+          "components": 408,
+          "gold": 408,
+          "pred": 408
+        },
+        "merge": {
+          "components": 17,
+          "gold": 39,
+          "pred": 17
+        },
+        "split": {
+          "components": 118,
+          "gold": 118,
+          "pred": 270
+        },
+        "tangled": {
+          "components": 0,
+          "gold": 0,
+          "pred": 0
+        },
+        "missed": {
+          "components": 251,
+          "gold": 251,
+          "pred": 0
+        },
+        "spurious": {
+          "components": 653,
+          "gold": 0,
+          "pred": 653
+        }
+      },
+      "boundary": {
+        "n_groups": 408,
+        "pred_strictly_inside_gold": 250,
+        "start_edge_delta": {
+          "0": 115,
+          "1": 2,
+          "2": 10,
+          "3-5": 109,
+          "6-10": 47,
+          ">10": 125
+        },
+        "end_edge_delta": {
+          "0": 166,
+          "1": 169,
+          "3-5": 5,
+          "6-10": 21,
+          ">10": 47
+        },
+        "which_edge_wrong": {
+          "both": 127,
+          "end only": 115,
+          "start only": 166
+        },
+        "shape": {
+          "near": 245,
+          "overrun": 69,
+          "undershoot": 92,
+          "shifted": 2
+        }
+      },
+      "n_gold_spans": 1042,
+      "n_pred_spans": 1574
+    },
+    "qa": {
+      "buckets": {
+        "exact": {
+          "components": 38,
+          "gold": 38,
+          "pred": 38
+        },
+        "boundary": {
+          "components": 48,
+          "gold": 48,
+          "pred": 48
+        },
+        "merge": {
+          "components": 1,
+          "gold": 3,
+          "pred": 1
+        },
+        "split": {
+          "components": 43,
+          "gold": 43,
+          "pred": 137
+        },
+        "tangled": {
+          "components": 0,
+          "gold": 0,
+          "pred": 0
+        },
+        "missed": {
+          "components": 99,
+          "gold": 99,
+          "pred": 0
+        },
+        "spurious": {
+          "components": 268,
+          "gold": 0,
+          "pred": 268
+        }
+      },
+      "boundary": {
+        "n_groups": 48,
+        "pred_strictly_inside_gold": 29,
+        "start_edge_delta": {
+          "0": 4,
+          "2": 4,
+          "3-5": 4,
+          "6-10": 7,
+          ">10": 29
+        },
+        "end_edge_delta": {
+          "0": 21,
+          "1": 14,
+          "2": 1,
+          "6-10": 1,
+          ">10": 11
+        },
+        "which_edge_wrong": {
+          "both": 23,
+          "end only": 4,
+          "start only": 21
+        },
+        "shape": {
+          "near": 17,
+          "undershoot": 20,
+          "overrun": 11
+        }
+      },
+      "n_gold_spans": 231,
+      "n_pred_spans": 492
+    },
+    "summarization": {
+      "buckets": {
+        "exact": {
+          "components": 26,
+          "gold": 26,
+          "pred": 26
+        },
+        "boundary": {
+          "components": 48,
+          "gold": 48,
+          "pred": 48
+        },
+        "merge": {
+          "components": 1,
+          "gold": 2,
+          "pred": 1
+        },
+        "split": {
+          "components": 15,
+          "gold": 15,
+          "pred": 36
+        },
+        "tangled": {
+          "components": 0,
+          "gold": 0,
+          "pred": 0
+        },
+        "missed": {
+          "components": 153,
+          "gold": 153,
+          "pred": 0
+        },
+        "spurious": {
+          "components": 213,
+          "gold": 0,
+          "pred": 213
+        }
+      },
+      "boundary": {
+        "n_groups": 48,
+        "pred_strictly_inside_gold": 26,
+        "start_edge_delta": {
+          "0": 10,
+          "2": 1,
+          "3-5": 6,
+          "6-10": 4,
+          ">10": 27
+        },
+        "end_edge_delta": {
+          "0": 21,
+          "1": 16,
+          "3-5": 1,
+          ">10": 10
+        },
+        "which_edge_wrong": {
+          "both": 17,
+          "start only": 21,
+          "end only": 10
+        },
+        "shape": {
+          "undershoot": 19,
+          "near": 16,
+          "overrun": 13
+        }
+      },
+      "n_gold_spans": 244,
+      "n_pred_spans": 324
+    }
+  },
+  "tokenisation_ceiling": {
+    "n_gold_spans": 1517,
+    "n_decoded_spans": 1517,
+    "gold_width_delta_chars": {
+      "0": 1512,
+      "1": 5
+    },
+    "span_exact": {
+      "precision": 0.996704021094265,
+      "recall": 0.996704021094265,
+      "f1": 0.996704021094265,
+      "tp": 1512,
+      "fp": 5,
+      "fn": 5
+    },
+    "per_task": {
+      "data2text": {
+        "precision": 0.9961612284069098,
+        "recall": 0.9961612284069098,
+        "f1": 0.9961612284069098,
+        "tp": 1038,
+        "fp": 4,
+        "fn": 4
+      },
+      "qa": {
+        "precision": 0.9956709956709957,
+        "recall": 0.9956709956709957,
+        "f1": 0.9956709956709957,
+        "tp": 230,
+        "fp": 1,
+        "fn": 1
+      },
+      "summarization": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 244,
+        "fp": 0,
+        "fn": 0
+      }
+    }
+  },
+  "span_lengths": {
+    "ALL": {
+      "gold_chars": {
+        "n": 1517,
+        "mean": 56.22,
+        "p25": 19.0,
+        "p50": 35.0,
+        "p75": 67.0,
+        "p90": 115.0,
+        "max": 1389.0
+      },
+      "pred_chars": {
+        "n": 2390,
+        "mean": 29.26,
+        "p25": 7.0,
+        "p50": 17.0,
+        "p75": 36.0,
+        "p90": 71.0,
+        "max": 460.0
+      }
+    },
+    "data2text": {
+      "gold_chars": {
+        "n": 1042,
+        "mean": 34.51,
+        "p25": 17.0,
+        "p50": 26.0,
+        "p75": 45.0,
+        "p90": 72.0,
+        "max": 180.0
+      },
+      "pred_chars": {
+        "n": 1574,
+        "mean": 20.49,
+        "p25": 6.0,
+        "p50": 16.0,
+        "p75": 27.0,
+        "p90": 45.0,
+        "max": 166.0
+      }
+    },
+    "qa": {
+      "gold_chars": {
+        "n": 231,
+        "mean": 135.65,
+        "p25": 56.0,
+        "p50": 98.0,
+        "p75": 147.0,
+        "p90": 230.0,
+        "max": 1389.0
+      },
+      "pred_chars": {
+        "n": 492,
+        "mean": 55.37,
+        "p25": 7.0,
+        "p50": 33.0,
+        "p75": 86.0,
+        "p90": 137.0,
+        "max": 460.0
+      }
+    },
+    "summarization": {
+      "gold_chars": {
+        "n": 244,
+        "mean": 73.73,
+        "p25": 28.0,
+        "p50": 49.0,
+        "p75": 92.0,
+        "p90": 129.0,
+        "max": 876.0
+      },
+      "pred_chars": {
+        "n": 324,
+        "mean": 32.27,
+        "p25": 7.0,
+        "p50": 21.0,
+        "p75": 46.0,
+        "p90": 78.0,
+        "max": 199.0
+      }
+    }
+  },
+  "examples": {
+    "missed": [
+      {
+        "id": "28",
+        "task_type": "summarization",
+        "gold": [
+          [
+            0,
+            106
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "28",
+        "task_type": "summarization",
+        "gold": [
+          [
+            150,
+            178
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "29",
+        "task_type": "summarization",
+        "gold": [
+          [
+            110,
+            138
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "44",
+        "task_type": "summarization",
+        "gold": [
+          [
+            61,
+            119
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "46",
+        "task_type": "summarization",
+        "gold": [
+          [
+            535,
+            566
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "68",
+        "task_type": "summarization",
+        "gold": [
+          [
+            0,
+            24
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "121",
+        "task_type": "summarization",
+        "gold": [
+          [
+            372,
+            382
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "122",
+        "task_type": "summarization",
+        "gold": [
+          [
+            147,
+            166
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "124",
+        "task_type": "summarization",
+        "gold": [
+          [
+            294,
+            318
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "141",
+        "task_type": "summarization",
+        "gold": [
+          [
+            159,
+            249
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "180",
+        "task_type": "summarization",
+        "gold": [
+          [
+            44,
+            52
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "184",
+        "task_type": "summarization",
+        "gold": [
+          [
+            489,
+            507
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "185",
+        "task_type": "summarization",
+        "gold": [
+          [
+            509,
+            524
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "208",
+        "task_type": "summarization",
+        "gold": [
+          [
+            377,
+            391
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "212",
+        "task_type": "summarization",
+        "gold": [
+          [
+            144,
+            193
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "213",
+        "task_type": "summarization",
+        "gold": [
+          [
+            46,
+            76
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "214",
+        "task_type": "summarization",
+        "gold": [
+          [
+            435,
+            476
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "250",
+        "task_type": "summarization",
+        "gold": [
+          [
+            589,
+            641
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "273",
+        "task_type": "summarization",
+        "gold": [
+          [
+            53,
+            68
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "275",
+        "task_type": "summarization",
+        "gold": [
+          [
+            0,
+            15
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "275",
+        "task_type": "summarization",
+        "gold": [
+          [
+            213,
+            302
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "348",
+        "task_type": "summarization",
+        "gold": [
+          [
+            477,
+            584
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "410",
+        "task_type": "summarization",
+        "gold": [
+          [
+            743,
+            871
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [
+          [
+            272,
+            278
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [
+          [
+            595,
+            719
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "444",
+        "task_type": "summarization",
+        "gold": [
+          [
+            897,
+            959
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "447",
+        "task_type": "summarization",
+        "gold": [
+          [
+            135,
+            229
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "464",
+        "task_type": "summarization",
+        "gold": [
+          [
+            361,
+            493
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "485",
+        "task_type": "summarization",
+        "gold": [
+          [
+            556,
+            649
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "584",
+        "task_type": "summarization",
+        "gold": [
+          [
+            296,
+            344
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "585",
+        "task_type": "summarization",
+        "gold": [
+          [
+            640,
+            725
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "602",
+        "task_type": "summarization",
+        "gold": [
+          [
+            273,
+            305
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "605",
+        "task_type": "summarization",
+        "gold": [
+          [
+            17,
+            40
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "613",
+        "task_type": "summarization",
+        "gold": [
+          [
+            952,
+            1079
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "645",
+        "task_type": "summarization",
+        "gold": [
+          [
+            191,
+            237
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "656",
+        "task_type": "summarization",
+        "gold": [
+          [
+            72,
+            156
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "657",
+        "task_type": "summarization",
+        "gold": [
+          [
+            600,
+            631
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "692",
+        "task_type": "summarization",
+        "gold": [
+          [
+            983,
+            1094
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "695",
+        "task_type": "summarization",
+        "gold": [
+          [
+            702,
+            798
+          ]
+        ],
+        "pred": []
+      },
+      {
+        "id": "729",
+        "task_type": "summarization",
+        "gold": [
+          [
+            157,
+            191
+          ]
+        ],
+        "pred": []
+      }
+    ],
+    "exact": [
+      {
+        "id": "58",
+        "task_type": "summarization",
+        "gold": [
+          [
+            583,
+            703
+          ]
+        ],
+        "pred": [
+          [
+            583,
+            703
+          ]
+        ]
+      },
+      {
+        "id": "146",
+        "task_type": "summarization",
+        "gold": [
+          [
+            172,
+            267
+          ]
+        ],
+        "pred": [
+          [
+            172,
+            267
+          ]
+        ]
+      },
+      {
+        "id": "206",
+        "task_type": "summarization",
+        "gold": [
+          [
+            566,
+            636
+          ]
+        ],
+        "pred": [
+          [
+            566,
+            636
+          ]
+        ]
+      },
+      {
+        "id": "485",
+        "task_type": "summarization",
+        "gold": [
+          [
+            358,
+            404
+          ]
+        ],
+        "pred": [
+          [
+            358,
+            404
+          ]
+        ]
+      },
+      {
+        "id": "728",
+        "task_type": "summarization",
+        "gold": [
+          [
+            91,
+            149
+          ]
+        ],
+        "pred": [
+          [
+            91,
+            149
+          ]
+        ]
+      },
+      {
+        "id": "728",
+        "task_type": "summarization",
+        "gold": [
+          [
+            347,
+            412
+          ]
+        ],
+        "pred": [
+          [
+            347,
+            412
+          ]
+        ]
+      },
+      {
+        "id": "962",
+        "task_type": "summarization",
+        "gold": [
+          [
+            102,
+            179
+          ]
+        ],
+        "pred": [
+          [
+            102,
+            179
+          ]
+        ]
+      },
+      {
+        "id": "1109",
+        "task_type": "summarization",
+        "gold": [
+          [
+            275,
+            309
+          ]
+        ],
+        "pred": [
+          [
+            275,
+            309
+          ]
+        ]
+      },
+      {
+        "id": "1172",
+        "task_type": "summarization",
+        "gold": [
+          [
+            502,
+            553
+          ]
+        ],
+        "pred": [
+          [
+            502,
+            553
+          ]
+        ]
+      },
+      {
+        "id": "1826",
+        "task_type": "summarization",
+        "gold": [
+          [
+            247,
+            297
+          ]
+        ],
+        "pred": [
+          [
+            247,
+            297
+          ]
+        ]
+      },
+      {
+        "id": "2171",
+        "task_type": "summarization",
+        "gold": [
+          [
+            287,
+            363
+          ]
+        ],
+        "pred": [
+          [
+            287,
+            363
+          ]
+        ]
+      },
+      {
+        "id": "2240",
+        "task_type": "summarization",
+        "gold": [
+          [
+            70,
+            118
+          ]
+        ],
+        "pred": [
+          [
+            70,
+            118
+          ]
+        ]
+      },
+      {
+        "id": "2426",
+        "task_type": "summarization",
+        "gold": [
+          [
+            616,
+            713
+          ]
+        ],
+        "pred": [
+          [
+            616,
+            713
+          ]
+        ]
+      },
+      {
+        "id": "2672",
+        "task_type": "summarization",
+        "gold": [
+          [
+            583,
+            712
+          ]
+        ],
+        "pred": [
+          [
+            583,
+            712
+          ]
+        ]
+      },
+      {
+        "id": "3146",
+        "task_type": "summarization",
+        "gold": [
+          [
+            416,
+            426
+          ]
+        ],
+        "pred": [
+          [
+            416,
+            426
+          ]
+        ]
+      },
+      {
+        "id": "3560",
+        "task_type": "summarization",
+        "gold": [
+          [
+            738,
+            886
+          ]
+        ],
+        "pred": [
+          [
+            738,
+            886
+          ]
+        ]
+      },
+      {
+        "id": "3608",
+        "task_type": "summarization",
+        "gold": [
+          [
+            380,
+            533
+          ]
+        ],
+        "pred": [
+          [
+            380,
+            533
+          ]
+        ]
+      },
+      {
+        "id": "3861",
+        "task_type": "summarization",
+        "gold": [
+          [
+            196,
+            231
+          ]
+        ],
+        "pred": [
+          [
+            196,
+            231
+          ]
+        ]
+      },
+      {
+        "id": "4079",
+        "task_type": "summarization",
+        "gold": [
+          [
+            292,
+            322
+          ]
+        ],
+        "pred": [
+          [
+            292,
+            322
+          ]
+        ]
+      },
+      {
+        "id": "4118",
+        "task_type": "summarization",
+        "gold": [
+          [
+            479,
+            505
+          ]
+        ],
+        "pred": [
+          [
+            479,
+            505
+          ]
+        ]
+      },
+      {
+        "id": "4220",
+        "task_type": "summarization",
+        "gold": [
+          [
+            531,
+            574
+          ]
+        ],
+        "pred": [
+          [
+            531,
+            574
+          ]
+        ]
+      },
+      {
+        "id": "4442",
+        "task_type": "summarization",
+        "gold": [
+          [
+            588,
+            621
+          ]
+        ],
+        "pred": [
+          [
+            588,
+            621
+          ]
+        ]
+      },
+      {
+        "id": "5084",
+        "task_type": "summarization",
+        "gold": [
+          [
+            294,
+            359
+          ]
+        ],
+        "pred": [
+          [
+            294,
+            359
+          ]
+        ]
+      },
+      {
+        "id": "5199",
+        "task_type": "summarization",
+        "gold": [
+          [
+            116,
+            151
+          ]
+        ],
+        "pred": [
+          [
+            116,
+            151
+          ]
+        ]
+      },
+      {
+        "id": "5415",
+        "task_type": "summarization",
+        "gold": [
+          [
+            313,
+            437
+          ]
+        ],
+        "pred": [
+          [
+            313,
+            437
+          ]
+        ]
+      },
+      {
+        "id": "5417",
+        "task_type": "summarization",
+        "gold": [
+          [
+            252,
+            406
+          ]
+        ],
+        "pred": [
+          [
+            252,
+            406
+          ]
+        ]
+      },
+      {
+        "id": "5672",
+        "task_type": "data2text",
+        "gold": [
+          [
+            394,
+            411
+          ]
+        ],
+        "pred": [
+          [
+            394,
+            411
+          ]
+        ]
+      },
+      {
+        "id": "5672",
+        "task_type": "data2text",
+        "gold": [
+          [
+            413,
+            433
+          ]
+        ],
+        "pred": [
+          [
+            413,
+            433
+          ]
+        ]
+      },
+      {
+        "id": "5674",
+        "task_type": "data2text",
+        "gold": [
+          [
+            457,
+            474
+          ]
+        ],
+        "pred": [
+          [
+            457,
+            474
+          ]
+        ]
+      },
+      {
+        "id": "5674",
+        "task_type": "data2text",
+        "gold": [
+          [
+            758,
+            782
+          ]
+        ],
+        "pred": [
+          [
+            758,
+            782
+          ]
+        ]
+      },
+      {
+        "id": "5690",
+        "task_type": "data2text",
+        "gold": [
+          [
+            291,
+            308
+          ]
+        ],
+        "pred": [
+          [
+            291,
+            308
+          ]
+        ]
+      },
+      {
+        "id": "5692",
+        "task_type": "data2text",
+        "gold": [
+          [
+            455,
+            467
+          ]
+        ],
+        "pred": [
+          [
+            455,
+            467
+          ]
+        ]
+      },
+      {
+        "id": "5732",
+        "task_type": "data2text",
+        "gold": [
+          [
+            360,
+            366
+          ]
+        ],
+        "pred": [
+          [
+            360,
+            366
+          ]
+        ]
+      },
+      {
+        "id": "5822",
+        "task_type": "data2text",
+        "gold": [
+          [
+            214,
+            220
+          ]
+        ],
+        "pred": [
+          [
+            214,
+            220
+          ]
+        ]
+      },
+      {
+        "id": "5853",
+        "task_type": "data2text",
+        "gold": [
+          [
+            729,
+            735
+          ]
+        ],
+        "pred": [
+          [
+            729,
+            735
+          ]
+        ]
+      },
+      {
+        "id": "5853",
+        "task_type": "data2text",
+        "gold": [
+          [
+            737,
+            743
+          ]
+        ],
+        "pred": [
+          [
+            737,
+            743
+          ]
+        ]
+      },
+      {
+        "id": "5854",
+        "task_type": "data2text",
+        "gold": [
+          [
+            332,
+            359
+          ]
+        ],
+        "pred": [
+          [
+            332,
+            359
+          ]
+        ]
+      },
+      {
+        "id": "5854",
+        "task_type": "data2text",
+        "gold": [
+          [
+            452,
+            468
+          ]
+        ],
+        "pred": [
+          [
+            452,
+            468
+          ]
+        ]
+      },
+      {
+        "id": "5854",
+        "task_type": "data2text",
+        "gold": [
+          [
+            473,
+            479
+          ]
+        ],
+        "pred": [
+          [
+            473,
+            479
+          ]
+        ]
+      },
+      {
+        "id": "6026",
+        "task_type": "data2text",
+        "gold": [
+          [
+            327,
+            413
+          ]
+        ],
+        "pred": [
+          [
+            327,
+            413
+          ]
+        ]
+      }
+    ],
+    "spurious": [
+      {
+        "id": "58",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            708,
+            727
+          ]
+        ]
+      },
+      {
+        "id": "58",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            736,
+            849
+          ]
+        ]
+      },
+      {
+        "id": "123",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            325,
+            367
+          ]
+        ]
+      },
+      {
+        "id": "124",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            73,
+            86
+          ]
+        ]
+      },
+      {
+        "id": "124",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            97,
+            123
+          ]
+        ]
+      },
+      {
+        "id": "143",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            343,
+            394
+          ]
+        ]
+      },
+      {
+        "id": "146",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            106,
+            170
+          ]
+        ]
+      },
+      {
+        "id": "148",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            199,
+            236
+          ]
+        ]
+      },
+      {
+        "id": "181",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            492,
+            523
+          ]
+        ]
+      },
+      {
+        "id": "205",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            545,
+            594
+          ]
+        ]
+      },
+      {
+        "id": "211",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            203,
+            217
+          ]
+        ]
+      },
+      {
+        "id": "214",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            117,
+            126
+          ]
+        ]
+      },
+      {
+        "id": "214",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            138,
+            146
+          ]
+        ]
+      },
+      {
+        "id": "214",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            160,
+            164
+          ]
+        ]
+      },
+      {
+        "id": "317",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            250,
+            253
+          ]
+        ]
+      },
+      {
+        "id": "317",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            276,
+            306
+          ]
+        ]
+      },
+      {
+        "id": "348",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            770,
+            772
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            289,
+            292
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            734,
+            737
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            747,
+            769
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            777,
+            780
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            809,
+            836
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            843,
+            850
+          ]
+        ]
+      },
+      {
+        "id": "434",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            859,
+            876
+          ]
+        ]
+      },
+      {
+        "id": "437",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            908,
+            910
+          ]
+        ]
+      },
+      {
+        "id": "437",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            918,
+            925
+          ]
+        ]
+      },
+      {
+        "id": "482",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            811,
+            814
+          ]
+        ]
+      },
+      {
+        "id": "482",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            826,
+            843
+          ]
+        ]
+      },
+      {
+        "id": "482",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            848,
+            859
+          ]
+        ]
+      },
+      {
+        "id": "483",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            630,
+            632
+          ]
+        ]
+      },
+      {
+        "id": "483",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            642,
+            650
+          ]
+        ]
+      },
+      {
+        "id": "484",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            287,
+            307
+          ]
+        ]
+      },
+      {
+        "id": "485",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            405,
+            408
+          ]
+        ]
+      },
+      {
+        "id": "485",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            409,
+            439
+          ]
+        ]
+      },
+      {
+        "id": "485",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            477,
+            503
+          ]
+        ]
+      },
+      {
+        "id": "485",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            505,
+            555
+          ]
+        ]
+      },
+      {
+        "id": "541",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            784,
+            786
+          ]
+        ]
+      },
+      {
+        "id": "541",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            795,
+            813
+          ]
+        ]
+      },
+      {
+        "id": "542",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            679,
+            688
+          ]
+        ]
+      },
+      {
+        "id": "542",
+        "task_type": "summarization",
+        "gold": [],
+        "pred": [
+          [
+            959,
+            977
+          ]
+        ]
+      }
+    ],
+    "boundary": [
+      {
+        "id": "123",
+        "task_type": "summarization",
+        "gold": [
+          [
+            241,
+            323
+          ]
+        ],
+        "pred": [
+          [
+            252,
+            324
+          ]
+        ]
+      },
+      {
+        "id": "356",
+        "task_type": "summarization",
+        "gold": [
+          [
+            50,
+            65
+          ]
+        ],
+        "pred": [
+          [
+            63,
+            65
+          ]
+        ]
+      },
+      {
+        "id": "359",
+        "task_type": "summarization",
+        "gold": [
+          [
+            94,
+            118
+          ]
+        ],
+        "pred": [
+          [
+            113,
+            118
+          ]
+        ]
+      },
+      {
+        "id": "447",
+        "task_type": "summarization",
+        "gold": [
+          [
+            632,
+            666
+          ]
+        ],
+        "pred": [
+          [
+            632,
+            665
+          ]
+        ]
+      },
+      {
+        "id": "543",
+        "task_type": "summarization",
+        "gold": [
+          [
+            733,
+            766
+          ]
+        ],
+        "pred": [
+          [
+            758,
+            761
+          ]
+        ]
+      },
+      {
+        "id": "603",
+        "task_type": "summarization",
+        "gold": [
+          [
+            383,
+            427
+          ]
+        ],
+        "pred": [
+          [
+            372,
+            427
+          ]
+        ]
+      },
+      {
+        "id": "621",
+        "task_type": "summarization",
+        "gold": [
+          [
+            524,
+            581
+          ]
+        ],
+        "pred": [
+          [
+            524,
+            534
+          ]
+        ]
+      },
+      {
+        "id": "657",
+        "task_type": "summarization",
+        "gold": [
+          [
+            633,
+            675
+          ]
+        ],
+        "pred": [
+          [
+            637,
+            674
+          ]
+        ]
+      },
+      {
+        "id": "658",
+        "task_type": "summarization",
+        "gold": [
+          [
+            479,
+            516
+          ]
+        ],
+        "pred": [
+          [
+            479,
+            515
+          ]
+        ]
+      },
+      {
+        "id": "730",
+        "task_type": "summarization",
+        "gold": [
+          [
+            258,
+            280
+          ]
+        ],
+        "pred": [
+          [
+            258,
+            279
+          ]
+        ]
+      },
+      {
+        "id": "854",
+        "task_type": "summarization",
+        "gold": [
+          [
+            147,
+            224
+          ]
+        ],
+        "pred": [
+          [
+            185,
+            203
+          ]
+        ]
+      },
+      {
+        "id": "881",
+        "task_type": "summarization",
+        "gold": [
+          [
+            281,
+            315
+          ]
+        ],
+        "pred": [
+          [
+            281,
+            316
+          ]
+        ]
+      },
+      {
+        "id": "885",
+        "task_type": "summarization",
+        "gold": [
+          [
+            445,
+            492
+          ]
+        ],
+        "pred": [
+          [
+            451,
+            492
+          ]
+        ]
+      },
+      {
+        "id": "927",
+        "task_type": "summarization",
+        "gold": [
+          [
+            705,
+            858
+          ]
+        ],
+        "pred": [
+          [
+            719,
+            782
+          ]
+        ]
+      },
+      {
+        "id": "1340",
+        "task_type": "summarization",
+        "gold": [
+          [
+            1005,
+            1116
+          ]
+        ],
+        "pred": [
+          [
+            996,
+            1116
+          ]
+        ]
+      },
+      {
+        "id": "1478",
+        "task_type": "summarization",
+        "gold": [
+          [
+            541,
+            677
+          ]
+        ],
+        "pred": [
+          [
+            623,
+            677
+          ]
+        ]
+      },
+      {
+        "id": "1517",
+        "task_type": "summarization",
+        "gold": [
+          [
+            829,
+            947
+          ]
+        ],
+        "pred": [
+          [
+            844,
+            947
+          ]
+        ]
+      },
+      {
+        "id": "1520",
+        "task_type": "summarization",
+        "gold": [
+          [
+            608,
+            710
+          ]
+        ],
+        "pred": [
+          [
+            675,
+            710
+          ]
+        ]
+      },
+      {
+        "id": "1586",
+        "task_type": "summarization",
+        "gold": [
+          [
+            221,
+            336
+          ]
+        ],
+        "pred": [
+          [
+            221,
+            337
+          ]
+        ]
+      },
+      {
+        "id": "1622",
+        "task_type": "summarization",
+        "gold": [
+          [
+            249,
+            329
+          ]
+        ],
+        "pred": [
+          [
+            297,
+            328
+          ]
+        ]
+      },
+      {
+        "id": "1646",
+        "task_type": "summarization",
+        "gold": [
+          [
+            885,
+            1147
+          ]
+        ],
+        "pred": [
+          [
+            885,
+            969
+          ]
+        ]
+      },
+      {
+        "id": "1682",
+        "task_type": "summarization",
+        "gold": [
+          [
+            563,
+            573
+          ]
+        ],
+        "pred": [
+          [
+            529,
+            625
+          ]
+        ]
+      },
+      {
+        "id": "1826",
+        "task_type": "summarization",
+        "gold": [
+          [
+            67,
+            86
+          ]
+        ],
+        "pred": [
+          [
+            11,
+            87
+          ]
+        ]
+      },
+      {
+        "id": "1826",
+        "task_type": "summarization",
+        "gold": [
+          [
+            88,
+            130
+          ]
+        ],
+        "pred": [
+          [
+            103,
+            130
+          ]
+        ]
+      },
+      {
+        "id": "1827",
+        "task_type": "summarization",
+        "gold": [
+          [
+            117,
+            131
+          ]
+        ],
+        "pred": [
+          [
+            111,
+            130
+          ]
+        ]
+      },
+      {
+        "id": "1965",
+        "task_type": "summarization",
+        "gold": [
+          [
+            397,
+            444
+          ]
+        ],
+        "pred": [
+          [
+            419,
+            424
+          ]
+        ]
+      },
+      {
+        "id": "2246",
+        "task_type": "summarization",
+        "gold": [
+          [
+            169,
+            197
+          ]
+        ],
+        "pred": [
+          [
+            165,
+            197
+          ]
+        ]
+      },
+      {
+        "id": "2426",
+        "task_type": "summarization",
+        "gold": [
+          [
+            1278,
+            1295
+          ]
+        ],
+        "pred": [
+          [
+            1212,
+            1295
+          ]
+        ]
+      },
+      {
+        "id": "2456",
+        "task_type": "summarization",
+        "gold": [
+          [
+            195,
+            220
+          ]
+        ],
+        "pred": [
+          [
+            199,
+            220
+          ]
+        ]
+      },
+      {
+        "id": "2534",
+        "task_type": "summarization",
+        "gold": [
+          [
+            556,
+            580
+          ]
+        ],
+        "pred": [
+          [
+            515,
+            580
+          ]
+        ]
+      },
+      {
+        "id": "2669",
+        "task_type": "summarization",
+        "gold": [
+          [
+            144,
+            214
+          ]
+        ],
+        "pred": [
+          [
+            157,
+            213
+          ]
+        ]
+      },
+      {
+        "id": "2878",
+        "task_type": "summarization",
+        "gold": [
+          [
+            559,
+            579
+          ]
+        ],
+        "pred": [
+          [
+            571,
+            579
+          ]
+        ]
+      },
+      {
+        "id": "3146",
+        "task_type": "summarization",
+        "gold": [
+          [
+            186,
+            196
+          ]
+        ],
+        "pred": [
+          [
+            159,
+            197
+          ]
+        ]
+      },
+      {
+        "id": "3149",
+        "task_type": "summarization",
+        "gold": [
+          [
+            189,
+            226
+          ]
+        ],
+        "pred": [
+          [
+            212,
+            226
+          ]
+        ]
+      },
+      {
+        "id": "3915",
+        "task_type": "summarization",
+        "gold": [
+          [
+            385,
+            452
+          ]
+        ],
+        "pred": [
+          [
+            368,
+            452
+          ]
+        ]
+      },
+      {
+        "id": "4076",
+        "task_type": "summarization",
+        "gold": [
+          [
+            247,
+            267
+          ]
+        ],
+        "pred": [
+          [
+            252,
+            267
+          ]
+        ]
+      },
+      {
+        "id": "4119",
+        "task_type": "summarization",
+        "gold": [
+          [
+            492,
+            507
+          ]
+        ],
+        "pred": [
+          [
+            459,
+            507
+          ]
+        ]
+      },
+      {
+        "id": "4120",
+        "task_type": "summarization",
+        "gold": [
+          [
+            353,
+            373
+          ]
+        ],
+        "pred": [
+          [
+            340,
+            390
+          ]
+        ]
+      },
+      {
+        "id": "4196",
+        "task_type": "summarization",
+        "gold": [
+          [
+            431,
+            451
+          ]
+        ],
+        "pred": [
+          [
+            408,
+            452
+          ]
+        ]
+      },
+      {
+        "id": "4442",
+        "task_type": "summarization",
+        "gold": [
+          [
+            112,
+            139
+          ]
+        ],
+        "pred": [
+          [
+            97,
+            140
+          ]
+        ]
+      }
+    ],
+    "split": [
+      {
+        "id": "437",
+        "task_type": "summarization",
+        "gold": [
+          [
+            654,
+            828
+          ]
+        ],
+        "pred": [
+          [
+            684,
+            696
+          ],
+          [
+            702,
+            734
+          ],
+          [
+            740,
+            765
+          ],
+          [
+            784,
+            819
+          ]
+        ]
+      },
+      {
+        "id": "545",
+        "task_type": "summarization",
+        "gold": [
+          [
+            703,
+            724
+          ]
+        ],
+        "pred": [
+          [
+            703,
+            708
+          ],
+          [
+            719,
+            723
+          ]
+        ]
+      },
+      {
+        "id": "728",
+        "task_type": "summarization",
+        "gold": [
+          [
+            150,
+            346
+          ]
+        ],
+        "pred": [
+          [
+            150,
+            229
+          ],
+          [
+            230,
+            346
+          ]
+        ]
+      },
+      {
+        "id": "908",
+        "task_type": "summarization",
+        "gold": [
+          [
+            490,
+            1119
+          ]
+        ],
+        "pred": [
+          [
+            490,
+            638
+          ],
+          [
+            911,
+            974
+          ]
+        ]
+      },
+      {
+        "id": "1109",
+        "task_type": "summarization",
+        "gold": [
+          [
+            391,
+            491
+          ]
+        ],
+        "pred": [
+          [
+            395,
+            402
+          ],
+          [
+            406,
+            412
+          ],
+          [
+            464,
+            490
+          ]
+        ]
+      },
+      {
+        "id": "1342",
+        "task_type": "summarization",
+        "gold": [
+          [
+            960,
+            1123
+          ]
+        ],
+        "pred": [
+          [
+            964,
+            1000
+          ],
+          [
+            1023,
+            1123
+          ]
+        ]
+      },
+      {
+        "id": "1568",
+        "task_type": "summarization",
+        "gold": [
+          [
+            457,
+            518
+          ]
+        ],
+        "pred": [
+          [
+            468,
+            480
+          ],
+          [
+            482,
+            517
+          ]
+        ]
+      },
+      {
+        "id": "2067",
+        "task_type": "summarization",
+        "gold": [
+          [
+            133,
+            181
+          ]
+        ],
+        "pred": [
+          [
+            133,
+            151
+          ],
+          [
+            156,
+            168
+          ],
+          [
+            172,
+            180
+          ]
+        ]
+      },
+      {
+        "id": "2666",
+        "task_type": "summarization",
+        "gold": [
+          [
+            939,
+            987
+          ]
+        ],
+        "pred": [
+          [
+            939,
+            943
+          ],
+          [
+            948,
+            952
+          ],
+          [
+            960,
+            986
+          ]
+        ]
+      },
+      {
+        "id": "2896",
+        "task_type": "summarization",
+        "gold": [
+          [
+            361,
+            453
+          ]
+        ],
+        "pred": [
+          [
+            423,
+            429
+          ],
+          [
+            443,
+            452
+          ]
+        ]
+      },
+      {
+        "id": "3608",
+        "task_type": "summarization",
+        "gold": [
+          [
+            916,
+            1036
+          ]
+        ],
+        "pred": [
+          [
+            916,
+            973
+          ],
+          [
+            987,
+            1008
+          ],
+          [
+            1017,
+            1035
+          ]
+        ]
+      },
+      {
+        "id": "3866",
+        "task_type": "summarization",
+        "gold": [
+          [
+            301,
+            315
+          ]
+        ],
+        "pred": [
+          [
+            301,
+            303
+          ],
+          [
+            304,
+            315
+          ]
+        ]
+      },
+      {
+        "id": "4018",
+        "task_type": "summarization",
+        "gold": [
+          [
+            253,
+            348
+          ]
+        ],
+        "pred": [
+          [
+            268,
+            283
+          ],
+          [
+            288,
+            348
+          ]
+        ]
+      },
+      {
+        "id": "4065",
+        "task_type": "summarization",
+        "gold": [
+          [
+            180,
+            254
+          ]
+        ],
+        "pred": [
+          [
+            181,
+            188
+          ],
+          [
+            190,
+            255
+          ]
+        ]
+      },
+      {
+        "id": "4211",
+        "task_type": "summarization",
+        "gold": [
+          [
+            294,
+            421
+          ]
+        ],
+        "pred": [
+          [
+            386,
+            400
+          ],
+          [
+            401,
+            420
+          ]
+        ]
+      },
+      {
+        "id": "5672",
+        "task_type": "data2text",
+        "gold": [
+          [
+            164,
+            189
+          ]
+        ],
+        "pred": [
+          [
+            164,
+            166
+          ],
+          [
+            167,
+            189
+          ]
+        ]
+      },
+      {
+        "id": "5673",
+        "task_type": "data2text",
+        "gold": [
+          [
+            365,
+            390
+          ]
+        ],
+        "pred": [
+          [
+            374,
+            384
+          ],
+          [
+            387,
+            389
+          ]
+        ]
+      },
+      {
+        "id": "5674",
+        "task_type": "data2text",
+        "gold": [
+          [
+            500,
+            549
+          ]
+        ],
+        "pred": [
+          [
+            504,
+            528
+          ],
+          [
+            529,
+            548
+          ]
+        ]
+      },
+      {
+        "id": "5692",
+        "task_type": "data2text",
+        "gold": [
+          [
+            509,
+            536
+          ]
+        ],
+        "pred": [
+          [
+            509,
+            516
+          ],
+          [
+            521,
+            537
+          ]
+        ]
+      },
+      {
+        "id": "5764",
+        "task_type": "data2text",
+        "gold": [
+          [
+            438,
+            466
+          ]
+        ],
+        "pred": [
+          [
+            442,
+            446
+          ],
+          [
+            447,
+            467
+          ]
+        ]
+      },
+      {
+        "id": "5764",
+        "task_type": "data2text",
+        "gold": [
+          [
+            468,
+            500
+          ]
+        ],
+        "pred": [
+          [
+            478,
+            486
+          ],
+          [
+            487,
+            491
+          ]
+        ]
+      },
+      {
+        "id": "5828",
+        "task_type": "data2text",
+        "gold": [
+          [
+            1130,
+            1219
+          ]
+        ],
+        "pred": [
+          [
+            1149,
+            1205
+          ],
+          [
+            1210,
+            1219
+          ]
+        ]
+      },
+      {
+        "id": "5851",
+        "task_type": "data2text",
+        "gold": [
+          [
+            188,
+            275
+          ]
+        ],
+        "pred": [
+          [
+            215,
+            216
+          ],
+          [
+            225,
+            233
+          ],
+          [
+            245,
+            265
+          ]
+        ]
+      },
+      {
+        "id": "6025",
+        "task_type": "data2text",
+        "gold": [
+          [
+            992,
+            1033
+          ]
+        ],
+        "pred": [
+          [
+            1007,
+            1013
+          ],
+          [
+            1018,
+            1032
+          ]
+        ]
+      },
+      {
+        "id": "6051",
+        "task_type": "data2text",
+        "gold": [
+          [
+            351,
+            459
+          ]
+        ],
+        "pred": [
+          [
+            393,
+            398
+          ],
+          [
+            430,
+            459
+          ]
+        ]
+      },
+      {
+        "id": "6053",
+        "task_type": "data2text",
+        "gold": [
+          [
+            588,
+            636
+          ]
+        ],
+        "pred": [
+          [
+            591,
+            619
+          ],
+          [
+            620,
+            636
+          ]
+        ]
+      },
+      {
+        "id": "6256",
+        "task_type": "data2text",
+        "gold": [
+          [
+            322,
+            365
+          ]
+        ],
+        "pred": [
+          [
+            347,
+            349
+          ],
+          [
+            350,
+            365
+          ]
+        ]
+      },
+      {
+        "id": "6410",
+        "task_type": "data2text",
+        "gold": [
+          [
+            237,
+            302
+          ]
+        ],
+        "pred": [
+          [
+            237,
+            269
+          ],
+          [
+            271,
+            302
+          ]
+        ]
+      },
+      {
+        "id": "6411",
+        "task_type": "data2text",
+        "gold": [
+          [
+            438,
+            464
+          ]
+        ],
+        "pred": [
+          [
+            438,
+            442
+          ],
+          [
+            443,
+            464
+          ]
+        ]
+      },
+      {
+        "id": "6550",
+        "task_type": "data2text",
+        "gold": [
+          [
+            425,
+            577
+          ]
+        ],
+        "pred": [
+          [
+            425,
+            468
+          ],
+          [
+            501,
+            531
+          ],
+          [
+            536,
+            577
+          ]
+        ]
+      },
+      {
+        "id": "6550",
+        "task_type": "data2text",
+        "gold": [
+          [
+            627,
+            708
+          ]
+        ],
+        "pred": [
+          [
+            627,
+            676
+          ],
+          [
+            693,
+            694
+          ],
+          [
+            704,
+            708
+          ]
+        ]
+      },
+      {
+        "id": "6632",
+        "task_type": "data2text",
+        "gold": [
+          [
+            182,
+            270
+          ]
+        ],
+        "pred": [
+          [
+            205,
+            236
+          ],
+          [
+            243,
+            270
+          ]
+        ]
+      },
+      {
+        "id": "6634",
+        "task_type": "data2text",
+        "gold": [
+          [
+            700,
+            738
+          ]
+        ],
+        "pred": [
+          [
+            700,
+            729
+          ],
+          [
+            733,
+            738
+          ]
+        ]
+      },
+      {
+        "id": "6674",
+        "task_type": "data2text",
+        "gold": [
+          [
+            387,
+            489
+          ]
+        ],
+        "pred": [
+          [
+            387,
+            412
+          ],
+          [
+            417,
+            423
+          ],
+          [
+            425,
+            488
+          ]
+        ]
+      },
+      {
+        "id": "6716",
+        "task_type": "data2text",
+        "gold": [
+          [
+            231,
+            280
+          ]
+        ],
+        "pred": [
+          [
+            267,
+            268
+          ],
+          [
+            269,
+            280
+          ]
+        ]
+      },
+      {
+        "id": "6773",
+        "task_type": "data2text",
+        "gold": [
+          [
+            1526,
+            1662
+          ]
+        ],
+        "pred": [
+          [
+            1572,
+            1574
+          ],
+          [
+            1582,
+            1661
+          ]
+        ]
+      },
+      {
+        "id": "6776",
+        "task_type": "data2text",
+        "gold": [
+          [
+            330,
+            406
+          ]
+        ],
+        "pred": [
+          [
+            350,
+            397
+          ],
+          [
+            400,
+            405
+          ]
+        ]
+      },
+      {
+        "id": "6778",
+        "task_type": "data2text",
+        "gold": [
+          [
+            332,
+            389
+          ]
+        ],
+        "pred": [
+          [
+            370,
+            376
+          ],
+          [
+            380,
+            385
+          ]
+        ]
+      },
+      {
+        "id": "6842",
+        "task_type": "data2text",
+        "gold": [
+          [
+            207,
+            241
+          ]
+        ],
+        "pred": [
+          [
+            207,
+            230
+          ],
+          [
+            235,
+            241
+          ]
+        ]
+      },
+      {
+        "id": "6862",
+        "task_type": "data2text",
+        "gold": [
+          [
+            485,
+            543
+          ]
+        ],
+        "pred": [
+          [
+            485,
+            501
+          ],
+          [
+            502,
+            544
+          ]
+        ]
+      }
+    ],
+    "merge": [
+      {
+        "id": "3080",
+        "task_type": "summarization",
+        "gold": [
+          [
+            603,
+            629
+          ],
+          [
+            634,
+            667
+          ]
+        ],
+        "pred": [
+          [
+            596,
+            795
+          ]
+        ]
+      },
+      {
+        "id": "5692",
+        "task_type": "data2text",
+        "gold": [
+          [
+            336,
+            362
+          ],
+          [
+            368,
+            388
+          ]
+        ],
+        "pred": [
+          [
+            336,
+            389
+          ]
+        ]
+      },
+      {
+        "id": "5738",
+        "task_type": "data2text",
+        "gold": [
+          [
+            81,
+            113
+          ],
+          [
+            137,
+            163
+          ]
+        ],
+        "pred": [
+          [
+            68,
+            162
+          ]
+        ]
+      },
+      {
+        "id": "6418",
+        "task_type": "data2text",
+        "gold": [
+          [
+            694,
+            745
+          ],
+          [
+            750,
+            798
+          ]
+        ],
+        "pred": [
+          [
+            704,
+            798
+          ]
+        ]
+      },
+      {
+        "id": "6716",
+        "task_type": "data2text",
+        "gold": [
+          [
+            281,
+            287
+          ],
+          [
+            289,
+            296
+          ]
+        ],
+        "pred": [
+          [
+            281,
+            295
+          ]
+        ]
+      },
+      {
+        "id": "6904",
+        "task_type": "data2text",
+        "gold": [
+          [
+            284,
+            329
+          ],
+          [
+            330,
+            359
+          ]
+        ],
+        "pred": [
+          [
+            284,
+            360
+          ]
+        ]
+      },
+      {
+        "id": "7100",
+        "task_type": "data2text",
+        "gold": [
+          [
+            251,
+            273
+          ],
+          [
+            275,
+            299
+          ],
+          [
+            300,
+            315
+          ],
+          [
+            317,
+            321
+          ],
+          [
+            323,
+            338
+          ],
+          [
+            343,
+            361
+          ]
+        ],
+        "pred": [
+          [
+            251,
+            361
+          ]
+        ]
+      },
+      {
+        "id": "7155",
+        "task_type": "data2text",
+        "gold": [
+          [
+            328,
+            390
+          ],
+          [
+            392,
+            424
+          ]
+        ],
+        "pred": [
+          [
+            328,
+            423
+          ]
+        ]
+      },
+      {
+        "id": "8151",
+        "task_type": "data2text",
+        "gold": [
+          [
+            955,
+            974
+          ],
+          [
+            978,
+            994
+          ]
+        ],
+        "pred": [
+          [
+            936,
+            994
+          ]
+        ]
+      },
+      {
+        "id": "8674",
+        "task_type": "data2text",
+        "gold": [
+          [
+            595,
+            622
+          ],
+          [
+            623,
+            641
+          ]
+        ],
+        "pred": [
+          [
+            595,
+            641
+          ]
+        ]
+      },
+      {
+        "id": "8770",
+        "task_type": "data2text",
+        "gold": [
+          [
+            1023,
+            1041
+          ],
+          [
+            1046,
+            1075
+          ],
+          [
+            1080,
+            1087
+          ]
+        ],
+        "pred": [
+          [
+            995,
+            1087
+          ]
+        ]
+      },
+      {
+        "id": "9002",
+        "task_type": "data2text",
+        "gold": [
+          [
+            353,
+            389
+          ],
+          [
+            393,
+            412
+          ]
+        ],
+        "pred": [
+          [
+            353,
+            411
+          ]
+        ]
+      },
+      {
+        "id": "9068",
+        "task_type": "data2text",
+        "gold": [
+          [
+            212,
+            239
+          ],
+          [
+            255,
+            280
+          ]
+        ],
+        "pred": [
+          [
+            228,
+            280
+          ]
+        ]
+      },
+      {
+        "id": "9682",
+        "task_type": "data2text",
+        "gold": [
+          [
+            619,
+            641
+          ],
+          [
+            642,
+            653
+          ]
+        ],
+        "pred": [
+          [
+            619,
+            653
+          ]
+        ]
+      },
+      {
+        "id": "9771",
+        "task_type": "data2text",
+        "gold": [
+          [
+            548,
+            637
+          ],
+          [
+            646,
+            670
+          ]
+        ],
+        "pred": [
+          [
+            557,
+            670
+          ]
+        ]
+      },
+      {
+        "id": "9916",
+        "task_type": "data2text",
+        "gold": [
+          [
+            1000,
+            1008
+          ],
+          [
+            1013,
+            1026
+          ]
+        ],
+        "pred": [
+          [
+            986,
+            1027
+          ]
+        ]
+      },
+      {
+        "id": "10112",
+        "task_type": "data2text",
+        "gold": [
+          [
+            423,
+            445
+          ],
+          [
+            449,
+            466
+          ]
+        ],
+        "pred": [
+          [
+            423,
+            466
+          ]
+        ]
+      },
+      {
+        "id": "10113",
+        "task_type": "data2text",
+        "gold": [
+          [
+            613,
+            658
+          ],
+          [
+            662,
+            670
+          ]
+        ],
+        "pred": [
+          [
+            598,
+            702
+          ]
+        ]
+      },
+      {
+        "id": "12044",
+        "task_type": "qa",
+        "gold": [
+          [
+            470,
+            504
+          ],
+          [
+            505,
+            569
+          ],
+          [
+            570,
+            780
+          ]
+        ],
+        "pred": [
+          [
+            470,
+            780
+          ]
+        ]
+      }
+    ]
+  }
+}
