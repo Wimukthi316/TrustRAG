@@ -1,0 +1,65 @@
+# C1 ablation: class-weighted loss. Identical to c1_base.yaml except for
+# class_weights, run_name and output.dir.
+#
+# Why this run exists. On the test split the detector's recall is 0.4816 and its
+# predicted spans are about half the length of the gold spans they overlap
+# (median 17 characters against 35). 503 of 1,517 gold spans are never touched at
+# all, and 305 of the 504 near-miss predictions sit strictly inside their gold
+# span. Every one of those is the model being too conservative, which is what a
+# majority-class bias looks like at the token level: O is the cheapest label to
+# predict, so the loss is minimised by predicting less.
+#
+# class_weights multiplies the per-token cross-entropy by a per-label factor, so
+# missing a hallucinated token costs three times what a false alarm costs.
+# Expect recall up and precision down. Whether example F1 moves at all is the
+# question; [1.0, 3.0, 3.0] is the value c1_base.yaml's own comment suggests and
+# it is being tried first because it is the obvious starting point, not because
+# 3.0 was tuned.
+#
+# JUDGE THE RESULT AGAINST THE 1.1-POINT RUN-TO-RUN SPREAD. Two runs of
+# c1_base.yaml at identical config and identical seed gave test example F1 0.7511
+# and 0.7623. Anything smaller than that gap is not a difference.
+#
+# output.dir is deliberately NOT results/c1/modernbert-base: that directory holds
+# the checkpoint and the probability dumps every reported number and the C2
+# calibrator were built from.
+
+run_name: c1-modernbert-base-cw3
+seed: 42
+
+data:
+  train_file: data/processed/ragtruth_train.jsonl
+  test_file: data/processed/ragtruth_test.jsonl
+  limit: null
+  val_fraction: 0.05
+  calib_fraction: 0.10
+  max_length: 3072
+
+model:
+  name: answerdotai/ModernBERT-base
+  gradient_checkpointing: false
+
+train:
+  epochs: 6
+  batch_size: 2
+  grad_accum: 4
+  lr: 1.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  max_grad_norm: 1.0
+  precision: auto
+  group_by_length: true
+  num_workers: 2
+  class_weights: [1.0, 3.0, 3.0]   # O, B-HAL, I-HAL
+  log_every: 20
+  eval_batch_size: 8
+
+output:
+  dir: results/c1/modernbert-base-cw3
+  save_best: true
+  select_on: example.f1
+
+wandb:
+  enabled: true
+  project: trustrag-c1
+  entity: null

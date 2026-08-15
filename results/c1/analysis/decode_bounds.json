@@ -1,0 +1,148 @@
+{
+  "n_records": 2700,
+  "baseline_n_pred_spans": 2390,
+  "baseline_span_exact_f1": 0.148451497312516,
+  "best_glued_span_exact_f1": 0.15105348460291734,
+  "best_gain_points": 0.26,
+  "exact_matches_lost_at_best": 57,
+  "glue_sweep": [
+    {
+      "max_gap_glued": 0,
+      "n_pred_spans": 2389,
+      "span_exact_tp": 290,
+      "span_exact_f1": 0.148489503328213,
+      "span_overlap_f1": 0.5064004096262161
+    },
+    {
+      "max_gap_glued": 1,
+      "n_pred_spans": 2257,
+      "span_exact_tp": 281,
+      "span_exact_f1": 0.1489136195018548,
+      "span_overlap_f1": 0.5151033386327505
+    },
+    {
+      "max_gap_glued": 2,
+      "n_pred_spans": 2154,
+      "span_exact_tp": 254,
+      "span_exact_f1": 0.13838191228548077,
+      "span_overlap_f1": 0.5208390084445655
+    },
+    {
+      "max_gap_glued": 3,
+      "n_pred_spans": 2129,
+      "span_exact_tp": 254,
+      "span_exact_f1": 0.13933077345035655,
+      "span_overlap_f1": 0.5244103126714208
+    },
+    {
+      "max_gap_glued": 5,
+      "n_pred_spans": 1948,
+      "span_exact_tp": 249,
+      "span_exact_f1": 0.14372294372294372,
+      "span_overlap_f1": 0.5443001443001443
+    },
+    {
+      "max_gap_glued": 10,
+      "n_pred_spans": 1741,
+      "span_exact_tp": 241,
+      "span_exact_f1": 0.14794352363413135,
+      "span_overlap_f1": 0.5623081645181093
+    },
+    {
+      "max_gap_glued": 20,
+      "n_pred_spans": 1568,
+      "span_exact_tp": 233,
+      "span_exact_f1": 0.15105348460291734,
+      "span_overlap_f1": 0.580226904376013
+    },
+    {
+      "max_gap_glued": 40,
+      "n_pred_spans": 1455,
+      "span_exact_tp": 214,
+      "span_exact_f1": 0.1440107671601615,
+      "span_overlap_f1": 0.5820995962314939
+    }
+  ],
+  "threshold_sweep_span_exact": [
+    {
+      "threshold": 0.05,
+      "n_pred_spans": 5161,
+      "span_exact_precision": 0.031195504747142028,
+      "span_exact_recall": 0.1061305207646671,
+      "span_exact_f1": 0.04821802935010483,
+      "span_overlap_f1": 0.33183587900569034
+    },
+    {
+      "threshold": 0.1,
+      "n_pred_spans": 3975,
+      "span_exact_precision": 0.04905660377358491,
+      "span_exact_recall": 0.12854317732366513,
+      "span_exact_f1": 0.07101238164603059,
+      "span_overlap_f1": 0.38929351784413696
+    },
+    {
+      "threshold": 0.2,
+      "n_pred_spans": 3175,
+      "span_exact_precision": 0.06614173228346457,
+      "span_exact_recall": 0.13843111404087013,
+      "span_exact_f1": 0.08951406649616368,
+      "span_overlap_f1": 0.4411764705882353
+    },
+    {
+      "threshold": 0.3,
+      "n_pred_spans": 2766,
+      "span_exact_precision": 0.08568329718004339,
+      "span_exact_recall": 0.15622940013183917,
+      "span_exact_f1": 0.11067009105766987,
+      "span_overlap_f1": 0.4763016577165538
+    },
+    {
+      "threshold": 0.4,
+      "n_pred_spans": 2517,
+      "span_exact_precision": 0.10607866507747318,
+      "span_exact_recall": 0.17600527356624918,
+      "span_exact_f1": 0.1323748140803173,
+      "span_overlap_f1": 0.4962816063460584
+    },
+    {
+      "threshold": 0.5,
+      "n_pred_spans": 2328,
+      "span_exact_precision": 0.125,
+      "span_exact_recall": 0.19182597231377718,
+      "span_exact_f1": 0.15136540962288686,
+      "span_overlap_f1": 0.5092327698309493
+    },
+    {
+      "threshold": 0.6,
+      "n_pred_spans": 2133,
+      "span_exact_precision": 0.13689639006094703,
+      "span_exact_recall": 0.1924851680949242,
+      "span_exact_f1": 0.16,
+      "span_overlap_f1": 0.5194520547945206
+    },
+    {
+      "threshold": 0.7,
+      "n_pred_spans": 1943,
+      "span_exact_precision": 0.13535769428718478,
+      "span_exact_recall": 0.17336849044166117,
+      "span_exact_f1": 0.15202312138728324,
+      "span_overlap_f1": 0.5254335260115607
+    },
+    {
+      "threshold": 0.8,
+      "n_pred_spans": 1709,
+      "span_exact_precision": 0.1398478642480983,
+      "span_exact_recall": 0.15754779169413316,
+      "span_exact_f1": 0.148171109733416,
+      "span_overlap_f1": 0.5257284562926225
+    },
+    {
+      "threshold": 0.9,
+      "n_pred_spans": 1410,
+      "span_exact_precision": 0.13120567375886524,
+      "span_exact_recall": 0.12195121951219512,
+      "span_exact_f1": 0.12640929279125385,
+      "span_overlap_f1": 0.5001708233686367
+    }
+  ]
+}
