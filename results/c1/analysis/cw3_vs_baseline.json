@@ -1,0 +1,32 @@
+{
+  "span_exact": {
+    "baseline": 0.148451497312516,
+    "variant": 0.1054897739504844,
+    "delta_points": -4.296172336203161,
+    "ci_low_points": -5.940026871720247,
+    "ci_high_points": -2.7009620416213824,
+    "crosses_zero": false,
+    "std_points": 0.8125305854246346,
+    "verdict": "lower"
+  },
+  "span_overlap": {
+    "baseline": 0.5062707960071666,
+    "variant": 0.4495156081808397,
+    "delta_points": -5.675518782632693,
+    "ci_low_points": -7.163647134323931,
+    "ci_high_points": -4.187444739168877,
+    "crosses_zero": false,
+    "std_points": 0.744291177679619,
+    "verdict": "lower"
+  },
+  "example": {
+    "baseline": 0.7622601279317698,
+    "variant": 0.7651821862348178,
+    "delta_points": 0.2922058303048036,
+    "ci_low_points": -1.2700580666532124,
+    "ci_high_points": 1.7847699857055699,
+    "crosses_zero": true,
+    "std_points": 0.7781675141966804,
+    "verdict": "not distinguishable from zero"
+  }
+}
