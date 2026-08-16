@@ -8,17 +8,19 @@
 #   gemini-2.5-flash   404 "no longer available to new users" - ListModels still
 #                      advertises generateContent for it
 #   gemini-flash-latest 429 immediately
-#   gemini-3.5-flash   503, high demand
-#   gemini-3.6-flash   answers
-# One flash generation back from the newest is a perfectly capable judge for a
-# yes/no plus a quote, and its quota is not being fought over.
+#   gemini-3.6-flash   answered 21 of 150, then 429: the daily free tier is
+#                      per model, and 21 judgements spent it
+#   gemini-3.5-flash   503 while busy, answers later
+# Quota is per model and it resets, so the model that works is a function of the
+# hour. Switching model misses the cache by design, because a different judge is
+# a different experiment: partial runs are not pooled across models.
 #
 # Every judgement is cached under a hash of its prompt, so an interrupted run
 # resumes for free and a model switch simply misses the cache, which is correct:
 # a different judge is a different experiment.
 
 param(
-    [string]$Model = "gemini-3.6-flash",
+    [string]$Model = "gemini-3.5-flash",
     [int]$Sample = 150,
     [int]$Sleep = 6
 )

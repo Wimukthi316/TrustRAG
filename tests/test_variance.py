@@ -109,3 +109,17 @@ def test_missing_metrics_is_an_error_not_a_silent_skip(tmp_path):
 def test_summarise_refuses_an_empty_run_list():
     with pytest.raises(ValueError):
         summarise([])
+
+
+def test_the_seed_can_be_stated_when_the_metrics_dir_has_no_summary(tmp_path):
+    # Evaluation output lands in results/c1/test-seed7, while summary.json stays
+    # with the training run, so DIR=SEED has to be accepted.
+    from src.c1_detector.variance import main
+
+    run_dir = write_run(tmp_path, "test-seed7", 0.53, seed=42)
+    (run_dir / "summary.json").unlink()
+    assert read_run(run_dir)["seed"] is None
+
+    out = tmp_path / "variance.json"
+    main([f"{run_dir}=7", "--out", str(out)])
+    assert json.loads(out.read_text(encoding="utf-8"))["distinct_seeds"] == [7]

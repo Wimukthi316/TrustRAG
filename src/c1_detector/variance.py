@@ -45,24 +45,24 @@ def sample_sd(values: Sequence[float]) -> Optional[float]:
     return math.sqrt(sum((v - mu) ** 2 for v in values) / (len(values) - 1))
 
 
-def read_run(run_dir: Path) -> Dict[str, Any]:
+def read_run(run_dir: Path, seed: Optional[int] = None) -> Dict[str, Any]:
     """One run's test metrics, plus the seed it actually used if recorded.
 
     The seed is read from summary.json rather than from the config file, because
-    the CLI can override it and the override is what the run really used.
+    the CLI can override it and the override is what the run really used. Test
+    metrics are written to their own directory, away from the training run's
+    summary.json, so the caller may also state the seed outright.
     """
     metrics_path = run_dir / "metrics.json"
     if not metrics_path.exists():
         raise FileNotFoundError(f"no metrics.json under {run_dir}")
     overall = json.loads(metrics_path.read_text(encoding="utf-8"))["overall"]
 
-    seed: Optional[int] = None
-    summary_path = run_dir / "summary.json"
-    if not summary_path.exists():
-        summary_path = run_dir.parent / "summary.json"
-    if summary_path.exists():
-        summary = json.loads(summary_path.read_text(encoding="utf-8"))
-        seed = summary.get("config", {}).get("seed")
+    if seed is None:
+        summary_path = run_dir / "summary.json"
+        if summary_path.exists():
+            summary = json.loads(summary_path.read_text(encoding="utf-8"))
+            seed = summary.get("config", {}).get("seed")
 
     return {
         "dir": str(run_dir).replace("\\", "/"),
@@ -142,12 +142,21 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         description="Summarise repeat C1 training runs into a variance estimate."
     )
     parser.add_argument(
-        "runs", nargs="+", help="run directories, each containing metrics.json"
+        "runs",
+        nargs="+",
+        help=(
+            "run directories, each containing metrics.json. Write DIR=SEED when "
+            "the seed is not recoverable from a summary.json beside the metrics, "
+            "which is the case for evaluation output directories"
+        ),
     )
     parser.add_argument("--out", default="results/c1/analysis/variance.json")
     args = parser.parse_args(argv)
 
-    runs: List[Dict[str, Any]] = [read_run(Path(p)) for p in args.runs]
+    runs: List[Dict[str, Any]] = []
+    for item in args.runs:
+        path, _, seed_text = item.partition("=")
+        runs.append(read_run(Path(path), int(seed_text) if seed_text else None))
     report = summarise(runs)
     print(format_report(report))
 
