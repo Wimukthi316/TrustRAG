@@ -35,7 +35,14 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 CALIB_FRACTION = 0.30
 SEED = 42
-THRESHOLDS = tuple(round(0.02 * i, 2) for i in range(1, 50))  # 0.02 .. 0.98
+# The low end is deliberately fine. As the threshold falls the rule converges on
+# "call every response hallucinated", which scores exactly the trivial baseline,
+# so a sweep that stops at 0.02 can report an optimum that is really just the
+# edge of its own grid. Going down to 0.001 lets the chosen point be interior, or
+# makes it obvious that the best available setting IS the trivial classifier.
+THRESHOLDS = (
+    0.001, 0.002, 0.005, 0.0075, 0.01, 0.0125, 0.015, 0.0175,
+) + tuple(round(0.02 * i, 3) for i in range(1, 50))  # 0.02 .. 0.98
 
 
 def load_scores(path: Path | str) -> List[Dict[str, Any]]:
@@ -120,6 +127,11 @@ def score_rule(
         "tn": tn,
         "trivial_f1": trivial_f1(rate),
         "clears_trivial": f1 > trivial_f1(rate),
+        "margin_over_trivial_points": 100 * (f1 - trivial_f1(rate)),
+        # What fraction of responses this rule flags. A rule that flags nearly
+        # everything IS the trivial classifier, whatever its F1 says, and that
+        # has to be visible rather than inferred from a suspiciously small margin.
+        "flagged_rate": (tp + fp) / n if n else 0.0,
     }
 
 
@@ -226,18 +238,43 @@ def format_report(report: Dict[str, Any]) -> str:
         "",
     ]
 
-    delta = report["test"]["adapted"]["f1"] - report["test"]["argmax"]["f1"]
+    adapted = report["test"]["adapted"]
+    delta = adapted["f1"] - report["test"]["argmax"]["f1"]
     lines.append(f"adapting the operating point moves test F1 by {100 * delta:+.2f} points")
-    if report["test"]["adapted"]["clears_trivial"]:
+    lines.append(
+        f"it lands {adapted['margin_over_trivial_points']:+.2f} points from the "
+        f"do-nothing baseline, flagging {100 * adapted['flagged_rate']:.1f}% of responses"
+    )
+
+    # Beating the floor by a fraction of a point while flagging almost everything
+    # is not beating the floor. The measured run-to-run spread on this project is
+    # 1.1 F1 points, so anything inside that is not a difference, and a rule that
+    # says yes to nearly every response has become the trivial classifier no
+    # matter what its F1 reads.
+    if adapted["flagged_rate"] > 0.90:
         lines.append(
-            "the adapted detector clears the do-nothing baseline: the transfer gap "
-            "is partly an operating-point problem, and the table must say so"
+            "THE CHOSEN RULE IS EFFECTIVELY THE TRIVIAL CLASSIFIER. The sweep walked "
+            "to the bottom of its range, so the best operating point available to "
+            "this detector out of domain is to call almost everything hallucinated. "
+            "Report the recovery as reaching the floor, never as clearing it"
+        )
+    elif not adapted["clears_trivial"]:
+        lines.append(
+            "the adapted detector still does NOT clear the do-nothing baseline. The "
+            "transfer failure survives a fairly chosen operating point, which is the "
+            "strongest form this negative result can take"
+        )
+    elif adapted["margin_over_trivial_points"] < 1.1:
+        lines.append(
+            "the margin over the do-nothing baseline is smaller than the measured "
+            "1.1-point run-to-run spread, so it is not a difference. Report it as "
+            "indistinguishable from the floor"
         )
     else:
         lines.append(
-            "the adapted detector still does NOT clear the do-nothing baseline. "
-            "The transfer failure survives a fairly chosen operating point, which "
-            "is the strongest form this negative result can take"
+            "the adapted detector clears the do-nothing baseline by more than the "
+            "measured run-to-run spread: the transfer gap is partly an "
+            "operating-point problem and the table must say so"
         )
 
     lines += ["", f"{'subset':<14}{'n':>7}{'argmax F1':>11}{'adapted F1':>12}{'trivial':>10}{'clears':>8}"]

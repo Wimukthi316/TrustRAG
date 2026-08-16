@@ -152,3 +152,23 @@ def test_the_printed_report_states_the_baseline_verdict(corpus):
     assert "threshold chosen on calibration" in text
     assert "do-nothing baseline" in text
     assert "TEST half, adapted" in text
+
+
+def test_a_rule_that_flags_everything_is_visible_as_such(corpus):
+    result = score_rule(corpus, lambda r: True)
+    assert result["flagged_rate"] == pytest.approx(1.0)
+    assert result["margin_over_trivial_points"] == pytest.approx(0.0, abs=1e-9)
+
+
+def test_the_margin_over_trivial_is_reported_in_points(corpus):
+    result = score_rule(corpus, threshold_rule(0.5))
+    expected = 100 * (result["f1"] - result["trivial_f1"])
+    assert result["margin_over_trivial_points"] == pytest.approx(expected)
+
+
+def test_the_report_refuses_to_call_a_near_total_flag_rule_a_win():
+    """Barely beating the floor while saying yes to everything is not a win."""
+    rows = [row("s", str(i), i % 7 == 0, 0.99) for i in range(140)]
+    text = format_report(build_report(rows))
+    assert "EFFECTIVELY THE TRIVIAL CLASSIFIER" in text
+    assert "never as clearing it" in text
