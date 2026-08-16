@@ -227,3 +227,71 @@ def test_comments_and_blank_lines_are_ignored():
     from src.c1_detector.llm_judge import parse_env
 
     assert parse_env("\n# a comment\n\nA=1\nnot a pair\n") == {"A": "1"}
+
+
+# ---------------------------------------------------------------------------
+# A retired model answers 404 while ListModels still advertises it. That is a
+# naming error, so it must abort at once rather than spend the failure budget.
+# ---------------------------------------------------------------------------
+
+import contextlib  # noqa: E402
+import io  # noqa: E402
+import json  # noqa: E402
+import urllib.error  # noqa: E402
+import urllib.request  # noqa: E402
+
+from src.c1_detector import llm_judge as judge_module  # noqa: E402
+from src.c1_detector.llm_judge import (  # noqa: E402
+    JudgeUnavailable,
+    ModelUnusable,
+    call_model,
+)
+
+
+def http_error(code, message):
+    body = io.BytesIO(json.dumps({"error": {"message": message}}).encode("utf-8"))
+    return urllib.error.HTTPError("http://x", code, "err", {}, body)
+
+
+def test_404_aborts_on_the_first_attempt_with_the_api_message(monkeypatch):
+    calls = []
+
+    def fake_urlopen(request, timeout=None):
+        calls.append(1)
+        raise http_error(404, "This model models/gemini-2.5-flash is no longer available")
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+
+    with pytest.raises(ModelUnusable) as caught:
+        call_model("key", "gemini-2.5-flash", "prompt", attempts=8)
+
+    assert len(calls) == 1, "a 404 must not be retried; no sample size fixes it"
+    assert "no longer available" in str(caught.value)
+    assert "gemini-2.5-flash" in str(caught.value)
+
+
+def test_503_still_retries_and_then_succeeds(monkeypatch):
+    attempts = []
+
+    def fake_urlopen(request, timeout=None):
+        attempts.append(1)
+        if len(attempts) == 1:
+            raise http_error(503, "high demand")
+        payload = {"candidates": [{"content": {"parts": [{"text": "{}"}]}}]}
+        return contextlib.closing(io.BytesIO(json.dumps(payload).encode("utf-8")))
+
+    monkeypatch.setattr(urllib.request, "urlopen", fake_urlopen)
+    monkeypatch.setattr(judge_module.time, "sleep", lambda _seconds: None)
+
+    assert call_model("key", "gemini-3.6-flash", "prompt", attempts=3) == "{}"
+    assert len(attempts) == 2
+
+
+def test_a_spent_quota_is_still_a_skippable_failure(monkeypatch):
+    monkeypatch.setattr(
+        urllib.request, "urlopen", lambda *a, **k: (_ for _ in ()).throw(http_error(429, "quota"))
+    )
+    monkeypatch.setattr(judge_module.time, "sleep", lambda _seconds: None)
+
+    with pytest.raises(JudgeUnavailable):
+        call_model("key", "gemini-3.6-flash", "prompt", attempts=2)

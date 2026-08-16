@@ -1,0 +1,28 @@
+Put the table generator and the variance reader under version control
+
+The code that turns artefacts into reported numbers lived in results/_tables.py,
+which .gitignore excludes as scratch. The one script standing between the JSON on
+disk and the numbers in the report was therefore not in the repository. It is now
+src/c1_detector/tables.py, it reads only artefacts, and where an artefact is
+missing it prints TODO instead of leaving a gap that a typed number can fill. The
+trivial floor is derived from the confusion counts rather than stored, and it
+agrees with the figure the HHEM run computed independently.
+
+variance.py reads repeat runs and refuses to print a standard deviation from
+fewer than three of them. Two runs give a gap; calling that a sigma implies a
+precision the measurement does not have. It also records whether the runs share a
+seed, because repeat runs at one seed measure GPU non-determinism alone, while
+runs at different seeds add initialisation and move the train/val/calib split. A
+spread over mixed seeds bounds both and separates neither, and the report has to
+say which it is.
+
+train_c1 gains --seed so repeat runs need no new config file. The override lands
+in summary.json, so the run stays reconstructible. Seed 42 remains canonical:
+C2's calibration split and the HHEM threshold were both built on it.
+
+The judge aborts on the first 404 rather than the sixteenth. ListModels
+advertises generateContent for gemini-2.5-flash, and calling it answers "no
+longer available to new users" - a naming error no sample size fixes. Sixteen
+records were spent discovering that once. Of the models this key can reach,
+gemini-3.7-flash and gemini-flash-latest return 429, gemini-3.5-flash returns 503,
+and gemini-3.6-flash answers; the launcher's default moves there.

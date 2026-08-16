@@ -46,6 +46,13 @@ results/**/best/
 # time, never part of the record. Anything under results/ starting with an
 # underscore is working material, not an artefact.
 results/_*
+# The judge's per-prompt cache: one file per API answer, regenerable and only
+# meaningful next to the key that produced it. The metrics JSON is the artefact.
+results/llm_judge/cache/
+
+# Report tables are regenerated from the JSON by src/c1_detector/tables.py.
+# The generator is the artefact; its output would only churn.
+results/**/tables.md
 
 # --- figures are regenerated; keep only final ones under paper/ ---
 results/**/*.png

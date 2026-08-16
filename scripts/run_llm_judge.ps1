@@ -2,20 +2,25 @@
 #
 # Network-bound, not GPU-bound, so it can run alongside a GPU job.
 #
-# Model and pace are parameters because the free tier decides them, not us. The
-# newest model is also the most contended: gemini-3.7-flash returned 429 on four
-# of five records and produced one judgement in forty-five minutes. An older
-# flash model is a perfectly capable judge for a yes/no plus a quote, and its
-# quota is not being fought over.
+# Model and pace are parameters because the free tier decides them, not us, and
+# picking the model is not a one-line choice:
+#   gemini-3.7-flash   429 on four of five records, one judgement in 45 minutes
+#   gemini-2.5-flash   404 "no longer available to new users" - ListModels still
+#                      advertises generateContent for it
+#   gemini-flash-latest 429 immediately
+#   gemini-3.5-flash   503, high demand
+#   gemini-3.6-flash   answers
+# One flash generation back from the newest is a perfectly capable judge for a
+# yes/no plus a quote, and its quota is not being fought over.
 #
 # Every judgement is cached under a hash of its prompt, so an interrupted run
 # resumes for free and a model switch simply misses the cache, which is correct:
 # a different judge is a different experiment.
 
 param(
-    [string]$Model = "gemini-2.5-flash",
+    [string]$Model = "gemini-3.6-flash",
     [int]$Sample = 150,
-    [int]$Sleep = 8
+    [int]$Sleep = 6
 )
 
 $ErrorActionPreference = "Stop"

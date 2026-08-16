@@ -504,6 +504,16 @@ def main() -> int:
     parser.add_argument("--epochs", type=int, default=None, help="override train.epochs")
     parser.add_argument("--out-dir", default=None, help="override output.dir")
     parser.add_argument("--run-name", default=None, help="override run_name")
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=None,
+        help=(
+            "override seed, for repeat runs measuring variance. It also moves "
+            "the train/val/calib split, so the seed-42 calibration split stays "
+            "the canonical one C2 and the HHEM threshold were built on"
+        ),
+    )
     parser.add_argument("--no-wandb", action="store_true")
     parser.add_argument("--device", default=None, help="cuda, cpu, or omit to autodetect")
     args = parser.parse_args()
@@ -524,6 +534,8 @@ def main() -> int:
         config["output"]["dir"] = args.out_dir
     if args.run_name:
         config["run_name"] = args.run_name
+    if args.seed is not None:
+        config["seed"] = args.seed
     if args.no_wandb:
         config["wandb"]["enabled"] = False
 

@@ -216,6 +216,25 @@ class JudgeUnavailable(RuntimeError):
     """The API would not answer this prompt after every retry."""
 
 
+class ModelUnusable(RuntimeError):
+    """The chosen model cannot be called at all, so no sample size will help.
+
+    ListModels advertises generateContent for models that have since been
+    retired: gemini-2.5-flash is listed and answers 404 "no longer available to
+    new users". That is a naming error, not a busy server, so it aborts on the
+    first record instead of spending the failure budget discovering it sixteen
+    times.
+    """
+
+
+def _error_message(error: urllib.error.HTTPError) -> str:
+    """The API's own explanation, which says what is wrong with the model id."""
+    try:
+        return json.loads(error.read().decode("utf-8", "replace"))["error"]["message"]
+    except Exception:  # noqa: BLE001 - the body is best effort
+        return str(error)
+
+
 def call_model(
     key: str, model: str, prompt: str, attempts: int = 8, timeout: int = 120
 ) -> str:
@@ -253,6 +272,8 @@ def call_model(
             return "".join(part.get("text", "") for part in parts)
         except urllib.error.HTTPError as error:
             last = f"HTTP {error.code}"
+            if error.code == 404:
+                raise ModelUnusable(f"{model}: {_error_message(error)}") from error
             if error.code in (429, 500, 502, 503, 504) and attempt < attempts - 1:
                 time.sleep(min(delay, 120.0))
                 delay *= 2
@@ -493,7 +514,15 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     print(f"sampled {len(sample):,} of {len(records):,} responses: {tasks}")
 
     out_dir = Path(args.out_dir)
-    rows = judge_records(sample, key, model, Cache(out_dir / "cache"), args.sleep)
+    try:
+        rows = judge_records(sample, key, model, Cache(out_dir / "cache"), args.sleep)
+    except ModelUnusable as error:
+        raise SystemExit(
+            f"{error}\n"
+            "ListModels advertises generateContent for retired models, so pick "
+            "another id from that list and re-run; the cache keeps whatever this "
+            "model already answered."
+        ) from error
 
     report = {"model": model, "prompt": PROMPT, "seed": args.seed, **evaluate_judge(rows)}
     print()
