@@ -49,6 +49,7 @@ results/_*
 
 # --- figures are regenerated; keep only final ones under paper/ ---
 results/**/*.png
+results/**/*.html
 
 # --- editor / os ---
 .vscode/
