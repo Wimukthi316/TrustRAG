@@ -205,6 +205,14 @@ def main() -> int:
         "--limit", type=int, default=None, help="debug only: first N records per subset"
     )
     parser.add_argument("--device", default=None, help="cuda, cpu, or omit to autodetect")
+    parser.add_argument(
+        "--dump-scores",
+        action="store_true",
+        help=(
+            "write one row per response with its gold label and its score, so the "
+            "operating point can be swept without paying for inference again"
+        ),
+    )
     args = parser.parse_args()
 
     import torch
@@ -228,6 +236,7 @@ def main() -> int:
 
     rows: List[Dict[str, Any]] = []
     all_metrics: Dict[str, Any] = {}
+    scores: List[Dict[str, Any]] = []
 
     for subset in args.subsets:
         path = data_dir / f"{subset}.jsonl"
@@ -250,6 +259,27 @@ def main() -> int:
         predictions = predict(model, loader, dataset, device)
         metrics = evaluate(predictions)
         all_metrics[subset] = metrics
+
+        if args.dump_scores:
+            # One small row per response. The operating point is a response-level
+            # decision -- RAGBench's sentence-level labels make example F1 the only
+            # reportable metric here -- so the sweep needs the score and the label
+            # and nothing else. Keeping it small means the threshold can be
+            # re-chosen later without another 1h20m of inference.
+            for item in predictions:
+                probs = item["token_probs"]
+                scores.append(
+                    {
+                        "subset": subset,
+                        "id": item["id"],
+                        "gold_positive": len(item["gold_spans"]) > 0,
+                        "argmax_positive": len(item["pred_spans"]) > 0,
+                        "max_token_prob": max(probs) if probs else 0.0,
+                        "mean_token_prob": (sum(probs) / len(probs)) if probs else 0.0,
+                        "n_answer_tokens": len(probs),
+                        "n_pred_spans": len(item["pred_spans"]),
+                    }
+                )
         row = subset_row(subset, metrics, records)
         rows.append(row)
         print(
@@ -289,6 +319,13 @@ def main() -> int:
     table_path = out_dir / "ood_table.txt"
     table_path.write_text(table + "\n", encoding="utf-8")
     print(f"\nwrote {metrics_path}\nwrote {table_path}")
+
+    if args.dump_scores:
+        scores_path = out_dir / "response_scores.jsonl"
+        with scores_path.open("w", encoding="utf-8") as handle:
+            for row in scores:
+                handle.write(json.dumps(row) + "\n")
+        print(f"wrote {scores_path} ({len(scores):,} responses)")
     return 0
 
 
