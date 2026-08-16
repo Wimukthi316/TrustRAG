@@ -226,23 +226,103 @@ def format_report(report: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def score_with_model(
-    records: Sequence[Dict[str, Any]], batch_size: int = 8, device: Optional[str] = None
-) -> List[float]:
-    """Run HHEM. Imports are local so the module stays importable without torch.
+def load_hhem(device: str):
+    """Load HHEM, working around its code predating transformers 5.
 
-    trust_remote_code=True is what the published interface requires. It runs code
-    from the Hub, which is why nothing imports this function implicitly.
+    HHEM ships its own modelling code through trust_remote_code, and that code was
+    written against transformers 4. Version 5 renamed the attribute it uses to
+    decide which missing weights are tied rather than genuinely absent, so
+    from_pretrained dies with:
+
+        AttributeError: 'HHEMv2ForSequenceClassification' object has no
+        attribute 'all_tied_weights_keys'
+
+    The fix is to fetch the class, copy its transformers-4 tied-weight list onto
+    the name transformers 5 looks for, and only then load. Nothing about the
+    weights changes; only the bookkeeping that says the T5 encoder embedding is
+    tied to the shared embedding rather than missing.
+
+    That distinction is the whole risk. If the tie is not honoured the encoder
+    embedding is randomly initialised, the model still loads, still returns
+    numbers between 0 and 1, and every one of them is noise. So the tie is
+    asserted after loading rather than assumed: the two tensors must share
+    storage. A baseline that silently scored garbage would be worse than no
+    baseline at all.
     """
     import torch
-    from transformers import AutoModelForSequenceClassification
+    from transformers.dynamic_module_utils import get_class_from_dynamic_module
 
-    resolved = device or ("cuda" if torch.cuda.is_available() else "cpu")
-    model = AutoModelForSequenceClassification.from_pretrained(
-        MODEL_ID, trust_remote_code=True
-    ).to(resolved)
+    model_class = get_class_from_dynamic_module(
+        "modeling_hhem_v2.HHEMv2ForSequenceClassification", MODEL_ID
+    )
+    if not hasattr(model_class, "all_tied_weights_keys"):
+        # transformers 5 wants a mapping here, not the list transformers 4 used,
+        # and HHEM's own list is empty anyway. An empty mapping is deliberately
+        # NOT an assertion that nothing is tied - it just declines to guess at an
+        # internal contract. Whether the encoder embedding really ends up tied is
+        # then checked below against the tensors themselves, which is the only
+        # evidence that actually matters.
+        existing = getattr(model_class, "_tied_weights_keys", None)
+        model_class.all_tied_weights_keys = existing if isinstance(existing, dict) else {}
+        print(
+            "shimmed all_tied_weights_keys ="
+            f" {model_class.all_tied_weights_keys} for transformers 5"
+        )
+
+    model = model_class.from_pretrained(MODEL_ID, trust_remote_code=True).to(device)
     model.eval()
-    print(f"loaded {MODEL_ID} on {resolved}")
+
+    transformer = model.t5.transformer
+    if transformer.shared.weight.data_ptr() != transformer.encoder.embed_tokens.weight.data_ptr():
+        # This is the state transformers 5 leaves the model in: shared.weight was
+        # loaded from the checkpoint, encoder.embed_tokens.weight was freshly
+        # initialised, and nothing tied them. Left alone the encoder reads random
+        # embeddings and every score is noise while the model still "works".
+        print("encoder embedding was not tied after loading; tying it to shared")
+        transformer.encoder.embed_tokens = transformer.shared
+        if hasattr(transformer, "decoder"):
+            transformer.decoder.embed_tokens = transformer.shared
+
+    shared = transformer.shared.weight
+    embed = transformer.encoder.embed_tokens.weight
+    if shared.data_ptr() != embed.data_ptr():
+        raise SystemExit(
+            "the T5 encoder embedding is still NOT tied to the shared embedding, "
+            "so it is randomly initialised and every score would be noise. "
+            "Refusing to run."
+        )
+    print(f"embedding tie verified, {shared.shape[0]:,} x {shared.shape[1]}")
+    _ = torch  # imported for the caller's device handling
+    return model
+
+
+def sanity_check(model, batch_size: int = 4) -> None:
+    """Refuse to run a model that cannot separate an obvious pair.
+
+    Two hand-written pairs, one supported and one flatly contradicted. If the
+    supported one does not score higher, the weights or the score direction are
+    wrong and the whole run would be wasted.
+    """
+    supported = ("The Eiffel Tower is in Paris, France.", "The Eiffel Tower is in Paris.")
+    contradicted = ("The Eiffel Tower is in Paris, France.", "The Eiffel Tower is in Berlin.")
+    scores = model.predict([supported, contradicted])
+    values = [float(x) for x in (scores.tolist() if hasattr(scores, "tolist") else scores)]
+    print(f"sanity check: supported {values[0]:.4f}  contradicted {values[1]:.4f}")
+    if not values[0] > values[1]:
+        raise SystemExit(
+            "HHEM scores the contradicted pair at least as high as the supported "
+            "one. Either the weights are wrong or the score direction is not what "
+            "the model card says. Refusing to run."
+        )
+
+
+def score_with_model(
+    records: Sequence[Dict[str, Any]],
+    model,
+    batch_size: int = 8,
+) -> List[float]:
+    """Consistency score per record, in order."""
+    import torch
 
     pairs = build_pairs(records)
     scores: List[float] = []
@@ -250,7 +330,9 @@ def score_with_model(
         for start in range(0, len(pairs), batch_size):
             batch = pairs[start : start + batch_size]
             out = model.predict(batch)
-            scores.extend(float(x) for x in (out.tolist() if hasattr(out, "tolist") else out))
+            scores.extend(
+                float(x) for x in (out.tolist() if hasattr(out, "tolist") else out)
+            )
             if start % (batch_size * 25) == 0:
                 print(f"  {start + len(batch):,}/{len(pairs):,}", flush=True)
     return scores
@@ -277,8 +359,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     test_records = read_records(args.test, args.limit)
     print(f"calibration {len(calib_records):,} responses, test {len(test_records):,}")
 
-    calib_rows = to_rows(calib_records, score_with_model(calib_records, args.batch_size, args.device))
-    test_rows = to_rows(test_records, score_with_model(test_records, args.batch_size, args.device))
+    import torch
+
+    device = args.device or ("cuda" if torch.cuda.is_available() else "cpu")
+    model = load_hhem(device)
+    sanity_check(model)
+
+    calib_rows = to_rows(calib_records, score_with_model(calib_records, model, args.batch_size))
+    test_rows = to_rows(test_records, score_with_model(test_records, model, args.batch_size))
 
     report = build_report(calib_rows, test_rows)
     print()
