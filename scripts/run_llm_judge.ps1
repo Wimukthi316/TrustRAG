@@ -8,12 +8,13 @@
 #   gemini-2.5-flash   404 "no longer available to new users" - ListModels still
 #                      advertises generateContent for it
 #   gemini-flash-latest 429 immediately
-#   gemini-3.6-flash   answered 21 of 150, then 429: the daily free tier is
-#                      per model, and 21 judgements spent it
-#   gemini-3.5-flash   503 while busy, answers later
-# Quota is per model and it resets, so the model that works is a function of the
-# hour. Switching model misses the cache by design, because a different judge is
-# a different experiment: partial runs are not pooled across models.
+#   gemini-3.6-flash   answered 21 of 150, then 429
+#   gemini-3.5-flash   answered 15 of 150, then 429
+# The free daily allowance is granted per model rather than shared across the
+# family, and it is worth roughly twenty judgements. Eight retries backing off to
+# two minutes do not get past it, so it is an allowance and not a rate limit.
+# Switching model misses the cache by design, because a different judge is a
+# different experiment: counts from different models are never added together.
 #
 # Every judgement is cached under a hash of its prompt, so an interrupted run
 # resumes for free and a model switch simply misses the cache, which is correct:
