@@ -33,6 +33,10 @@ from collections import defaultdict
 from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
+# Run-to-run standard deviation on example F1, from three seeds. A margin
+# smaller than this is not a difference. results/c1/analysis/variance.json.
+NOISE_POINTS = 0.38
+
 CALIB_FRACTION = 0.30
 SEED = 42
 # The low end is deliberately fine. As the threshold falls the rule converges on
@@ -264,11 +268,11 @@ def format_report(report: Dict[str, Any]) -> str:
             "transfer failure survives a fairly chosen operating point, which is the "
             "strongest form this negative result can take"
         )
-    elif adapted["margin_over_trivial_points"] < 1.1:
+    elif adapted["margin_over_trivial_points"] < NOISE_POINTS:
         lines.append(
             "the margin over the do-nothing baseline is smaller than the measured "
-            "1.1-point run-to-run spread, so it is not a difference. Report it as "
-            "indistinguishable from the floor"
+            f"run-to-run variation of {NOISE_POINTS} points, so it is not a "
+            "difference. Report it as indistinguishable from the floor"
         )
     else:
         lines.append(

@@ -344,12 +344,22 @@ def stratified_sample(
         grouped.setdefault(str(record.get("task_type", "all")), []).append(record)
 
     rng = random.Random(seed)
-    chosen: List[Dict[str, Any]] = []
+    per_task: List[List[Dict[str, Any]]] = []
     for task in sorted(grouped):
         members = sorted(grouped[task], key=lambda r: str(r["id"]))
         rng.shuffle(members)
         take = max(1, round(n * len(grouped[task]) / len(records)))
-        chosen.extend(members[:take])
+        per_task.append(members[:take])
+
+    # Round-robin across tasks rather than one task after another. The free
+    # quota stops a run partway through, and every partial run so far ended
+    # inside the first task, which is a sample of one task type and not a
+    # baseline. Interleaved, whatever the quota allows stays balanced.
+    chosen: List[Dict[str, Any]] = []
+    for index in range(max(len(members) for members in per_task)):
+        for members in per_task:
+            if index < len(members):
+                chosen.append(members[index])
     return chosen[:n]
 
 

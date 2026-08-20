@@ -19,8 +19,11 @@ What glue_sweep does NOT bound: Viterbi can also change which tokens are tagged,
 not only how runs are joined. Quote it as a bound on the fragment-joining part of
 the idea, which is the part the plan proposed it for, and say so.
 
-Read the result against the measured 1.1-point run-to-run spread on example F1.
-On the test split the best gluing gains 0.26 points, which is inside that spread,
+Read the result against the measured run-to-run variation. Three runs at seeds
+42, 7 and 13 put the standard deviation at 0.38 points on example F1 and 0.54 on
+span-exact; the earlier "1.1 points" came from two runs at one seed and was
+pessimistic. See results/c1/analysis/variance.json.
+On the test split the best gluing gains 0.26 points, which is inside that band,
 and it costs exact matches that were already correct -- both halves belong in the
 report, because a fix that trades one metric for another is not a free win.
 
@@ -169,7 +172,8 @@ def format_report(report: Dict[str, Any]) -> str:
         f"best gain over the argmax baseline: {report['best_gain_points']:.2f} F1 points, "
         f"costing {report['exact_matches_lost_at_best']:,} exact matches that were "
         "already correct",
-        "Judge that against the 1.1-point run-to-run spread on example F1.",
+        "Judge that against the run-to-run standard deviation: 0.54 points on "
+        "span-exact over three seeds, in variance.json.",
         "",
         "--- threshold sweep, span-exact (token-mask decode, DIAGNOSTIC ONLY) ---",
         f"{'thr':>6}{'pred spans':>12}{'exact P':>10}{'exact R':>10}"

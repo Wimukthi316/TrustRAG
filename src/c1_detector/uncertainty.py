@@ -2,11 +2,15 @@
 
 Two different uncertainties get confused, so name them apart:
 
-    run-to-run spread    train the same config twice and the numbers differ.
-                         Measured on this project at 1.12 points on example F1,
-                         1.31 on token F1 and 2.88 on span-overlap F1, from two
-                         runs at an identical config and an identical seed. It
-                         costs a training run to measure and is not in this file.
+    run-to-run spread    train the same config again and the numbers differ.
+                         Three runs at seeds 42, 7 and 13 give a standard
+                         deviation of 0.38 points on example F1, 0.54 on
+                         span-exact, 0.79 on span-overlap and 1.08 on token F1.
+                         An earlier reading of 1.12 points came from two runs at
+                         one seed; two runs cannot give a standard deviation, and
+                         that figure was applied to every level when it had only
+                         ever been measured for one. Measured by variance.py,
+                         which needs a training run per point and is not here.
 
     bootstrap interval   hold the model fixed and resample the test responses.
                          Says how well 2,700 responses pin the number down.

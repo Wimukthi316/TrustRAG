@@ -16,9 +16,10 @@
 # it is being tried first because it is the obvious starting point, not because
 # 3.0 was tuned.
 #
-# JUDGE THE RESULT AGAINST THE 1.1-POINT RUN-TO-RUN SPREAD. Two runs of
-# c1_base.yaml at identical config and identical seed gave test example F1 0.7511
-# and 0.7623. Anything smaller than that gap is not a difference.
+# JUDGE THE RESULT AGAINST THE MEASURED RUN-TO-RUN VARIATION. Three runs of
+# c1_base.yaml at seeds 42, 7 and 13 give test example F1 0.7623, 0.7548 and
+# 0.7570: a standard deviation of 0.38 points. Anything inside that band is not a
+# difference. An earlier note here said 1.1 points, from two runs at one seed.
 #
 # output.dir is deliberately NOT results/c1/modernbert-base: that directory holds
 # the checkpoint and the probability dumps every reported number and the C2

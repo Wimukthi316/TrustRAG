@@ -236,6 +236,7 @@ def test_comments_and_blank_lines_are_ignored():
 
 import contextlib  # noqa: E402
 import io  # noqa: E402
+from collections import Counter  # noqa: E402
 import json  # noqa: E402
 import urllib.error  # noqa: E402
 import urllib.request  # noqa: E402
@@ -295,3 +296,47 @@ def test_a_spent_quota_is_still_a_skippable_failure(monkeypatch):
 
     with pytest.raises(JudgeUnavailable):
         call_model("key", "gemini-3.6-flash", "prompt", attempts=2)
+
+
+# ---------------------------------------------------------------------------
+# The free quota stops a run partway through, so any prefix of the sample has to
+# be usable. Grouped by task it was not: the first twenty answers were all one
+# task type.
+# ---------------------------------------------------------------------------
+
+from src.c1_detector.llm_judge import stratified_sample  # noqa: E402
+
+
+def corpus():
+    return [
+        {"id": f"{task}-{i}", "task_type": task, "answer": "a"}
+        for task in ("data2text", "qa", "summarization")
+        for i in range(300)
+    ]
+
+
+def test_a_partial_run_still_covers_every_task():
+    sample = stratified_sample(corpus(), 150, seed=42)
+
+    assert len(sample) == 150
+    for cut in (3, 9, 21, 60):
+        tasks = {record["task_type"] for record in sample[:cut]}
+        assert tasks == {"data2text", "qa", "summarization"}, (
+            f"the first {cut} judgements cover only {tasks}; a run the quota "
+            "cut short would be a sample of one task type"
+        )
+
+
+def test_the_whole_sample_is_still_proportional():
+    sample = stratified_sample(corpus(), 150, seed=42)
+    counts = Counter(record["task_type"] for record in sample)
+    assert counts == {"data2text": 50, "qa": 50, "summarization": 50}
+
+
+def test_the_sample_is_reproducible_from_the_seed():
+    first = [r["id"] for r in stratified_sample(corpus(), 30, seed=42)]
+    second = [r["id"] for r in stratified_sample(corpus(), 30, seed=42)]
+    other = [r["id"] for r in stratified_sample(corpus(), 30, seed=7)]
+
+    assert first == second
+    assert first != other
