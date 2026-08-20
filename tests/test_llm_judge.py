@@ -304,9 +304,6 @@ def test_a_spent_quota_is_still_a_skippable_failure(monkeypatch):
 # task type.
 # ---------------------------------------------------------------------------
 
-from src.c1_detector.llm_judge import stratified_sample  # noqa: E402
-
-
 def corpus():
     return [
         {"id": f"{task}-{i}", "task_type": task, "answer": "a"}
