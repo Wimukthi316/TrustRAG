@@ -595,7 +595,10 @@ def format_diagnostics(predictions: Sequence[Dict[str, Any]]) -> str:
 
 
 def dump_probabilities(
-    predictions: Sequence[Dict[str, Any]], path: Path | str
+    predictions: Sequence[Dict[str, Any]],
+    path: Path | str,
+    extra_keys: Sequence[str] = (),
+    mode: str = "w",
 ) -> int:
     """Write per-token and per-span probabilities as JSONL, for C2 to calibrate on.
 
@@ -608,12 +611,24 @@ def dump_probabilities(
     the C2 harness against the public checkpoint and swapping in C1 later then
     costs a path change and nothing else -- which is the parallelism the plan
     depends on.
+
+    `extra_keys` copies additional fields straight off the prediction item into
+    the record when they are present. It exists so the RAGBench dump can carry
+    its `subset` without a second, drifting copy of this schema living in
+    evaluate_ood.py. Empty by default, so a C1 dump is byte-identical to what it
+    was before this argument existed.
+
+    `mode` is "w" or "a". Appending lets a caller that evaluates one corpus
+    subset at a time stream its records out instead of holding every prediction
+    for every subset in memory at once.
     """
+    if mode not in ("w", "a"):
+        raise ValueError(f"mode must be 'w' or 'a', got {mode!r}")
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
 
     written = 0
-    with path.open("w", encoding="utf-8") as handle:
+    with path.open(mode, encoding="utf-8") as handle:
         for item in predictions:
             gold = item["gold_spans"]
             spans = []
@@ -640,26 +655,25 @@ def dump_probabilities(
                     }
                 )
 
-            handle.write(
-                json.dumps(
-                    {
-                        "id": item["id"],
-                        "task_type": item["task_type"],
-                        "model": item["model"],
-                        "answer": item["answer"],
-                        "gold_spans": [
-                            {"start": s, "end": e, "text": item["answer"][s:e]}
-                            for s, e in gold
-                        ],
-                        "pred_spans": spans,
-                        "token_probs": [round(p, 6) for p in item["token_probs"]],
-                        "answer_offsets": [list(o) for o in item["answer_offsets"]],
-                        "answer_truncated": item["answer_truncated"],
-                    },
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
+            record: Dict[str, Any] = {
+                "id": item["id"],
+                "task_type": item["task_type"],
+                "model": item["model"],
+                "answer": item["answer"],
+                "gold_spans": [
+                    {"start": s, "end": e, "text": item["answer"][s:e]}
+                    for s, e in gold
+                ],
+                "pred_spans": spans,
+                "token_probs": [round(p, 6) for p in item["token_probs"]],
+                "answer_offsets": [list(o) for o in item["answer_offsets"]],
+                "answer_truncated": item["answer_truncated"],
+            }
+            for key in extra_keys:
+                if key in item:
+                    record[key] = item[key]
+
+            handle.write(json.dumps(record, ensure_ascii=False) + "\n")
             written += 1
     return written
 

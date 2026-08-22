@@ -213,6 +213,17 @@ def main() -> int:
             "operating point can be swept without paying for inference again"
         ),
     )
+    parser.add_argument(
+        "--dump-probs",
+        action="store_true",
+        help=(
+            "write the full per-token and per-span probability record for every "
+            "response, in exactly the schema evaluate_c1 --dump-probs produces, "
+            "plus a `subset` field. This is what C2 needs to ask whether the "
+            "conformal guarantee survives the shift; the response-level scores "
+            "from --dump-scores do not carry spans and cannot answer it"
+        ),
+    )
     args = parser.parse_args()
 
     import torch
@@ -223,7 +234,7 @@ def main() -> int:
         build_dataloader,
         read_records,
     )
-    from src.c1_detector.evaluate_c1 import evaluate, predict
+    from src.c1_detector.evaluate_c1 import dump_probabilities, evaluate, predict
 
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
     tokenizer = AutoTokenizer.from_pretrained(args.checkpoint, use_fast=True)
@@ -237,6 +248,12 @@ def main() -> int:
     rows: List[Dict[str, Any]] = []
     all_metrics: Dict[str, Any] = {}
     scores: List[Dict[str, Any]] = []
+    # Appended one subset at a time rather than accumulated. cuad alone is 21 MB
+    # of source text; holding every prediction for all twelve subsets so the file
+    # could be written once at the end would multiply this run's peak memory for
+    # no benefit, on a laptop that has to keep 6 GB of GPU busy at the same time.
+    probs_path = out_dir / "probabilities.jsonl"
+    probs_written = 0
 
     for subset in args.subsets:
         path = data_dir / f"{subset}.jsonl"
@@ -259,6 +276,18 @@ def main() -> int:
         predictions = predict(model, loader, dataset, device)
         metrics = evaluate(predictions)
         all_metrics[subset] = metrics
+
+        if args.dump_probs:
+            for item in predictions:
+                item["subset"] = subset
+            # First subset written truncates, the rest append, so re-running the
+            # command overwrites the old file instead of doubling it.
+            probs_written += dump_probabilities(
+                predictions,
+                probs_path,
+                extra_keys=("subset",),
+                mode="w" if probs_written == 0 else "a",
+            )
 
         if args.dump_scores:
             # One small row per response. The operating point is a response-level
@@ -319,6 +348,9 @@ def main() -> int:
     table_path = out_dir / "ood_table.txt"
     table_path.write_text(table + "\n", encoding="utf-8")
     print(f"\nwrote {metrics_path}\nwrote {table_path}")
+
+    if args.dump_probs:
+        print(f"wrote {probs_path} ({probs_written:,} responses)")
 
     if args.dump_scores:
         scores_path = out_dir / "response_scores.jsonl"

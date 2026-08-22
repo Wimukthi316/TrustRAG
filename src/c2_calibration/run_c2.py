@@ -104,9 +104,20 @@ def read_probability_file(path: Path | str) -> List[Dict[str, Any]]:
 
 
 def span_units(
-    records: Sequence[Dict[str, Any]], score_key: str = "mean_prob"
+    records: Sequence[Dict[str, Any]],
+    score_key: str = "mean_prob",
+    group_key: str = "task_type",
 ) -> Tuple[List[float], List[int], List[str]]:
-    """One row per predicted span: (score, is_hallucinated, task_type)."""
+    """One row per predicted span: (score, is_hallucinated, group).
+
+    `group_key` names the field group-conditional coverage is broken down by.
+    On RAGTruth that is `task_type`, the three tasks the corpus is built from.
+    On RAGBench every record carries the same task_type but a different
+    `subset`, and the twelve subsets differ by an order of magnitude in
+    hallucination rate, so a coverage average across them hides exactly what the
+    shift study is asking about. A missing field reads as "unknown" rather than
+    raising, so a dump written before the field existed still analyses.
+    """
     scores: List[float] = []
     labels: List[int] = []
     groups: List[str] = []
@@ -114,12 +125,13 @@ def span_units(
         for span in record.get("pred_spans", []):
             scores.append(float(span[score_key]))
             labels.append(int(bool(span["is_hallucinated"])))
-            groups.append(str(record.get("task_type")))
+            groups.append(str(record.get(group_key, "unknown")))
     return scores, labels, groups
 
 
 def token_units(
     records: Sequence[Dict[str, Any]],
+    group_key: str = "task_type",
 ) -> Tuple[List[float], List[int], List[str]]:
     """One row per answer token, labelled by overlap with a gold span.
 
@@ -132,7 +144,7 @@ def token_units(
     groups: List[str] = []
     for record in records:
         gold = [(g["start"], g["end"]) for g in record.get("gold_spans", [])]
-        task = str(record.get("task_type"))
+        task = str(record.get(group_key, "unknown"))
         for prob, offset in zip(record["token_probs"], record["answer_offsets"]):
             start, end = offset
             scores.append(float(prob))
@@ -149,9 +161,12 @@ def analyse(
     unit: str,
     score_key: str,
     alphas: Sequence[float],
+    group_key: str = "task_type",
 ) -> Dict[str, Any]:
     extract = (
-        (lambda rows: span_units(rows, score_key)) if unit == "span" else token_units
+        (lambda rows: span_units(rows, score_key, group_key))
+        if unit == "span"
+        else (lambda rows: token_units(rows, group_key))
     )
     calib_scores, calib_labels, calib_groups = extract(calib)
     test_scores, test_labels, test_groups = extract(test)
@@ -192,6 +207,7 @@ def analyse(
     return {
         "unit": unit,
         "score_key": score_key if unit == "span" else "token_prob",
+        "group_key": group_key,
         "n_calibration": len(calib_scores),
         "n_test": len(test_scores),
         "positive_rate_calibration": sum(calib_labels) / len(calib_labels),
@@ -335,8 +351,11 @@ def format_analysis(result: Dict[str, Any]) -> str:
     else:
         lines.append("\n  empirical coverage meets target at every alpha")
 
-    lines.append("\nGROUP-CONDITIONAL COVERAGE at alpha = 0.10")
-    lines.append("  task              empirical   +/-noise   abstain   n_test   n_calib")
+    group_key = result.get("group_key", "task_type")
+    lines.append(f"\nGROUP-CONDITIONAL COVERAGE at alpha = 0.10, by {group_key}")
+    lines.append(
+        f"  {group_key:<17} empirical   +/-noise   abstain   n_test   n_calib"
+    )
     lines.append("  " + "-" * 68)
     for task, row in result["conformal"]["group_conditional_alpha_0.1"].items():
         band = coverage_tolerance(0.1, int(row["n_calibration"]), int(row["n_test"]))
@@ -447,6 +466,30 @@ def main() -> int:
         help="comma-separated miscoverage levels",
     )
     parser.add_argument("--no-plots", action="store_true")
+    parser.add_argument(
+        "--group-key",
+        default="task_type",
+        help=(
+            "record field to break group-conditional coverage down by. "
+            "task_type on RAGTruth, subset on RAGBench"
+        ),
+    )
+    parser.add_argument(
+        "--allow-violations",
+        action="store_true",
+        help=(
+            "record coverage violations and mark the whole result VOID instead of "
+            "exiting non-zero. For the shift study ONLY, where the violation IS "
+            "the finding and the numbers still have to be written down. Never "
+            "pass this on an in-distribution run: there a violation means the "
+            "maths is wrong and the process should fail"
+        ),
+    )
+    parser.add_argument(
+        "--out-name",
+        default="c2_results.json",
+        help="results filename inside --out-dir",
+    )
     args = parser.parse_args()
 
     alphas = [float(a) for a in args.alphas.split(",")]
@@ -477,43 +520,81 @@ def main() -> int:
         "calib_file": str(args.calib),
         "test_file": str(args.test),
         "alphas": alphas,
+        "group_key": args.group_key,
     }
     for unit in ("span", "token"):
-        result = analyse(calib, test, unit, args.score_key, alphas)
+        result = analyse(calib, test, unit, args.score_key, alphas, args.group_key)
         print(format_analysis(result))
         results[unit] = result
         if not args.no_plots:
             for path in write_plots(result, out_dir):
                 print(f"  wrote {path}")
 
-    path = out_dir / "c2_results.json"
+    all_violations = [
+        v for unit in ("span", "token") for v in results[unit]["conformal"]["violations"]
+    ]
+    # Stamped into the file itself, not only into the console. A results file
+    # that under-covers must announce it to anyone who opens it later, including
+    # a table generator that has forgotten how the run was invoked.
+    results["void"] = bool(all_violations) and args.allow_violations
+    results["violations"] = all_violations
+    if results["void"]:
+        results["void_reason"] = (
+            "empirical coverage falls below target by more than sampling noise "
+            "explains. The exchangeability precondition of split conformal does "
+            "not hold between the calibration file and the test file, so the "
+            "coverage guarantee does not apply to these numbers. They are "
+            "reported as a measurement of the break, not as a working method."
+        )
+
+    path = out_dir / args.out_name
     with path.open("w", encoding="utf-8") as handle:
         json.dump(results, handle, indent=2)
     print(f"\nwrote {path}")
 
-    artifact = build_serving_artifact(
-        calib, results["span"], args.score_key, detector=str(args.test)
-    )
-    artifact_path = out_dir / "c2_artifact.json"
-    with artifact_path.open("w", encoding="utf-8") as handle:
-        json.dump(artifact, handle)
-    print(
-        f"wrote {artifact_path} "
-        f"({artifact['calibrator']['name']}, "
-        f"{artifact['n_calibration']:,} calibration scores)"
-    )
+    if results["void"]:
+        # Deliberately no serving artifact. The artifact is the file the backend
+        # loads to make live promises to a user, and this run has just measured
+        # that the promise does not hold on this data. Writing one anyway would
+        # leave a loaded gun in results/ for a later session to pick up.
+        print(
+            "\nno serving artifact written: this run is VOID and its threshold "
+            "must never reach the backend"
+        )
+    else:
+        artifact = build_serving_artifact(
+            calib, results["span"], args.score_key, detector=str(args.test)
+        )
+        artifact_path = out_dir / "c2_artifact.json"
+        with artifact_path.open("w", encoding="utf-8") as handle:
+            json.dump(artifact, handle)
+        print(
+            f"wrote {artifact_path} "
+            f"({artifact['calibrator']['name']}, "
+            f"{artifact['n_calibration']:,} calibration scores)"
+        )
 
-    # Aug 17 trigger point: a coverage violation invalidates the central claim,
-    # so it must fail the process rather than sit in a log.
-    violations = [
-        v for unit in ("span", "token") for v in results[unit]["conformal"]["violations"]
-    ]
-    if violations:
-        print("\nCOVERAGE VIOLATIONS FOUND -- do not report these numbers:")
-        for violation in violations:
+    # Aug 17 trigger point: on an in-distribution run a coverage violation
+    # invalidates the central claim, so it must fail the process rather than sit
+    # in a log. --allow-violations turns that off for the shift study, where the
+    # violation is the measurement being taken; the result is stamped VOID
+    # instead, which is a louder signal than an exit code nobody reads.
+    if not all_violations:
+        return 0
+    if args.allow_violations:
+        print("\nCOVERAGE VIOLATIONS FOUND -- result marked VOID and recorded:")
+        for violation in all_violations:
             print(f"  {violation}")
-        return 1
-    return 0
+        print(
+            "\n  This is the expected outcome of a run whose calibration and test "
+            "data\n  come from different corpora. Report it as the break, never as "
+            "a method."
+        )
+        return 0
+    print("\nCOVERAGE VIOLATIONS FOUND -- do not report these numbers:")
+    for violation in all_violations:
+        print(f"  {violation}")
+    return 1
 
 
 if __name__ == "__main__":
