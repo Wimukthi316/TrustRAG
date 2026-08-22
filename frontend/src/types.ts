@@ -34,6 +34,29 @@ export interface Span {
   entailment_score: number | null;
 }
 
+// Is this input the kind of thing the guarantee was calibrated on? One-sided:
+// a small p_value is evidence against, a large one is not evidence for.
+export interface FeatureCheck {
+  name: string;
+  label: string;
+  value: number;
+  // Fraction of calibration responses at or below this value.
+  percentile: number;
+  unusual: boolean;
+}
+
+export interface DistributionCheck {
+  checked: boolean;
+  in_distribution: boolean;
+  p_value: number | null;
+  // Warn below this. It is a false-alarm rate, not a magic number.
+  threshold: number;
+  n_reference: number;
+  most_unusual: string | null;
+  features: FeatureCheck[];
+  message: string;
+}
+
 export interface AnalysisResult {
   question: string;
   context: string;
@@ -44,6 +67,10 @@ export interface AnalysisResult {
   model_version: string;
   schema_version: string;
   alpha: number | null;
+  distribution_check: DistributionCheck | null;
+  // False when no conformal layer is attached, or when the input is unlike the
+  // calibration split. The spans still render; only the promise is withdrawn.
+  guarantee_applies: boolean;
   latency_ms: number | null;
   timestamp: string;
 }

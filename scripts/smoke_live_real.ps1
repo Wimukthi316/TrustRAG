@@ -109,6 +109,41 @@ try {
         Write-Host "`nNo spans returned. Not necessarily wrong -- but check the log." -ForegroundColor Yellow
     }
 
+    Write-Host "`n== does the guarantee apply to this input? ==" -ForegroundColor Cyan
+    $check = $result.distribution_check
+    if ($null -eq $check) {
+        throw "the response carries no distribution_check"
+    }
+    Write-Host ("  checked {0}  in_distribution {1}  p {2:F4}  reference n {3}" -f `
+        $check.checked, $check.in_distribution, $check.p_value, $check.n_reference)
+    if (-not $check.checked) {
+        Write-Host "  no reference loaded: $($check.message)" -ForegroundColor Yellow
+    } elseif (-not $result.guarantee_applies) {
+        # The record the demo opens on is a real RAGTruth response and must be
+        # unremarkable. A warning here would appear in front of a panel.
+        throw "the demo record tripped the out-of-distribution warning (p $($check.p_value))"
+    } else {
+        Write-Host "  demo record keeps its guarantee, as it must" -ForegroundColor Green
+
+        Write-Host "`n== and the hand-written example, which should NOT ==" -ForegroundColor Cyan
+        $hand = Invoke-RestMethod -Uri "http://127.0.0.1:$Port/api/example?name=handwritten"
+        $handBody = @{
+            question = $hand.question; context = $hand.context
+            answer = $hand.answer; alpha = $Alpha; task_type = "qa"
+        } | ConvertTo-Json
+        $handResult = Invoke-RestMethod -Uri "http://127.0.0.1:$Port/api/analyze" `
+            -Method Post -Body $handBody -ContentType "application/json"
+        $handCheck = $handResult.distribution_check
+        Write-Host ("  p {0:F4}  most unusual: {1}" -f $handCheck.p_value, $handCheck.most_unusual)
+        if ($handResult.guarantee_applies) {
+            throw "the hand-written example kept its guarantee; the alarm is deaf"
+        }
+        Write-Host "  guarantee correctly withdrawn, spans still returned ($($handResult.spans.Count))" -ForegroundColor Green
+        foreach ($f in $handCheck.features | Where-Object { $_.unusual }) {
+            Write-Host ("    unusual: {0,-38} {1:P1}" -f $f.label, $f.percentile)
+        }
+    }
+
     Write-Host "`n== alpha sweep on the same answer ==" -ForegroundColor Cyan
     foreach ($a in 0.05, 0.1, 0.2, 0.4) {
         $body = @{

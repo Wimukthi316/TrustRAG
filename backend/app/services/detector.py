@@ -118,6 +118,11 @@ class StubDetector:
             task_type=req.task_type,
             model_version=self.model_version,
             alpha=req.alpha,
+            # The stub has no calibration layer, so there is no coverage promise
+            # to make and no reference to check an input against. Saying so is
+            # the same discipline as `detector_loaded: false` on /api/health --
+            # the placeholder must never look like the real thing.
+            guarantee_applies=False,
             latency_ms=round((time.perf_counter() - t0) * 1000, 2),
         )
 

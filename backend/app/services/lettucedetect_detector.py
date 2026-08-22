@@ -70,10 +70,17 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from backend.app.services.detector import split_sentences
+from src.c2_calibration.exchangeability import (
+    FEATURE_LABELS,
+    ExchangeabilityReference,
+    response_features,
+)
 from src.common.schema import (
     AnalysisResult,
     AnalyzeRequest,
     ConformalDecision,
+    DistributionCheck,
+    FeatureCheck,
     Span,
     TaskType,
 )
@@ -193,6 +200,7 @@ class LettuceDetectDetector:
         prompt_style: str = "lettucedetect",
         label: Optional[str] = None,
         decode: str = "threshold",
+        reference_path: Optional[Path | str] = None,
     ) -> None:
         if decode not in ("threshold", "bio_argmax"):
             raise ValueError(f"unknown decode {decode!r}")
@@ -203,6 +211,14 @@ class LettuceDetectDetector:
         self.label = label
         self.decode = decode
         self.c2 = C2Layer.load(artifact_path) if artifact_path else None
+        # The exchangeability reference is loaded separately from the C2
+        # artifact on purpose. It answers a different question -- "may the
+        # promise be shown for this input" rather than "what is the threshold" --
+        # and keeping it out of c2_artifact.json means adding it changes nothing
+        # about the file the coverage numbers were verified against.
+        self.reference = (
+            ExchangeabilityReference.load(reference_path) if reference_path else None
+        )
         self._device_preference = device
         self._model = None
         self._tokenizer = None
@@ -401,6 +417,12 @@ class LettuceDetectDetector:
             covered_probs.append(covered)
             raw_scores.append(sum(covered) / len(covered) if covered else 0.0)
 
+        # Asked before any span is dropped, because the reference was built from
+        # unfiltered decoder output and a filtered count would not compare.
+        check, guarantee_applies = self._distribution_check(
+            token_probs, candidates, covered_probs, req.answer
+        )
+
         calibrated = self.c2.calibrate(raw_scores) if self.c2 else list(raw_scores)
 
         spans: List[Span] = []
@@ -439,8 +461,98 @@ class LettuceDetectDetector:
             task_type=req.task_type,
             model_version=self.model_version,
             alpha=req.alpha,
+            distribution_check=check,
+            guarantee_applies=guarantee_applies,
             latency_ms=round((time.perf_counter() - started) * 1000, 2),
         )
+
+    def _distribution_check(
+        self,
+        token_probs: Sequence[float],
+        candidates: Sequence[Tuple[int, int]],
+        covered_probs: Sequence[Sequence[float]],
+        answer: str,
+    ) -> Tuple[DistributionCheck, bool]:
+        """Decide whether the coverage guarantee may be shown for this input.
+
+        Three outcomes, and they are three different sentences on screen.
+
+        No conformal layer at all: nothing to promise, and `guarantee_applies`
+        is false for that reason rather than because of anything about the input.
+
+        A conformal layer but no reference: the promise is shown, and the check
+        says it did not run. That is the behaviour this endpoint had before the
+        check existed, so a missing reference file degrades to the old
+        behaviour rather than to a broken page -- but it says so.
+
+        Both present: the p-value decides. When it fails, the spans are still
+        returned and only the promise is withdrawn. A detector that stops
+        detecting because it is unsure would be a worse product than one that
+        detects and admits the promise does not hold.
+        """
+        if self.c2 is None:
+            return (
+                DistributionCheck(
+                    checked=False,
+                    in_distribution=True,
+                    message=(
+                        "No calibration layer is attached, so there is no "
+                        "coverage guarantee to check against."
+                    ),
+                ),
+                False,
+            )
+        if self.reference is None:
+            return (
+                DistributionCheck(
+                    checked=False,
+                    in_distribution=True,
+                    message=(
+                        "No exchangeability reference is loaded, so it is not "
+                        "known whether this input resembles the data the "
+                        "guarantee was calibrated on. Build one with "
+                        "src.c2_calibration.exchangeability."
+                    ),
+                ),
+                True,
+            )
+
+        features = response_features(
+            token_probs,
+            candidates,
+            [len(covered) for covered in covered_probs],
+            answer,
+        )
+        raw = self.reference.check(features)
+        in_distribution = bool(raw["in_distribution"])
+        odd = FEATURE_LABELS.get(raw["most_unusual"], raw["most_unusual"])
+
+        if in_distribution:
+            message = (
+                "Nothing about this input looks unlike the data the guarantee "
+                "was calibrated on. That is not proof it is in distribution -- "
+                "the check sees a handful of features, and a shift can be real "
+                "and invisible to all of them."
+            )
+        else:
+            message = (
+                f"This input is unlike the data the guarantee was calibrated "
+                f"on -- most obviously its {odd}. The highlighting below is "
+                "still the detector's, but the coverage promise does not apply "
+                "to it. Recalibrate on your own data before trusting the dial."
+            )
+
+        check = DistributionCheck(
+            checked=True,
+            in_distribution=in_distribution,
+            p_value=raw["p_value"],
+            threshold=raw["threshold"],
+            n_reference=raw["n_reference"],
+            most_unusual=raw["most_unusual"],
+            features=[FeatureCheck(**row) for row in raw["features"]],
+            message=message,
+        )
+        return check, in_distribution
 
 
 def build_from_env() -> Optional[LettuceDetectDetector]:
@@ -494,6 +606,21 @@ def build_from_env() -> Optional[LettuceDetectDetector]:
             "src.c2_calibration.run_c2 against results/c1 for our own detector."
         )
 
+    # Defaults to the reference sitting beside the C2 artifact, because that is
+    # where run_c2 and exchangeability both write for a given detector. Setting
+    # it to an empty string turns the check off explicitly, which is different
+    # from it being missing by accident.
+    reference = os.environ.get("TRUSTRAG_OOD_REFERENCE")
+    if reference is None and artifact:
+        beside = Path(artifact).with_name("c2_ood_reference.json")
+        reference = str(beside) if beside.exists() else None
+    if reference and not Path(reference).exists():
+        raise SystemExit(
+            f"TRUSTRAG_OOD_REFERENCE points at {reference}, which does not "
+            "exist. Build it with src.c2_calibration.exchangeability, or set "
+            "the variable to an empty string to serve without the check."
+        )
+
     model_id = os.environ.get("TRUSTRAG_MODEL_ID", DEFAULT_MODEL_ID)
     if choice == "c1" and model_id == DEFAULT_MODEL_ID:
         raise SystemExit(
@@ -514,4 +641,5 @@ def build_from_env() -> Optional[LettuceDetectDetector]:
         ),
         label=os.environ.get("TRUSTRAG_MODEL_LABEL") or defaults["label"],
         decode=defaults["decode"],
+        reference_path=reference or None,
     )

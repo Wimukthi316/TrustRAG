@@ -58,6 +58,107 @@ function pct(x: number | null): string {
   return x === null ? "—" : `${(x * 100).toFixed(1)}%`;
 }
 
+/**
+ * Whether the coverage promise may be claimed for this particular result.
+ *
+ * Block C measured what happens when a threshold calibrated on one corpus is
+ * applied to another: coverage falls from 0.8808 to 0.7410 against a 0.900
+ * target. This banner is that finding, enforced at the point where the promise
+ * would otherwise be shown. When the input does not look like the calibration
+ * data, the highlighting stays and the promise goes — a detector that stopped
+ * detecting because it was unsure would be a worse product than one that
+ * detects and says the promise does not hold.
+ *
+ * The green case deliberately does NOT say "in distribution". The check is
+ * one-sided: a large p-value means nothing obviously unusual was found in eight
+ * features, not that the input is safe.
+ */
+function GuaranteeNotice({ result }: { result: AnalysisResult }) {
+  const check = result.distribution_check;
+
+  if (!result.guarantee_applies && check && !check.checked) {
+    return (
+      <div className="rounded-lg border border-slate-300 bg-slate-50 px-4 py-3 text-xs leading-5 text-slate-600">
+        <span className="font-semibold">No coverage guarantee.</span>{" "}
+        {check.message}
+      </div>
+    );
+  }
+
+  if (!check || !check.checked) return null;
+
+  if (check.in_distribution) {
+    return (
+      <details className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs leading-5 text-emerald-900">
+        <summary className="cursor-pointer list-none font-medium">
+          <span className="mr-1.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 align-middle" />
+          Guarantee applies to this input
+          {check.p_value !== null && (
+            <span className="ml-1 font-mono text-emerald-700">
+              (p = {check.p_value.toFixed(3)})
+            </span>
+          )}
+          <span className="ml-2 text-emerald-700 underline">why</span>
+        </summary>
+        <p className="mt-2 text-emerald-800">{check.message}</p>
+        <FeatureTable check={check} />
+      </details>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950">
+      <p className="font-semibold">
+        ⚠ Out of the calibrated range — the coverage guarantee does not apply
+        here.
+      </p>
+      <p className="mt-1">{check.message}</p>
+      <details className="mt-2">
+        <summary className="cursor-pointer text-amber-800 underline">
+          what looked unusual
+        </summary>
+        <FeatureTable check={check} />
+      </details>
+    </div>
+  );
+}
+
+function FeatureTable({
+  check,
+}: {
+  check: NonNullable<AnalysisResult["distribution_check"]>;
+}) {
+  return (
+    <>
+      <table className="mt-2 w-full text-[11px]">
+        <thead className="text-left text-slate-500">
+          <tr>
+            <th className="py-0.5 font-medium">measured</th>
+            <th className="py-0.5 font-medium">where it sits in the calibration data</th>
+          </tr>
+        </thead>
+        <tbody>
+          {check.features.map((f) => (
+            <tr key={f.name} className={f.unusual ? "font-semibold" : undefined}>
+              <td className="py-0.5 pr-3">{f.label}</td>
+              <td className="py-0.5 font-mono">
+                {(f.percentile * 100).toFixed(1)}th percentile
+                {f.unusual && <span className="ml-1 not-italic">← unusual</span>}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="mt-1.5 text-[11px] text-slate-500">
+        Compared against {check.n_reference.toLocaleString()} calibration
+        responses. The warning fires below p = {check.threshold}, which is a
+        false-alarm rate: about {(check.threshold * 100).toFixed(0)} in 100
+        ordinary inputs are expected to trip it.
+      </p>
+    </>
+  );
+}
+
 export default function HighlightedAnswer({ result }: { result: AnalysisResult }) {
   const pieces = useMemo(() => buildPieces(result), [result]);
   const [pinned, setPinned] = useState<number | null>(null);
@@ -105,6 +206,8 @@ export default function HighlightedAnswer({ result }: { result: AnalysisResult }
           {result.latency_ms !== null && ` · ${result.latency_ms} ms`}
         </span>
       </div>
+
+      <GuaranteeNotice result={result} />
 
       <p className="rounded-xl border border-slate-200 bg-white p-5 text-[15px] leading-9 text-slate-800">
         {pieces.map((piece, i) => {

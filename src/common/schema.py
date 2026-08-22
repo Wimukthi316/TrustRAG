@@ -119,6 +119,51 @@ class Span(BaseModel):
         return self
 
 
+class FeatureCheck(BaseModel):
+    """One quantity of the input, and where it sits in the calibration split."""
+
+    name: str
+    label: str = Field(..., description="Plain-English name for the interface")
+    value: float
+    percentile: float = Field(
+        ..., ge=0.0, le=1.0,
+        description="Fraction of calibration responses at or below this value",
+    )
+    unusual: bool
+
+
+class DistributionCheck(BaseModel):
+    """Is this input the kind of thing the coverage guarantee was calibrated on?
+
+    Split conformal promises coverage for data exchangeable with the calibration
+    split, and nothing in the serving path used to check that. Block C measured
+    what the promise does when it is not: coverage falls from 0.8808 to 0.7410.
+    This is the run-time counterpart -- it does not repair anything, it decides
+    whether the promise may be shown at all.
+
+    **One-sided.** A small p-value is evidence against exchangeability. A large
+    one is not evidence for it: the check sees a handful of features and a shift
+    can be real and invisible to all of them. `message` says so in the words the
+    interface should print.
+    """
+
+    checked: bool = Field(
+        default=False, description="False when no reference is loaded"
+    )
+    in_distribution: bool = True
+    p_value: Optional[float] = Field(
+        default=None, ge=0.0, le=1.0,
+        description="P(a calibration response is at least this unusual)",
+    )
+    threshold: float = Field(
+        default=0.01, description="Warn below this. It is a false-alarm rate."
+    )
+    n_reference: int = 0
+    most_unusual: Optional[str] = None
+    features: List[FeatureCheck] = Field(default_factory=list)
+    message: str = ""
+
+
 class AnalysisResult(BaseModel):
     """The complete response for one (context, question, answer) triple.
 
@@ -143,6 +188,17 @@ class AnalysisResult(BaseModel):
     schema_version: str = SCHEMA_VERSION
     alpha: Optional[float] = Field(
         default=None, description="Miscoverage level applied across all spans in this result"
+    )
+    distribution_check: Optional[DistributionCheck] = None
+    guarantee_applies: bool = Field(
+        default=True,
+        description=(
+            "Whether the coverage guarantee may be claimed for THIS result. "
+            "False when no conformal layer is attached, or when the "
+            "distribution check found the input unlike the calibration split. "
+            "The spans are still returned either way -- what is withdrawn is "
+            "the promise, not the detection."
+        ),
     )
     latency_ms: Optional[float] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))

@@ -650,6 +650,89 @@ def table_8(root: Path) -> List[str]:
     )
 
 
+def table_9(root: Path) -> List[str]:
+    """The run-time exchangeability check: what it costs and what it catches."""
+    reference = load(root, "c2/c1/c2_ood_reference.json")
+    if not reference:
+        return missing(
+            "C2-9 The run-time exchangeability check", "c2/c1/c2_ood_reference.json"
+        )
+
+    validation = reference.get("validation") or {}
+    bias = validation.get("label_conditional") or {}
+    shifted = reference.get("shifted_corpus_trip_rate") or {}
+
+    rows: List[Sequence[str]] = [
+        [
+            "claimed false-alarm rate (the threshold)",
+            number(reference.get("threshold")),
+            "what the warning promises to cost",
+        ],
+        [
+            "measured on held-out RAGTruth",
+            number(validation.get("measured_false_alarm_rate")),
+            f"over {validation.get('n', 0):,} responses the reference never saw",
+        ],
+        [
+            "tripped on RAGBench",
+            number(shifted.get("trip_rate")),
+            f"over {shifted.get('n', 0):,} responses; the corpus C2-6a breaks on",
+        ],
+        [
+            "on responses that DO contain hallucinations",
+            number(bias.get("trip_rate_gold_positive")),
+            "",
+        ],
+        [
+            "on responses that do not",
+            number(bias.get("trip_rate_gold_negative")),
+            "",
+        ],
+        [
+            "share of warnings that are hallucinated responses",
+            number(bias.get("share_of_alarms_gold_positive"), 3),
+            f"base rate {number(bias.get('gold_positive_base_rate'), 3)}",
+        ],
+    ]
+
+    enrichment = (
+        shifted.get("trip_rate", 0) / validation["measured_false_alarm_rate"]
+        if validation.get("measured_false_alarm_rate")
+        else None
+    )
+    note = (
+        f"Built on {reference.get('n', 0):,} calibration responses over "
+        f"{len(reference.get('features', []))} features. A conformal p-value with "
+        "the same (n+1) correction as the coverage quantile, so the threshold is "
+        "a false-alarm rate rather than a magic number -- and the second row is "
+        "what makes that claim checkable.\n\n"
+        f"**It is a smoke alarm, not a proof.** It catches "
+        f"{number(shifted.get('trip_rate'))} of the shifted corpus against a "
+        f"{number(validation.get('measured_false_alarm_rate'))} false-alarm rate"
+        + (f" -- {enrichment:.0f}x enrichment" if enrichment else "")
+        + " -- so it is real signal, and it still misses most of RAGBench. That "
+        "is the honest finding, not a shortfall to tune away: the shift between "
+        "those corpora is large in aggregate and nearly invisible in any single "
+        "response. A per-input check cannot substitute for measuring the shift, "
+        "which is why the deployment rule in C2-6c is still 'recalibrate on your "
+        "own data'.\n\n"
+        "**The last three rows are a limitation, volunteered.** A response that "
+        "really contains hallucinations has more spans, longer spans and higher "
+        "scores, so it sits further into the tail and trips the warning about "
+        "twice as often. The guarantee is therefore least well-supported on the "
+        "responses that matter most. Dropping the score-derived features was "
+        "tried as a fix and made the skew worse (0.79 with span shape alone, "
+        "0.85 with span shape and count, against 0.67 with all eight), so the "
+        "full list ships and the skew is reported."
+    )
+    return render(
+        "C2-9 The run-time exchangeability check",
+        ["quantity", "value", "note"],
+        rows,
+        note,
+    )
+
+
 def build(root: Path) -> str:
     lines: List[str] = [
         "# C2 reported tables",
@@ -668,6 +751,7 @@ def build(root: Path) -> str:
         table_6,
         table_7,
         table_8,
+        table_9,
     ):
         lines += builder(root)
     return "\n".join(lines)
