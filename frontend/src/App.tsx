@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { analyze, getExample, getHealth } from "./api";
 import HighlightedAnswer from "./components/HighlightedAnswer";
+import MetricsPanel from "./components/MetricsPanel";
 import type { AnalysisResult, HealthResponse, TaskType } from "./types";
+
+// Two tabs, not two pages. Analyse is what the system does; Evidence is why
+// anyone should believe the number it just produced. Keeping them one click
+// apart is the point -- a calibrated score that cannot be traced back to a
+// measurement is exactly the thing this project exists to complain about.
+type Tab = "analyse" | "evidence";
 
 // Labels are presentation, so they live here; the requests themselves come from
 // the backend, which owns the corpus record and its offsets.
@@ -32,6 +39,7 @@ export default function App() {
   const [alpha, setAlpha] = useState(0.1);
   const [taskType, setTaskType] = useState<TaskType>("qa");
 
+  const [tab, setTab] = useState<Tab>("analyse");
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [health, setHealth] = useState<HealthResponse | null>(null);
   const [busy, setBusy] = useState(false);
@@ -87,13 +95,34 @@ export default function App() {
               Span-level calibrated hallucination detection for RAG
             </p>
           </div>
-          <div className="ml-auto">
-            <HealthBadge health={health} />
-          </div>
+          <nav className="ml-auto flex gap-1 rounded-lg bg-slate-100 p-0.5">
+            {(
+              [
+                ["analyse", "Analyse"],
+                ["evidence", "Evidence"],
+              ] as [Tab, string][]
+            ).map(([value, label]) => (
+              <button
+                key={value}
+                onClick={() => setTab(value)}
+                className={`rounded-md px-3 py-1 text-xs font-medium transition ${
+                  tab === value
+                    ? "bg-white text-slate-900 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </nav>
+          <HealthBadge health={health} />
         </div>
       </header>
 
       <main className="mx-auto max-w-6xl px-6 py-8">
+        {tab === "evidence" ? (
+          <MetricsPanel />
+        ) : (
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:items-start">
           <section className="space-y-4 rounded-xl border border-slate-200 bg-white p-6">
             <div className="flex flex-wrap items-center gap-2">
@@ -198,6 +227,7 @@ export default function App() {
             )}
           </section>
         </div>
+        )}
       </main>
     </div>
   );

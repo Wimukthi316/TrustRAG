@@ -79,9 +79,15 @@ from src.c2_calibration.calibration import (
     compare_calibrators,
     expected_calibration_error,
     maximum_calibration_error,
+    negative_log_likelihood,
 )
 from src.c2_calibration.conformal import coverage_tolerance
-from src.c2_calibration.run_c2 import read_probability_file, span_units, token_units
+from src.c2_calibration.run_c2 import (
+    halve_by_response,
+    read_probability_file,
+    span_units,
+    token_units,
+)
 
 RESAMPLES = 2000
 SUBSAMPLE_DRAWS = 200
@@ -584,8 +590,17 @@ def floor_rows(calib: Units, test: Units, method: str) -> Dict[str, Any]:
             "ece_reference_implementation": expected_calibration_error(
                 constant, test.labels
             ),
+            # The equal-count scheme puts every row of a constant predictor in
+            # one bin, so this necessarily equals the equal-width figure. It is
+            # recorded anyway: the calibrator table prints both columns, and a
+            # blank cell there would read as "not measured" rather than as
+            # "measured, and the two schemes cannot differ here".
+            "ece_equal_count": expected_calibration_error(
+                constant, test.labels, scheme="equal_count"
+            ),
             "mce": maximum_calibration_error(constant, test.labels),
             "brier": brier_score(constant, test.labels),
+            "nll": negative_log_likelihood(constant, test.labels),
             "auroc": auroc(constant, test.labels),
         },
         "detector": {
@@ -747,8 +762,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         description="Response-level uncertainty for C2's calibration and coverage."
     )
-    parser.add_argument("--calib", required=True, help="calibration probabilities.jsonl")
+    parser.add_argument(
+        "--calib", default=None, help="calibration probabilities.jsonl"
+    )
     parser.add_argument("--test", required=True, help="test probabilities.jsonl")
+    parser.add_argument(
+        "--self-split",
+        action="store_true",
+        help=(
+            "split --test in half by response, exactly as run_c2 --self-split "
+            "does with the same seed, so this analysis lands on the same two "
+            "halves the headline numbers were computed on. Required for the "
+            "public LettuceDetect checkpoint, which trained on everything "
+            "outside its test file"
+        ),
+    )
+    parser.add_argument("--split-seed", type=int, default=42)
     parser.add_argument("--out", default="results/c2/c1/c2_uncertainty.json")
     parser.add_argument("--units", default="span,token")
     parser.add_argument(
@@ -763,12 +792,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     alphas = [float(a) for a in args.alphas.split(",")]
     units = [u.strip() for u in args.units.split(",") if u.strip()]
 
-    calib_records = read_probability_file(args.calib)
-    test_records = read_probability_file(args.test)
-    print(
-        f"calibration {len(calib_records):,} responses | "
-        f"test {len(test_records):,} responses"
-    )
+    if args.self_split:
+        if args.calib:
+            raise SystemExit("--self-split and --calib are mutually exclusive")
+        calib_records, test_records = halve_by_response(
+            read_probability_file(args.test), seed=args.split_seed
+        )
+        print(
+            f"self-split of {args.test}: {len(calib_records):,} calibration / "
+            f"{len(test_records):,} evaluation responses"
+        )
+    else:
+        if not args.calib:
+            raise SystemExit("pass --calib, or --self-split to halve --test")
+        calib_records = read_probability_file(args.calib)
+        test_records = read_probability_file(args.test)
+        print(
+            f"calibration {len(calib_records):,} responses | "
+            f"test {len(test_records):,} responses"
+        )
 
     payload: Dict[str, Any] = {
         "calib_file": args.calib,

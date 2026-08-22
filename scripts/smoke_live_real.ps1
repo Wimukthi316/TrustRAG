@@ -124,6 +124,59 @@ try {
         Write-Host ("  alpha {0,-5} spans {1,-3} flag {2,-3} abstain {3}" -f $a, @($r.spans).Count, $flag, $abstain)
     }
 
+    Write-Host "`n== /api/metrics ==" -ForegroundColor Cyan
+    $metrics = Invoke-RestMethod -Uri "http://127.0.0.1:$Port/api/metrics" -TimeoutSec 20
+    if (-not $metrics.available) {
+        throw "metrics tab has nothing to show -- run src.c2_calibration.run_c2 first"
+    }
+    Write-Host ("  calibrator {0}   ECE {1:F4} -> {2:F4}   AUROC {3:F4}" -f `
+        $metrics.selected_calibrator, $metrics.ece_before, $metrics.ece_after, $metrics.auroc)
+    $floor = @($metrics.calibration | Where-Object { $_.is_floor })
+    if ($floor.Count -ne 1) {
+        throw "the constant-base-rate floor row is missing; an ECE must never be shown without it"
+    }
+    Write-Host ("  uninformative floor ECE {0:F4} -- read the column against this, not zero" -f $floor[0].ece)
+    foreach ($row in $metrics.coverage) {
+        if ($row.band -le 0) { throw "coverage row at alpha $($row.alpha) carries no band" }
+        Write-Host ("  alpha {0,-5} coverage {1:F4}  band +/-{2:F4}  {3}" -f `
+            $row.alpha, $row.empirical_coverage, $row.band,
+            $(if ($row.inside_band) { "in band" } else { "OUTSIDE BAND" }))
+    }
+    if ($metrics.shift_available) {
+        $shift = @($metrics.shift | Where-Object { $_.alpha -eq 0.1 })[0]
+        Write-Host ("  under shift at alpha 0.10: in-domain {0:F4}  shifted(VOID) {1:F4}  best repair {2:F4}" -f `
+            $shift.in_domain, $shift.shifted, $shift.repaired)
+    }
+
+    Write-Host "`n== /api/figures ==" -ForegroundColor Cyan
+    if ($metrics.figures.Count -eq 0) {
+        Write-Host "  none generated; run python -m src.c2_calibration.figures" -ForegroundColor Yellow
+    }
+    # -UseBasicParsing is not optional here. Without it Windows PowerShell 5.1
+    # hands the response to the Internet Explorer engine to parse, and on a
+    # machine where IE has never been configured that call hangs forever with no
+    # error and no timeout. Cost an evening once; it is not going to cost
+    # another one.
+    foreach ($name in $metrics.figures) {
+        $figure = Invoke-WebRequest -Uri "http://127.0.0.1:$Port/api/figures/$name.png" `
+            -TimeoutSec 15 -UseBasicParsing
+        if ($figure.Headers["Content-Type"] -notlike "image/png*") {
+            throw "$name did not come back as a PNG"
+        }
+        Write-Host ("  {0,-28} {1:N0} bytes" -f $name, $figure.RawContentLength)
+    }
+    $refused = $false
+    try {
+        Invoke-WebRequest -Uri "http://127.0.0.1:$Port/api/figures/secrets.png" `
+            -TimeoutSec 10 -UseBasicParsing | Out-Null
+    } catch {
+        $refused = $true
+    }
+    if (-not $refused) {
+        throw "an unknown figure name was served; the route must reject anything off the list"
+    }
+    Write-Host "  unknown figure name correctly refused"
+
     Write-Host "`n== live smoke passed ==" -ForegroundColor Green
 }
 finally {

@@ -181,3 +181,116 @@ class HealthResponse(BaseModel):
     schema_version: str
     model_version: str
     detector_loaded: bool
+
+
+# --------------------------------------------------------------------------
+# C2 metrics, for the demo's metrics tab
+# --------------------------------------------------------------------------
+#
+# These carry no per-request state. They are a read-only view of the JSON that
+# C2's offline runs wrote, served so the demo can show the evidence behind the
+# number on screen instead of asking a panel to take it on trust. Every field
+# below exists in an artefact under results/; the backend does no arithmetic on
+# them beyond selecting and renaming, so what the tab shows and what the report
+# shows cannot drift apart.
+
+
+class CalibrationRow(BaseModel):
+    """One calibrator, scored on the test split."""
+
+    method: str
+    ece: float
+    mce: float
+    brier: float
+    selected: bool = False
+    is_floor: bool = Field(
+        default=False,
+        description=(
+            "True for the constant-base-rate predictor, which ignores its input "
+            "entirely. Every ECE must be read against this row rather than "
+            "against zero."
+        ),
+    )
+
+
+class CoverageRow(BaseModel):
+    """Coverage at one miscoverage level, with the noise band it is judged against."""
+
+    alpha: float
+    target_coverage: float
+    empirical_coverage: float
+    band: float = Field(
+        ..., description="3-sigma range a single honest calibration draw may fall short by"
+    )
+    inside_band: bool
+    abstention_rate: float
+    empty_set_rate: float
+    flag_rate: float
+
+
+class GroupCoverageRow(BaseModel):
+    """Coverage within one group, at a single alpha."""
+
+    group: str
+    n_test: int
+    n_calibration: int
+    empirical_coverage: float
+    band: float
+    inside_band: bool
+    abstention_rate: float
+
+
+class ShiftRow(BaseModel):
+    """In-domain, shifted and repaired coverage at one alpha.
+
+    `shifted` is VOID: exchangeability does not hold between the corpora, so the
+    guarantee does not apply to it. It is a measurement of the break.
+    """
+
+    alpha: float
+    target_coverage: float
+    in_domain: Optional[float] = None
+    shifted: Optional[float] = None
+    repaired: Optional[float] = None
+    repaired_method: Optional[str] = None
+    shifted_meets_target: Optional[bool] = None
+    repaired_meets_target: Optional[bool] = None
+
+
+class RiskControlRow(BaseModel):
+    """A false-negative bound, the threshold that buys it, and what it costs."""
+
+    alpha: float
+    threshold: Optional[float] = None
+    test_risk: Optional[float] = None
+    token_flag_rate: Optional[float] = None
+    bound_held: Optional[bool] = None
+    on_grid_edge: bool = False
+
+
+class MetricsResponse(BaseModel):
+    """Everything the metrics tab shows. Absent artefacts leave lists empty."""
+
+    schema_version: str = SCHEMA_VERSION
+    available: bool = Field(
+        ..., description="False when no C2 results are on disk; the tab says so"
+    )
+    detector: str = ""
+    unit: str = "span"
+    n_calibration: int = 0
+    n_test: int = 0
+    positive_rate_test: float = 0.0
+    ece_before: Optional[float] = None
+    ece_after: Optional[float] = None
+    auroc: Optional[float] = None
+    selected_calibrator: Optional[str] = None
+    calibration: List[CalibrationRow] = Field(default_factory=list)
+    coverage: List[CoverageRow] = Field(default_factory=list)
+    per_task: List[GroupCoverageRow] = Field(default_factory=list)
+    shift: List[ShiftRow] = Field(default_factory=list)
+    shift_available: bool = False
+    risk_control: List[RiskControlRow] = Field(default_factory=list)
+    figures: List[str] = Field(
+        default_factory=list, description="Figure names served under /api/figures/"
+    )
+    notes: List[str] = Field(default_factory=list)

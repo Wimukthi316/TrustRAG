@@ -352,21 +352,39 @@ def format_analysis(result: Dict[str, Any]) -> str:
         lines.append("\n  empirical coverage meets target at every alpha")
 
     group_key = result.get("group_key", "task_type")
+    groups = result["conformal"]["group_conditional_alpha_0.1"]
     lines.append(f"\nGROUP-CONDITIONAL COVERAGE at alpha = 0.10, by {group_key}")
-    lines.append(
-        f"  {group_key:<17} empirical   +/-noise   abstain   n_test   n_calib"
-    )
-    lines.append("  " + "-" * 68)
-    for task, row in result["conformal"]["group_conditional_alpha_0.1"].items():
-        band = coverage_tolerance(0.1, int(row["n_calibration"]), int(row["n_test"]))
-        short = 0.9 - row["empirical_coverage"]
-        mark = "  <-- below noise band" if short > max(band, 0.005) else ""
+    if not groups:
+        # Empty is the correct answer when no group appears on both sides, and
+        # saying so beats printing a blank table that reads as a crash. It
+        # happens on the cross-corpus run: group-conditional coverage fits a
+        # separate threshold per group, which needs calibration data from that
+        # group, and RAGTruth has no RAGBench subsets in it. The per-subset
+        # numbers for that run come from shift.py, which evaluates one shared
+        # threshold on each subset instead of fitting twelve.
         lines.append(
-            f"  {task:<17} {row['empirical_coverage']:<11.4f} {band:<10.4f} "
-            f"{row['abstention_rate']:<9.4f} {row['n_test']:<8,} "
-            f"{row['n_calibration']:,}{mark}"
+            f"  no group appears in both the calibration and the test file under\n"
+            f"  `{group_key}`, so no per-group threshold can be fitted. On a\n"
+            "  cross-corpus run this is expected; see src/c2_calibration/shift.py\n"
+            "  for per-subset coverage under one shared threshold."
         )
-    if result["unit"] == "token":
+    else:
+        lines.append(
+            f"  {group_key:<17} empirical   +/-noise   abstain   n_test   n_calib"
+        )
+        lines.append("  " + "-" * 68)
+        for task, row in groups.items():
+            band = coverage_tolerance(
+                0.1, int(row["n_calibration"]), int(row["n_test"])
+            )
+            short = 0.9 - row["empirical_coverage"]
+            mark = "  <-- below noise band" if short > max(band, 0.005) else ""
+            lines.append(
+                f"  {task:<17} {row['empirical_coverage']:<11.4f} {band:<10.4f} "
+                f"{row['abstention_rate']:<9.4f} {row['n_test']:<8,} "
+                f"{row['n_calibration']:,}{mark}"
+            )
+    if groups and result["unit"] == "token":
         lines.append(
             "  note: tokens within a response are correlated, so the effective\n"
             "  sample size is nearer the response count than the token count and\n"

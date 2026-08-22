@@ -1,0 +1,33 @@
+Example-level only. RAGBench annotates whole sentences and RAGTruth
+annotates phrases, so span and token scores across the two are not
+comparable and are deliberately absent from this table.
+RAGBench labels are written by an LLM judge (gpt-4-turbo on 10,742
+records, gpt-4o on 1,059), not by human annotators.
+'pos rate' is the fraction of responses that are hallucinated. It is
+14.2% here against 34.9% on the RAGTruth test split (43.1% across the
+whole RAGTruth corpus), and positive-class F1 falls when positives get
+rarer even if the detector is unchanged.
+'trivial' is the F1 of calling EVERY response hallucinated at that rate.
+A row that does not clear it is a null result, not a weak one.
+'gold' and 'pred' are span counts: they say whether a low F1 comes from
+a detector that fires on everything or one that is silent.
+No truncation column: it would always read zero. cuad and techqa lose
+most of their context and that is measured separately.
+
+subset               n  pos rate       P       R      F1  trivial  clears    gold    pred      gap
+--------------------------------------------------------------------------------------------------
+RAGTruth test    2,700     0.349  0.7663  0.7582  0.7623   0.5177     yes   1,517   2,390         
+--------------------------------------------------------------------------------------------------
+covidqa            246     0.159  0.1875  0.0769  0.1091   0.2737      NO      43      23  -0.6532
+cuad               510     0.075  0.0921  0.5526  0.1579   0.1387     yes     109     878  -0.6044
+delucionqa         184     0.065  0.3750  0.2500  0.3000   0.1224     yes      23      21  -0.4623
+emanual            132     0.106  0.1667  0.0714  0.1000   0.1918      NO      38       9  -0.6623
+expertqa           203     0.532  0.7087  0.6759  0.6919   0.6945      NO     498     397  -0.0703
+finqa            2,294     0.085  0.0770  0.7653  0.1399   0.1574      NO     334   9,753  -0.6223
+hagrid           1,318     0.160  0.3280  0.2938  0.3100   0.2760     yes     341     464  -0.4523
+hotpotqa           390     0.082  0.0857  0.0938  0.0896   0.1517      NO      34      67  -0.6727
+msmarco            423     0.130  0.2273  0.0909  0.1299   0.2301      NO      73      47  -0.6324
+pubmedqa         2,449     0.296  0.3754  0.1685  0.2326   0.4564      NO   1,820     743  -0.5297
+tatqa            3,338     0.035  0.0397  0.5259  0.0738   0.0672     yes     190   6,541  -0.6885
+techqa             314     0.417  0.5099  0.5878  0.5461   0.5888      NO     918     770  -0.2162
+weighted mean   11,801     0.142  0.1931  0.4291  0.1799   0.2487      NO   4,421  19,713  -0.5823

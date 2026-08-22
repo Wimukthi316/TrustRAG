@@ -62,3 +62,86 @@ export interface HealthResponse {
   model_version: string;
   detector_loaded: boolean;
 }
+
+// --- C2 metrics -------------------------------------------------------------
+// A read-only view of the JSON that C2's offline runs wrote. Nothing here is
+// computed at request time, so what the metrics tab shows and what the report
+// shows cannot drift apart.
+
+export interface CalibrationRow {
+  method: string;
+  ece: number;
+  mce: number;
+  brier: number;
+  selected: boolean;
+  // The constant-base-rate predictor, which ignores its input. Every ECE is
+  // read against this row rather than against zero.
+  is_floor: boolean;
+}
+
+export interface CoverageRow {
+  alpha: number;
+  target_coverage: number;
+  empirical_coverage: number;
+  // 3-sigma range a single honest calibration draw may fall short by. Coverage
+  // under target but inside this band is not a miss.
+  band: number;
+  inside_band: boolean;
+  abstention_rate: number;
+  empty_set_rate: number;
+  flag_rate: number;
+}
+
+export interface GroupCoverageRow {
+  group: string;
+  n_test: number;
+  n_calibration: number;
+  empirical_coverage: number;
+  band: number;
+  inside_band: boolean;
+  abstention_rate: number;
+}
+
+export interface ShiftRow {
+  alpha: number;
+  target_coverage: number;
+  in_domain: number | null;
+  // VOID: exchangeability does not hold across corpora, so the guarantee does
+  // not apply to this number. It measures the break.
+  shifted: number | null;
+  repaired: number | null;
+  repaired_method: string | null;
+  shifted_meets_target: boolean | null;
+  repaired_meets_target: boolean | null;
+}
+
+export interface RiskControlRow {
+  alpha: number;
+  threshold: number | null;
+  test_risk: number | null;
+  token_flag_rate: number | null;
+  bound_held: boolean | null;
+  on_grid_edge: boolean;
+}
+
+export interface MetricsResponse {
+  schema_version: string;
+  available: boolean;
+  detector: string;
+  unit: string;
+  n_calibration: number;
+  n_test: number;
+  positive_rate_test: number;
+  ece_before: number | null;
+  ece_after: number | null;
+  auroc: number | null;
+  selected_calibrator: string | null;
+  calibration: CalibrationRow[];
+  coverage: CoverageRow[];
+  per_task: GroupCoverageRow[];
+  shift: ShiftRow[];
+  shift_available: boolean;
+  risk_control: RiskControlRow[];
+  figures: string[];
+  notes: string[];
+}

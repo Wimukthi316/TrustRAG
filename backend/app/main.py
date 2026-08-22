@@ -22,12 +22,20 @@ from contextlib import asynccontextmanager  # noqa: E402
 from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
+from fastapi.responses import FileResponse  # noqa: E402
+
 from backend.app.services.detector import get_detector  # noqa: E402
+from backend.app.services.metrics import (  # noqa: E402
+    FIGURE_DIR,
+    FIGURE_ORDER,
+    build_metrics,
+)
 from src.common.schema import (  # noqa: E402
     SCHEMA_VERSION,
     AnalysisResult,
     AnalyzeRequest,
     HealthResponse,
+    MetricsResponse,
     TaskType,
 )
 
@@ -104,6 +112,43 @@ def health() -> HealthResponse:
         model_version=det.model_version,
         detector_loaded=det.model_version != "stub-v0",
     )
+
+
+@app.get("/api/metrics", response_model=MetricsResponse)
+def metrics() -> MetricsResponse:
+    """C2's offline evidence, so the demo can show its working.
+
+    Read-only, computed nowhere, cached for the life of the process. When no
+    results are on disk it returns `available: false` and a note saying which
+    command produces them -- a metrics tab that says "nothing measured yet" is
+    honest, and a 500 is not.
+    """
+    return build_metrics()
+
+
+@app.get("/api/figures/{name}.png")
+def figure(name: str) -> FileResponse:
+    """One report figure, by name.
+
+    The name is checked against a fixed list rather than joined onto a path.
+    Interpolating a user-supplied string into a filesystem path is how a demo
+    server ends up serving `.env`, and the fact that this one only ever runs on
+    a laptop is not a reason to write it the other way.
+    """
+    if name not in FIGURE_ORDER:
+        raise HTTPException(
+            status_code=404, detail=f"unknown figure {name!r}; try {list(FIGURE_ORDER)}"
+        )
+    path = FIGURE_DIR / f"{name}.png"
+    if not path.exists():
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"{name}.png has not been generated. Run "
+                "`python -m src.c2_calibration.figures`."
+            ),
+        )
+    return FileResponse(path, media_type="image/png")
 
 
 @app.post("/api/analyze", response_model=AnalysisResult)

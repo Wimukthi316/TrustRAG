@@ -1,0 +1,2933 @@
+{
+  "seed": 42,
+  "method": "platt",
+  "n_calibration_spans": 1612,
+  "n_evaluation_spans": 9922,
+  "source_positive_rate": 0.5856079404466501,
+  "evaluation_positive_rate": 0.0743801652892562,
+  "unrepaired": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold": 0.7223683149851847,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.8169723845998791,
+        "abstention_rate": 0.7988308808707921,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.20116911912920782,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.8213457076566125,
+          "abstention_rate": 0.8120649651972158,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.18793503480278423,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.8125,
+          "abstention_rate": 0.6875,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.9375,
+          "abstention_rate": 0.7443181818181818,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2556818181818182,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.7931958762886598,
+          "abstention_rate": 0.7837113402061856,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21628865979381443,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8883495145631068,
+          "abstention_rate": 0.7621359223300971,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.23786407766990292,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.8,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8846153846153846,
+          "abstention_rate": 0.8461538461538461,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.8946078431372549,
+          "abstention_rate": 0.8602941176470589,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.13970588235294118,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.8170695314831393,
+          "abstention_rate": 0.8119964189794091,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.18800358102059087,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.9189873417721519,
+          "abstention_rate": 0.8379746835443038,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1620253164556962,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold": 0.649484802010221,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.7409796412013707,
+        "abstention_rate": 0.5680306389840758,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.2683934690586575,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.75,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7587006960556845,
+          "abstention_rate": 0.5150812064965197,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2482598607888631,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.7613636363636364,
+          "abstention_rate": 0.4715909090909091,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.30113636363636365,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.7181443298969072,
+          "abstention_rate": 0.5738144329896907,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.28865979381443296,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8252427184466019,
+          "abstention_rate": 0.5436893203883495,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3106796116504854,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.4666666666666667,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.5769230769230769,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.821078431372549,
+          "abstention_rate": 0.5465686274509803,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.17647058823529413,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7454491196657714,
+          "abstention_rate": 0.5792300805729633,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25723664577737987,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.8,
+          "abstention_rate": 0.5468354430379747,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21265822784810126,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold": 0.6116701664181494,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.6940133037694013,
+        "abstention_rate": 0.4157427937915743,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3101189276355574,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.4166666666666667,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7308584686774942,
+          "abstention_rate": 0.3642691415313225,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.27610208816705334,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.625,
+          "abstention_rate": 0.3125,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.6931818181818182,
+          "abstention_rate": 0.3181818181818182,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.32954545454545453,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.6705154639175258,
+          "abstention_rate": 0.4309278350515464,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.33422680412371136,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.7864077669902912,
+          "abstention_rate": 0.3932038834951456,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.34951456310679613,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8222222222222222,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.24444444444444444,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.46153846153846156,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.7622549019607843,
+          "abstention_rate": 0.34558823529411764,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.20098039215686275,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7030737093404954,
+          "abstention_rate": 0.42494777678304985,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.29931363772008357,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.7215189873417721,
+          "abstention_rate": 0.3468354430379747,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2430379746835443,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold": 0.5724140103231522,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.6458375327554928,
+        "abstention_rate": 0.2689981858496271,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.35617818988107236,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.6960556844547564,
+          "abstention_rate": 0.23897911832946636,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.31322505800464034,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.625,
+          "abstention_rate": 0.1875,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.6363636363636364,
+          "abstention_rate": 0.1875,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3806818181818182,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.622680412371134,
+          "abstention_rate": 0.28185567010309276,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3824742268041237,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.6990291262135923,
+          "abstention_rate": 0.24271844660194175,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.41262135922330095,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.7777777777777778,
+          "abstention_rate": 0.24444444444444444,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3111111111111111,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.7692307692307693,
+          "abstention_rate": 0.3076923076923077,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.7083333333333334,
+          "abstention_rate": 0.20098039215686275,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2426470588235294,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.6568188600417786,
+          "abstention_rate": 0.27514174873172187,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3434795583407938,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.6708860759493671,
+          "abstention_rate": 0.22025316455696203,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.28354430379746837,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold": 0.49004342350594693,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.5093731102600282,
+        "abstention_rate": 0.035577504535375934,
+        "empty_set_rate": 0.035577504535375934,
+        "flag_rate": 0.45454545454545453,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.5870069605568445,
+          "abstention_rate": 0.018561484918793503,
+          "empty_set_rate": 0.018561484918793503,
+          "flag_rate": 0.4013921113689095,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.375,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.5340909090909091,
+          "abstention_rate": 0.03409090909090909,
+          "empty_set_rate": 0.03409090909090909,
+          "flag_rate": 0.4431818181818182,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.4777319587628866,
+          "abstention_rate": 0.04041237113402062,
+          "empty_set_rate": 0.04041237113402062,
+          "flag_rate": 0.4861855670103093,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.5679611650485437,
+          "abstention_rate": 0.024271844660194174,
+          "empty_set_rate": 0.024271844660194174,
+          "flag_rate": 0.5194174757281553,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.6444444444444445,
+          "abstention_rate": 0.022222222222222223,
+          "empty_set_rate": 0.022222222222222223,
+          "flag_rate": 0.4222222222222222,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.5769230769230769,
+          "abstention_rate": 0.07692307692307693,
+          "empty_set_rate": 0.07692307692307693,
+          "flag_rate": 0.3076923076923077,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.6029411764705882,
+          "abstention_rate": 0.03431372549019608,
+          "empty_set_rate": 0.03431372549019608,
+          "flag_rate": 0.28431372549019607,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.5207400775887795,
+          "abstention_rate": 0.03043867502238138,
+          "empty_set_rate": 0.03043867502238138,
+          "flag_rate": 0.44732915547597735,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.5594936708860759,
+          "abstention_rate": 0.043037974683544304,
+          "empty_set_rate": 0.043037974683544304,
+          "flag_rate": 0.35443037974683544,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold": 0.43283010793763715,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.38913525498891355,
+        "abstention_rate": 0.24994960693408588,
+        "empty_set_rate": 0.24994960693408588,
+        "flag_rate": 0.362628502318081,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.46867749419953597,
+          "abstention_rate": 0.21809744779582366,
+          "empty_set_rate": 0.21809744779582366,
+          "flag_rate": 0.3225058004640371,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.4375,
+          "abstention_rate": 0.125,
+          "empty_set_rate": 0.125,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.4602272727272727,
+          "abstention_rate": 0.1534090909090909,
+          "empty_set_rate": 0.1534090909090909,
+          "flag_rate": 0.39204545454545453,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.3534020618556701,
+          "abstention_rate": 0.26350515463917523,
+          "empty_set_rate": 0.26350515463917523,
+          "flag_rate": 0.3888659793814433,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.47572815533980584,
+          "abstention_rate": 0.21844660194174756,
+          "empty_set_rate": 0.21844660194174756,
+          "flag_rate": 0.4223300970873786,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.5333333333333333,
+          "abstention_rate": 0.24444444444444444,
+          "empty_set_rate": 0.24444444444444444,
+          "flag_rate": 0.3111111111111111,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.46153846153846156,
+          "abstention_rate": 0.3076923076923077,
+          "empty_set_rate": 0.3076923076923077,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.5147058823529411,
+          "abstention_rate": 0.18627450980392157,
+          "empty_set_rate": 0.18627450980392157,
+          "flag_rate": 0.24509803921568626,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.3951059385258132,
+          "abstention_rate": 0.25425246195165624,
+          "empty_set_rate": 0.25425246195165624,
+          "flag_rate": 0.3503431811399582,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.45569620253164556,
+          "abstention_rate": 0.21265822784810126,
+          "empty_set_rate": 0.21265822784810126,
+          "flag_rate": 0.28607594936708863,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    }
+  ],
+  "label_shift_estimated": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold_label_0": 0.7904068974123448,
+      "threshold_label_1": 0.7867756516042032,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.8686756702277767,
+        "abstention_rate": 0.8546663979036485,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.14533360209635154,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 1.0,
+          "abstention_rate": 1.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.0,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.8700696055684455,
+          "abstention_rate": 0.8631090487238979,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1368909512761021,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.875,
+          "abstention_rate": 0.8125,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1875,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.9602272727272727,
+          "abstention_rate": 0.7897727272727273,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21022727272727273,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.851340206185567,
+          "abstention_rate": 0.8441237113402061,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1558762886597938,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.9271844660194175,
+          "abstention_rate": 0.8300970873786407,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16990291262135923,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.9333333333333333,
+          "abstention_rate": 0.8666666666666667,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.13333333333333333,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8846153846153846,
+          "abstention_rate": 0.8461538461538461,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.9264705882352942,
+          "abstention_rate": 0.8970588235294118,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.10294117647058823,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.8678006565204417,
+          "abstention_rate": 0.8645180543121457,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.13548194568785438,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.9443037974683545,
+          "abstention_rate": 0.8860759493670886,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.11392405063291139,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold_label_0": 0.6844814611881442,
+      "threshold_label_1": 0.68175965450002,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.7810925216690183,
+        "abstention_rate": 0.703184841765773,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.23473090102801855,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7958236658932715,
+          "abstention_rate": 0.6890951276102089,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2088167053364269,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.8125,
+          "abstention_rate": 0.625,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.6666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.8522727272727273,
+          "abstention_rate": 0.6136363636363636,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2840909090909091,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.7560824742268041,
+          "abstention_rate": 0.6969072164948453,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2538144329896907,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8640776699029126,
+          "abstention_rate": 0.6601941747572816,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2815533980582524,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.7111111111111111,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8846153846153846,
+          "abstention_rate": 0.7307692307692307,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.8602941176470589,
+          "abstention_rate": 0.6985294117647058,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15441176470588236,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7830498358698896,
+          "abstention_rate": 0.720680393912265,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.22142643986869592,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.8759493670886076,
+          "abstention_rate": 0.7113924050632912,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.18734177215189873,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold_label_0": 0.6318199035713071,
+      "threshold_label_1": 0.6318199035713071,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.7204192703084056,
+        "abstention_rate": 0.49667405764966743,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.2870389034468857,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.6666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7494199535962877,
+          "abstention_rate": 0.45243619489559167,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25754060324825984,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.7272727272727273,
+          "abstention_rate": 0.39204545454545453,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3181818181818182,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.6956701030927835,
+          "abstention_rate": 0.5055670103092783,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3101030927835052,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8106796116504854,
+          "abstention_rate": 0.48058252427184467,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3300970873786408,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8444444444444444,
+          "abstention_rate": 0.4222222222222222,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2222222222222222,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.5384615384615384,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.7965686274509803,
+          "abstention_rate": 0.44607843137254904,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19117647058823528,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7293345270068636,
+          "abstention_rate": 0.5070128319904507,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2739480752014324,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.759493670886076,
+          "abstention_rate": 0.4582278481012658,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.22531645569620254,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold_label_0": 0.5802986054254882,
+      "threshold_label_1": 0.5794256794323238,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.6551098568836928,
+        "abstention_rate": 0.2943962910703487,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.34720822414835717,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7053364269141531,
+          "abstention_rate": 0.2552204176334107,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3039443155452436,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.625,
+          "abstention_rate": 0.25,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.6420454545454546,
+          "abstention_rate": 0.2215909090909091,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3693181818181818,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.6301030927835052,
+          "abstention_rate": 0.30536082474226806,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3754639175257732,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.7135922330097088,
+          "abstention_rate": 0.27184466019417475,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3932038834951456,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8,
+          "abstention_rate": 0.26666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.28888888888888886,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.7692307692307693,
+          "abstention_rate": 0.34615384615384615,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.7132352941176471,
+          "abstention_rate": 0.2181372549019608,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.23774509803921567,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.6690540137272456,
+          "abstention_rate": 0.3040883318412414,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3312444046553268,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.6810126582278481,
+          "abstention_rate": 0.2481012658227848,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2810126582278481,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold_label_0": 0.5033848211036036,
+      "threshold_label_1": 0.5012588984303961,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.5335617818988108,
+        "abstention_rate": 0.008163676678089095,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.46593428744204796,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4166666666666667,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.6009280742459396,
+          "abstention_rate": 0.002320185614849188,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.40835266821345706,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.375,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.5454545454545454,
+          "abstention_rate": 0.005681818181818182,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.44886363636363635,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.5061855670103093,
+          "abstention_rate": 0.009278350515463918,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4979381443298969,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.5922330097087378,
+          "abstention_rate": 0.009708737864077669,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.5242718446601942,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.6444444444444445,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4444444444444444,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.6538461538461539,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3076923076923077,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.6176470588235294,
+          "abstention_rate": 0.007352941176470588,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.30392156862745096,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.540734109221128,
+          "abstention_rate": 0.007162041181736795,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4583706356311549,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.589873417721519,
+          "abstention_rate": 0.012658227848101266,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.36455696202531646,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold_label_0": 0.4458765389761952,
+      "threshold_label_1": 0.4458765389761952,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.4228986091513808,
+        "abstention_rate": 0.19643217093327958,
+        "empty_set_rate": 0.19643217093327958,
+        "flag_rate": 0.3812739367063092,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.5034802784222738,
+          "abstention_rate": 0.16705336426914152,
+          "empty_set_rate": 0.16705336426914152,
+          "flag_rate": 0.33874709976798145,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.4375,
+          "abstention_rate": 0.125,
+          "empty_set_rate": 0.125,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.48295454545454547,
+          "abstention_rate": 0.11363636363636363,
+          "empty_set_rate": 0.11363636363636363,
+          "flag_rate": 0.4034090909090909,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.38618556701030926,
+          "abstention_rate": 0.20948453608247422,
+          "empty_set_rate": 0.20948453608247422,
+          "flag_rate": 0.40969072164948456,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.4854368932038835,
+          "abstention_rate": 0.19902912621359223,
+          "empty_set_rate": 0.19902912621359223,
+          "flag_rate": 0.42718446601941745,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.6,
+          "abstention_rate": 0.13333333333333333,
+          "empty_set_rate": 0.13333333333333333,
+          "flag_rate": 0.35555555555555557,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.5384615384615384,
+          "abstention_rate": 0.23076923076923078,
+          "empty_set_rate": 0.23076923076923078,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.5490196078431373,
+          "abstention_rate": 0.13480392156862744,
+          "empty_set_rate": 0.13480392156862744,
+          "flag_rate": 0.2549019607843137,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.432408236347359,
+          "abstention_rate": 0.19695613249776187,
+          "empty_set_rate": 0.19695613249776187,
+          "flag_rate": 0.3694419576245897,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.4835443037974684,
+          "abstention_rate": 0.17215189873417722,
+          "empty_set_rate": 0.17215189873417722,
+          "flag_rate": 0.29620253164556964,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    }
+  ],
+  "label_shift_oracle": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold_label_0": 0.8265886752681377,
+      "threshold_label_1": 0.8264074871218358,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.8941745615803266,
+        "abstention_rate": 0.8826849425519049,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.11731505744809514,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 1.0,
+          "abstention_rate": 1.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.0,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.8909512761020881,
+          "abstention_rate": 0.8839907192575406,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.11600928074245939,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.875,
+          "abstention_rate": 0.8125,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1875,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.9602272727272727,
+          "abstention_rate": 0.8125,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1875,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.8816494845360825,
+          "abstention_rate": 0.8758762886597938,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.12412371134020618,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.941747572815534,
+          "abstention_rate": 0.8543689320388349,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.14563106796116504,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.9333333333333333,
+          "abstention_rate": 0.8888888888888888,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1111111111111111,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.9615384615384616,
+          "abstention_rate": 0.9230769230769231,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.07692307692307693,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.9387254901960784,
+          "abstention_rate": 0.9166666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.08333333333333333,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.8919725455088033,
+          "abstention_rate": 0.8901820352133691,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.10981796478663086,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.959493670886076,
+          "abstention_rate": 0.9088607594936708,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.09113924050632911,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold_label_0": 0.7384918015276906,
+      "threshold_label_1": 0.7370912392174683,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.8279580729691595,
+        "abstention_rate": 0.8104212860310421,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.18957871396895787,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 1.0,
+          "abstention_rate": 0.9166666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.08333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.8329466357308585,
+          "abstention_rate": 0.8236658932714617,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.17633410672853828,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.875,
+          "abstention_rate": 0.75,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.9375,
+          "abstention_rate": 0.7443181818181818,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2556818181818182,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.8055670103092784,
+          "abstention_rate": 0.7964948453608247,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.20350515463917526,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8883495145631068,
+          "abstention_rate": 0.7718446601941747,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.22815533980582525,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.8,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8846153846153846,
+          "abstention_rate": 0.8461538461538461,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.9019607843137255,
+          "abstention_rate": 0.8700980392156863,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.12990196078431374,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.8278125932557445,
+          "abstention_rate": 0.8227394807520143,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.17726051924798567,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.9265822784810127,
+          "abstention_rate": 0.8481012658227848,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1518987341772152,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold_label_0": 0.6631450321566883,
+      "threshold_label_1": 0.6598547047633777,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.7562991332392662,
+        "abstention_rate": 0.6128804676476517,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.25508969965732714,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.75,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7749419953596288,
+          "abstention_rate": 0.5707656612529002,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2296983758700696,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.7954545454545454,
+          "abstention_rate": 0.5056818181818182,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.29545454545454547,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.7342268041237113,
+          "abstention_rate": 0.6183505154639175,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2736082474226804,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8398058252427184,
+          "abstention_rate": 0.5776699029126213,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2912621359223301,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.5555555555555556,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8846153846153846,
+          "abstention_rate": 0.6538461538461539,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.5808823529411765,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.1715686274509804,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7570874365860937,
+          "abstention_rate": 0.6239928379588182,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2455983288570576,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.8329113924050633,
+          "abstention_rate": 0.6025316455696202,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold_label_0": 0.5985154239854533,
+      "threshold_label_1": 0.5980408882529205,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.6781898810723644,
+        "abstention_rate": 0.36464422495464627,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3255392058052812,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7238979118329466,
+          "abstention_rate": 0.31554524361948955,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.28306264501160094,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.625,
+          "abstention_rate": 0.3125,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.6704545454545454,
+          "abstention_rate": 0.26704545454545453,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3465909090909091,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.6534020618556701,
+          "abstention_rate": 0.3785567010309278,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.35175257731958764,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.7669902912621359,
+          "abstention_rate": 0.3446601941747573,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.36893203883495146,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8222222222222222,
+          "abstention_rate": 0.3111111111111111,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.24444444444444444,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.4230769230769231,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.7426470588235294,
+          "abstention_rate": 0.2818627450980392,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21568627450980393,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.6887496269770218,
+          "abstention_rate": 0.37511190689346463,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3130408833184124,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.7063291139240506,
+          "abstention_rate": 0.3037974683544304,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2582278481012658,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold_label_0": 0.5202594908299402,
+      "threshold_label_1": 0.5189437152158485,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.5631929046563193,
+        "abstention_rate": 0.07034872001612578,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.43610159242088287,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.6241299303944315,
+          "abstention_rate": 0.05568445475638051,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3851508120649652,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.375,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.5795454545454546,
+          "abstention_rate": 0.05113636363636364,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4318181818181818,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.5377319587628866,
+          "abstention_rate": 0.0779381443298969,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4663917525773196,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.616504854368932,
+          "abstention_rate": 0.05339805825242718,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.49514563106796117,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.044444444444444446,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4222222222222222,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.6923076923076923,
+          "abstention_rate": 0.11538461538461539,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2692307692307692,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.6544117647058824,
+          "abstention_rate": 0.06372549019607843,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.26715686274509803,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.5693822739480752,
+          "abstention_rate": 0.06386153387048642,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.42942405252163535,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.6075949367088608,
+          "abstention_rate": 0.07341772151898734,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.34177215189873417,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold_label_0": 0.46263336750840633,
+      "threshold_label_1": 0.46263336750840633,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.4569643217093328,
+        "abstention_rate": 0.13303769401330376,
+        "empty_set_rate": 0.13303769401330376,
+        "flag_rate": 0.40999798427736345,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.5336426914153132,
+          "abstention_rate": 0.1136890951276102,
+          "empty_set_rate": 0.1136890951276102,
+          "flag_rate": 0.3619489559164733,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.375,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.5113636363636364,
+          "abstention_rate": 0.07954545454545454,
+          "empty_set_rate": 0.07954545454545454,
+          "flag_rate": 0.42045454545454547,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.4210309278350515,
+          "abstention_rate": 0.14371134020618556,
+          "empty_set_rate": 0.14371134020618556,
+          "flag_rate": 0.44061855670103095,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.5242718446601942,
+          "abstention_rate": 0.15048543689320387,
+          "empty_set_rate": 0.15048543689320387,
+          "flag_rate": 0.441747572815534,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.6222222222222222,
+          "abstention_rate": 0.06666666666666667,
+          "empty_set_rate": 0.06666666666666667,
+          "flag_rate": 0.4,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.5769230769230769,
+          "abstention_rate": 0.19230769230769232,
+          "empty_set_rate": 0.19230769230769232,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.5735294117647058,
+          "abstention_rate": 0.0857843137254902,
+          "empty_set_rate": 0.0857843137254902,
+          "flag_rate": 0.2647058823529412,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.4661295135780364,
+          "abstention_rate": 0.13249776186213072,
+          "empty_set_rate": 0.13249776186213072,
+          "flag_rate": 0.39958221426439866,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.5265822784810127,
+          "abstention_rate": 0.10126582278481013,
+          "empty_set_rate": 0.10126582278481013,
+          "flag_rate": 0.3240506329113924,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    }
+  ],
+  "label_shift_oracle_weights": [
+    2.2336813975355074,
+    0.1270135873371621
+  ],
+  "label_shift_oracle_note": "uses the evaluation half's true positive rate, which a deployment cannot know. Reported only to separate a bad prior estimate from a false label-shift assumption. Never quote it as a result.",
+  "covariate_shift": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold_mean": 0.6951372762577075,
+      "threshold_min": 0.694397156182392,
+      "threshold_max": 0.702980089037428,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.792178996170127,
+        "abstention_rate": 0.7501511791977424,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.22676879661358598,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.8333333333333334,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.8120649651972158,
+          "abstention_rate": 0.7633410672853829,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19721577726218098,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.8125,
+          "abstention_rate": 0.6875,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.6666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.9090909090909091,
+          "abstention_rate": 0.6818181818181818,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2840909090909091,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.7655670103092783,
+          "abstention_rate": 0.7369072164948454,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.24536082474226803,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8689320388349514,
+          "abstention_rate": 0.7038834951456311,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2766990291262136,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.7777777777777778,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8846153846153846,
+          "abstention_rate": 0.8461538461538461,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.8700980392156863,
+          "abstention_rate": 0.7794117647058824,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15196078431372548,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7934944792599224,
+          "abstention_rate": 0.7672336615935542,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21217547000895254,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.8936708860759494,
+          "abstention_rate": 0.769620253164557,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.18734177215189873,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold_mean": 0.6473352457241103,
+      "threshold_min": 0.646290489915186,
+      "threshold_max": 0.65410651155882,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.7392662769602902,
+        "abstention_rate": 0.5621850433380366,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.2697036887724249,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.75,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7587006960556845,
+          "abstention_rate": 0.505800464037123,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2482598607888631,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.8333333333333334,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.7556818181818182,
+          "abstention_rate": 0.4659090909090909,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.30113636363636365,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.7167010309278351,
+          "abstention_rate": 0.5682474226804124,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2894845360824742,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8252427184466019,
+          "abstention_rate": 0.5436893203883495,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3106796116504854,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8666666666666667,
+          "abstention_rate": 0.5111111111111111,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.5769230769230769,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.15384615384615385,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.8186274509803921,
+          "abstention_rate": 0.5220588235294118,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.18137254901960784,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7439570277529096,
+          "abstention_rate": 0.5747538048343778,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25932557445538645,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.7924050632911392,
+          "abstention_rate": 0.5392405063291139,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21265822784810126,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold_mean": 0.6331632444957297,
+      "threshold_min": 0.6331204151172323,
+      "threshold_max": 0.6336614629578297,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.7223342068131425,
+        "abstention_rate": 0.5032251562185044,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.2857286837331183,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.9166666666666666,
+          "abstention_rate": 0.6666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.16666666666666666,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7494199535962877,
+          "abstention_rate": 0.45707656612529,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25754060324825984,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.5,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.7329545454545454,
+          "abstention_rate": 0.4034090909090909,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3181818181818182,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.6977319587628866,
+          "abstention_rate": 0.5125773195876289,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3082474226804124,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.8106796116504854,
+          "abstention_rate": 0.48058252427184467,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3300970873786408,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8444444444444444,
+          "abstention_rate": 0.4222222222222222,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.2222222222222222,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.5384615384615384,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.7990196078431373,
+          "abstention_rate": 0.45588235294117646,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19117647058823528,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.7305282005371531,
+          "abstention_rate": 0.5129811996418979,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.27275440167114295,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.7670886075949367,
+          "abstention_rate": 0.46582278481012657,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.22531645569620254,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold_mean": 0.6043724501957263,
+      "threshold_min": 0.6023544339796019,
+      "threshold_max": 0.6116701664181494,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.6849425519048579,
+        "abstention_rate": 0.3886313243297722,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3189881072364443,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.7262180974477959,
+          "abstention_rate": 0.33874709976798145,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.28074245939675174,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.625,
+          "abstention_rate": 0.3125,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3125,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.6761363636363636,
+          "abstention_rate": 0.2897727272727273,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3409090909090909,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.660618556701031,
+          "abstention_rate": 0.402680412371134,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3441237113402062,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.7766990291262136,
+          "abstention_rate": 0.36893203883495146,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.35436893203883496,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.8222222222222222,
+          "abstention_rate": 0.3333333333333333,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.24444444444444444,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.8461538461538461,
+          "abstention_rate": 0.4230769230769231,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.75,
+          "abstention_rate": 0.30392156862745096,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.21323529411764705,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.6956132497761862,
+          "abstention_rate": 0.40107430617726053,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3070725156669651,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.7113924050632912,
+          "abstention_rate": 0.31645569620253167,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25316455696202533,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold_mean": 0.5434635011248634,
+      "threshold_min": 0.5433219001971217,
+      "threshold_max": 0.5446447297813111,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.6004837734327757,
+        "abstention_rate": 0.15521064301552107,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.39951622656722435,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.6589327146171694,
+          "abstention_rate": 0.13225058004640372,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3503480278422274,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.375,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.5909090909090909,
+          "abstention_rate": 0.09090909090909091,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4147727272727273,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.5756701030927835,
+          "abstention_rate": 0.1661855670103093,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.43030927835051547,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.6747572815533981,
+          "abstention_rate": 0.16019417475728157,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4320388349514563,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.7333333333333333,
+          "abstention_rate": 0.1111111111111111,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.35555555555555557,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.7692307692307693,
+          "abstention_rate": 0.19230769230769232,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.19230769230769232,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.6666666666666666,
+          "abstention_rate": 0.09558823529411764,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.25980392156862747,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.6093703372127723,
+          "abstention_rate": 0.15696806923306475,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.38854073410922113,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.640506329113924,
+          "abstention_rate": 0.1291139240506329,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.31139240506329113,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold_mean": 0.4811087339473129,
+      "threshold_min": 0.48021788291628814,
+      "threshold_max": 0.48895716402009987,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 9922,
+        "empirical_coverage": 0.4933481152993348,
+        "abstention_rate": 0.06813142511590405,
+        "empty_set_rate": 0.06813142511590405,
+        "flag_rate": 0.43771417053013506,
+        "positive_rate": 0.0743801652892562
+      },
+      "n_test": 9922,
+      "per_group": {
+        "covidqa": {
+          "n": 12,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.16666666666666666,
+          "empty_set_rate": 0.16666666666666666,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.25
+        },
+        "cuad": {
+          "n": 431,
+          "empirical_coverage": 0.568445475638051,
+          "abstention_rate": 0.05568445475638051,
+          "empty_set_rate": 0.05568445475638051,
+          "flag_rate": 0.3851508120649652,
+          "positive_rate": 0.04176334106728538
+        },
+        "delucionqa": {
+          "n": 16,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.375,
+          "positive_rate": 0.5
+        },
+        "emanual": {
+          "n": 6,
+          "empirical_coverage": 0.5,
+          "abstention_rate": 0.0,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3333333333333333,
+          "positive_rate": 0.16666666666666666
+        },
+        "expertqa": {
+          "n": 176,
+          "empirical_coverage": 0.5284090909090909,
+          "abstention_rate": 0.05113636363636364,
+          "empty_set_rate": 0.05113636363636364,
+          "flag_rate": 0.4318181818181818,
+          "positive_rate": 0.6818181818181818
+        },
+        "finqa": {
+          "n": 4850,
+          "empirical_coverage": 0.4604123711340206,
+          "abstention_rate": 0.0754639175257732,
+          "empty_set_rate": 0.0754639175257732,
+          "flag_rate": 0.46824742268041236,
+          "positive_rate": 0.03731958762886598
+        },
+        "hagrid": {
+          "n": 206,
+          "empirical_coverage": 0.5631067961165048,
+          "abstention_rate": 0.05339805825242718,
+          "empty_set_rate": 0.05339805825242718,
+          "flag_rate": 0.49514563106796117,
+          "positive_rate": 0.42718446601941745
+        },
+        "hotpotqa": {
+          "n": 45,
+          "empirical_coverage": 0.6222222222222222,
+          "abstention_rate": 0.044444444444444446,
+          "empty_set_rate": 0.044444444444444446,
+          "flag_rate": 0.4222222222222222,
+          "positive_rate": 0.08888888888888889
+        },
+        "msmarco": {
+          "n": 26,
+          "empirical_coverage": 0.5769230769230769,
+          "abstention_rate": 0.11538461538461539,
+          "empty_set_rate": 0.11538461538461539,
+          "flag_rate": 0.2692307692307692,
+          "positive_rate": 0.19230769230769232
+        },
+        "pubmedqa": {
+          "n": 408,
+          "empirical_coverage": 0.5882352941176471,
+          "abstention_rate": 0.0661764705882353,
+          "empty_set_rate": 0.0661764705882353,
+          "flag_rate": 0.26715686274509803,
+          "positive_rate": 0.19852941176470587
+        },
+        "tatqa": {
+          "n": 3351,
+          "empirical_coverage": 0.5064159952253059,
+          "abstention_rate": 0.06057893166219039,
+          "empty_set_rate": 0.06057893166219039,
+          "flag_rate": 0.4315129811996419,
+          "positive_rate": 0.022381378692927483
+        },
+        "techqa": {
+          "n": 395,
+          "empirical_coverage": 0.5341772151898734,
+          "abstention_rate": 0.07341772151898734,
+          "empty_set_rate": 0.07341772151898734,
+          "flag_rate": 0.34177215189873417,
+          "positive_rate": 0.389873417721519
+        }
+      }
+    }
+  ],
+  "covariate_shift_weights": {
+    "calibration": {
+      "limit": 20.0,
+      "fraction_at_ceiling": 0.0012406947890818859,
+      "fraction_at_floor": 0.09119106699751861,
+      "fraction_clipped": 0.0924317617866005,
+      "mean": 0.7946312407315974,
+      "max": 20.0,
+      "min": 0.05,
+      "effective_sample_size": 286.0001438108361,
+      "n": 1612
+    },
+    "evaluation": {
+      "limit": 20.0,
+      "fraction_at_ceiling": 0.06450312437008668,
+      "fraction_at_floor": 0.007962104414432574,
+      "fraction_clipped": 0.07246522878451925,
+      "mean": 5.600629692507424,
+      "max": 20.0,
+      "min": 0.05,
+      "effective_sample_size": 4863.231471508827,
+      "n": 9922
+    }
+  },
+  "verdict": [
+    {
+      "alpha": 0.05,
+      "band": 0.017558034699898344,
+      "unrepaired": {
+        "coverage": 0.8169723845998791,
+        "shortfall": 0.13302761540012087,
+        "abstention_rate": 0.7988308808707921,
+        "meets_target": false
+      },
+      "label_shift_estimated": {
+        "coverage": 0.8686756702277767,
+        "shortfall": 0.08132432977222326,
+        "abstention_rate": 0.8546663979036485,
+        "meets_target": false
+      },
+      "label_shift_oracle": {
+        "coverage": 0.8941745615803266,
+        "shortfall": 0.05582543841967336,
+        "abstention_rate": 0.8826849425519049,
+        "meets_target": false
+      },
+      "covariate_shift": {
+        "coverage": 0.792178996170127,
+        "shortfall": 0.15782100382987296,
+        "abstention_rate": 0.7501511791977424,
+        "meets_target": false
+      }
+    },
+    {
+      "alpha": 0.1,
+      "band": 0.024168536496011805,
+      "unrepaired": {
+        "coverage": 0.7409796412013707,
+        "shortfall": 0.1590203587986293,
+        "abstention_rate": 0.5680306389840758,
+        "meets_target": false
+      },
+      "label_shift_estimated": {
+        "coverage": 0.7810925216690183,
+        "shortfall": 0.1189074783309817,
+        "abstention_rate": 0.703184841765773,
+        "meets_target": false
+      },
+      "label_shift_oracle": {
+        "coverage": 0.8279580729691595,
+        "shortfall": 0.07204192703084056,
+        "abstention_rate": 0.8104212860310421,
+        "meets_target": false
+      },
+      "covariate_shift": {
+        "coverage": 0.7392662769602902,
+        "shortfall": 0.16073372303970979,
+        "abstention_rate": 0.5621850433380366,
+        "meets_target": false
+      }
+    },
+    {
+      "alpha": 0.15,
+      "band": 0.028766312268149023,
+      "unrepaired": {
+        "coverage": 0.6940133037694013,
+        "shortfall": 0.1559866962305987,
+        "abstention_rate": 0.4157427937915743,
+        "meets_target": false
+      },
+      "label_shift_estimated": {
+        "coverage": 0.7204192703084056,
+        "shortfall": 0.1295807296915944,
+        "abstention_rate": 0.49667405764966743,
+        "meets_target": false
+      },
+      "label_shift_oracle": {
+        "coverage": 0.7562991332392662,
+        "shortfall": 0.09370086676073375,
+        "abstention_rate": 0.6128804676476517,
+        "meets_target": false
+      },
+      "covariate_shift": {
+        "coverage": 0.7223342068131425,
+        "shortfall": 0.12766579318685745,
+        "abstention_rate": 0.5032251562185044,
+        "meets_target": false
+      }
+    },
+    {
+      "alpha": 0.2,
+      "band": 0.03222471532801575,
+      "unrepaired": {
+        "coverage": 0.6458375327554928,
+        "shortfall": 0.15416246724450722,
+        "abstention_rate": 0.2689981858496271,
+        "meets_target": false
+      },
+      "label_shift_estimated": {
+        "coverage": 0.6551098568836928,
+        "shortfall": 0.1448901431163072,
+        "abstention_rate": 0.2943962910703487,
+        "meets_target": false
+      },
+      "label_shift_oracle": {
+        "coverage": 0.6781898810723644,
+        "shortfall": 0.1218101189276356,
+        "abstention_rate": 0.36464422495464627,
+        "meets_target": false
+      },
+      "covariate_shift": {
+        "coverage": 0.6849425519048579,
+        "shortfall": 0.11505744809514218,
+        "abstention_rate": 0.3886313243297722,
+        "meets_target": false
+      }
+    },
+    {
+      "alpha": 0.3,
+      "band": 0.03691804930975896,
+      "unrepaired": {
+        "coverage": 0.5093731102600282,
+        "shortfall": 0.19062688973997177,
+        "abstention_rate": 0.035577504535375934,
+        "meets_target": false
+      },
+      "label_shift_estimated": {
+        "coverage": 0.5335617818988108,
+        "shortfall": 0.1664382181011892,
+        "abstention_rate": 0.008163676678089095,
+        "meets_target": false
+      },
+      "label_shift_oracle": {
+        "coverage": 0.5631929046563193,
+        "shortfall": 0.13680709534368063,
+        "abstention_rate": 0.07034872001612578,
+        "meets_target": false
+      },
+      "covariate_shift": {
+        "coverage": 0.6004837734327757,
+        "shortfall": 0.09951622656722425,
+        "abstention_rate": 0.15521064301552107,
+        "meets_target": false
+      }
+    },
+    {
+      "alpha": 0.4,
+      "band": 0.03946705483004121,
+      "unrepaired": {
+        "coverage": 0.38913525498891355,
+        "shortfall": 0.21086474501108643,
+        "abstention_rate": 0.24994960693408588,
+        "meets_target": false
+      },
+      "label_shift_estimated": {
+        "coverage": 0.4228986091513808,
+        "shortfall": 0.1771013908486192,
+        "abstention_rate": 0.19643217093327958,
+        "meets_target": false
+      },
+      "label_shift_oracle": {
+        "coverage": 0.4569643217093328,
+        "shortfall": 0.14303567829066716,
+        "abstention_rate": 0.13303769401330376,
+        "meets_target": false
+      },
+      "covariate_shift": {
+        "coverage": 0.4933481152993348,
+        "shortfall": 0.10665188470066517,
+        "abstention_rate": 0.06813142511590405,
+        "meets_target": false
+      }
+    }
+  ]
+}

@@ -18,7 +18,13 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.common.schema import (  # noqa: E402
     AnalysisResult,
     AnalyzeRequest,
+    CalibrationRow,
+    CoverageRow,
+    GroupCoverageRow,
     HealthResponse,
+    MetricsResponse,
+    RiskControlRow,
+    ShiftRow,
     Span,
 )
 
@@ -58,9 +64,33 @@ def test_health_response_fields_mirrored():
     _assert_fields_present(HealthResponse, "HealthResponse")
 
 
+def test_metrics_models_mirrored():
+    """The C2 metrics tab speaks the same contract as everything else.
+
+    It is read-only and it is only a demo tab, which is exactly why it would be
+    the first place a field quietly stops existing. A missing field there shows
+    up as a blank cell in front of a panel rather than as an error.
+    """
+    for model, interface in (
+        (CalibrationRow, "CalibrationRow"),
+        (CoverageRow, "CoverageRow"),
+        (GroupCoverageRow, "GroupCoverageRow"),
+        (ShiftRow, "ShiftRow"),
+        (RiskControlRow, "RiskControlRow"),
+        (MetricsResponse, "MetricsResponse"),
+    ):
+        _assert_fields_present(model, interface)
+
+
 def test_no_extra_ts_fields():
     """Catch the reverse drift: a field in TS that no longer exists in Python."""
-    block = _ts_block("Span")
-    ts_fields = set(re.findall(r"^\s{2}(\w+)[?:]", block, re.M))
-    extra = ts_fields - set(Span.model_fields)
-    assert not extra, f"types.ts Span has fields Python does not: {extra}"
+    for model, interface in (
+        (Span, "Span"),
+        (CoverageRow, "CoverageRow"),
+        (ShiftRow, "ShiftRow"),
+        (MetricsResponse, "MetricsResponse"),
+    ):
+        block = _ts_block(interface)
+        ts_fields = set(re.findall(r"^\s{2}(\w+)[?:]", block, re.M))
+        extra = ts_fields - set(model.model_fields)
+        assert not extra, f"types.ts {interface} has fields Python does not: {extra}"

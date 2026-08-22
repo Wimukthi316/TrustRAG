@@ -334,3 +334,37 @@ def test_target_split_is_reproducible():
     first, _ = split_target(records, seed=42)
     second, _ = split_target(records, seed=42)
     assert [r["id"] for r in first] == [r["id"] for r in second]
+
+
+def test_target_split_keeps_both_answers_to_one_question_on_the_same_side():
+    # RAGBench pairs two model answers per question under one id. If the split
+    # separated them, the half the weights are estimated on and the half they
+    # are judged on would share a question and a context, and the repair would
+    # be scored on data it had already partly seen.
+    records = []
+    for model in ("gpt-3.5-turbo-0125", "claude-3-haiku-20240307"):
+        for record in make_records(n=50, seed=22, subset="delucionqa"):
+            records.append({**record, "model": model})
+
+    estimation, evaluation = split_target(records, fraction=0.5, seed=42)
+    left = {r["id"] for r in estimation}
+    right = {r["id"] for r in evaluation}
+    assert not (left & right), "a question straddled the split"
+    assert len(estimation) + len(evaluation) == len(records)
+    # Both models are present on both sides, so grouping by question has not
+    # accidentally turned into grouping by model.
+    assert {r["model"] for r in estimation} == {r["model"] for r in evaluation}
+    # Every question contributed both of its responses to whichever side it fell on.
+    for half in (estimation, evaluation):
+        counts = {}
+        for record in half:
+            counts[record["id"]] = counts.get(record["id"], 0) + 1
+        assert set(counts.values()) == {2}
+
+
+def test_target_split_rejects_a_fraction_outside_the_unit_interval():
+    records = make_records(n=10, seed=23)
+    with pytest.raises(ValueError):
+        split_target(records, fraction=0.0)
+    with pytest.raises(ValueError):
+        split_target(records, fraction=1.0)

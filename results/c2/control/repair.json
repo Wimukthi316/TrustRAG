@@ -1,0 +1,821 @@
+{
+  "seed": 42,
+  "method": "platt",
+  "n_calibration_spans": 1612,
+  "n_evaluation_spans": 1122,
+  "source_positive_rate": 0.5856079404466501,
+  "evaluation_positive_rate": 0.5115864527629234,
+  "unrepaired": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold": 0.7223683149851847,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.9340463458110517,
+        "abstention_rate": 0.6871657754010695,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.31283422459893045,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.9340463458110517,
+          "abstention_rate": 0.6871657754010695,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.31283422459893045,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold": 0.649484802010221,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8778966131907309,
+        "abstention_rate": 0.4696969696969697,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3877005347593583,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8778966131907309,
+          "abstention_rate": 0.4696969696969697,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3877005347593583,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold": 0.6116701664181494,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8324420677361853,
+        "abstention_rate": 0.31283422459893045,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.4411764705882353,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8324420677361853,
+          "abstention_rate": 0.31283422459893045,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4411764705882353,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold": 0.5724140103231522,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.7789661319073083,
+        "abstention_rate": 0.18805704099821746,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.48484848484848486,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.7789661319073083,
+          "abstention_rate": 0.18805704099821746,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.48484848484848486,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold": 0.49004342350594693,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6907308377896613,
+        "abstention_rate": 0.013368983957219251,
+        "empty_set_rate": 0.013368983957219251,
+        "flag_rate": 0.5641711229946524,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6907308377896613,
+          "abstention_rate": 0.013368983957219251,
+          "empty_set_rate": 0.013368983957219251,
+          "flag_rate": 0.5641711229946524,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold": 0.43283010793763715,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6033868092691622,
+        "abstention_rate": 0.1711229946524064,
+        "empty_set_rate": 0.1711229946524064,
+        "flag_rate": 0.4928698752228164,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6033868092691622,
+          "abstention_rate": 0.1711229946524064,
+          "empty_set_rate": 0.1711229946524064,
+          "flag_rate": 0.4928698752228164,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    }
+  ],
+  "label_shift_estimated": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold_label_0": 0.7305935873810987,
+      "threshold_label_1": 0.7305935873810987,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.9349376114081996,
+        "abstention_rate": 0.6951871657754011,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3048128342245989,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.9349376114081996,
+          "abstention_rate": 0.6951871657754011,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3048128342245989,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold_label_0": 0.6526749715753208,
+      "threshold_label_1": 0.6526749715753208,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8832442067736186,
+        "abstention_rate": 0.4857397504456328,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3841354723707665,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8832442067736186,
+          "abstention_rate": 0.4857397504456328,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3841354723707665,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold_label_0": 0.6131394047121203,
+      "threshold_label_1": 0.6131394047121203,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8342245989304813,
+        "abstention_rate": 0.3181818181818182,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.4376114081996435,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8342245989304813,
+          "abstention_rate": 0.3181818181818182,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4376114081996435,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold_label_0": 0.5728341272513289,
+      "threshold_label_1": 0.5728341272513289,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.7789661319073083,
+        "abstention_rate": 0.18805704099821746,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.48484848484848486,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.7789661319073083,
+          "abstention_rate": 0.18805704099821746,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.48484848484848486,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold_label_0": 0.490394123783648,
+      "threshold_label_1": 0.490394123783648,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6907308377896613,
+        "abstention_rate": 0.013368983957219251,
+        "empty_set_rate": 0.013368983957219251,
+        "flag_rate": 0.5641711229946524,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6907308377896613,
+          "abstention_rate": 0.013368983957219251,
+          "empty_set_rate": 0.013368983957219251,
+          "flag_rate": 0.5641711229946524,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold_label_0": 0.43422167068181705,
+      "threshold_label_1": 0.43422167068181705,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6060606060606061,
+        "abstention_rate": 0.16399286987522282,
+        "empty_set_rate": 0.16399286987522282,
+        "flag_rate": 0.4964349376114082,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6060606060606061,
+          "abstention_rate": 0.16399286987522282,
+          "empty_set_rate": 0.16399286987522282,
+          "flag_rate": 0.4964349376114082,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    }
+  ],
+  "label_shift_oracle": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold_label_0": 0.7399139034474076,
+      "threshold_label_1": 0.7399139034474076,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.9393939393939394,
+        "abstention_rate": 0.7076648841354723,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.29233511586452765,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.9393939393939394,
+          "abstention_rate": 0.7076648841354723,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.29233511586452765,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold_label_0": 0.6579552048410907,
+      "threshold_label_1": 0.6579552048410907,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8885918003565062,
+        "abstention_rate": 0.5062388591800356,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3787878787878788,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8885918003565062,
+          "abstention_rate": 0.5062388591800356,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3787878787878788,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold_label_0": 0.6165156918554153,
+      "threshold_label_1": 0.6165156918554153,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8377896613190731,
+        "abstention_rate": 0.3324420677361854,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.43315508021390375,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8377896613190731,
+          "abstention_rate": 0.3324420677361854,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.43315508021390375,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold_label_0": 0.5753157043645855,
+      "threshold_label_1": 0.575239117992053,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.7825311942959001,
+        "abstention_rate": 0.19340463458110516,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.4803921568627451,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.7825311942959001,
+          "abstention_rate": 0.19340463458110516,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4803921568627451,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold_label_0": 0.49470127339646747,
+      "threshold_label_1": 0.49470127339646747,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6925133689839572,
+        "abstention_rate": 0.0071301247771836,
+        "empty_set_rate": 0.0071301247771836,
+        "flag_rate": 0.5668449197860963,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6925133689839572,
+          "abstention_rate": 0.0071301247771836,
+          "empty_set_rate": 0.0071301247771836,
+          "flag_rate": 0.5668449197860963,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold_label_0": 0.4370073363008189,
+      "threshold_label_1": 0.4370073363008189,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6122994652406417,
+        "abstention_rate": 0.1532976827094474,
+        "empty_set_rate": 0.1532976827094474,
+        "flag_rate": 0.5008912655971479,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6122994652406417,
+          "abstention_rate": 0.1532976827094474,
+          "empty_set_rate": 0.1532976827094474,
+          "flag_rate": 0.5008912655971479,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    }
+  ],
+  "label_shift_oracle_weights": [
+    1.178626703811628,
+    0.8735989002688903
+  ],
+  "label_shift_oracle_note": "uses the evaluation half's true positive rate, which a deployment cannot know. Reported only to separate a bad prior estimate from a false label-shift assumption. Never quote it as a result.",
+  "covariate_shift": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold_mean": 0.7087993256097765,
+      "threshold_min": 0.7047481669105344,
+      "threshold_max": 0.7106283823633076,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.928698752228164,
+        "abstention_rate": 0.6702317290552585,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.32976827094474154,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.928698752228164,
+          "abstention_rate": 0.6702317290552585,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.32976827094474154,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold_mean": 0.6469674852038892,
+      "threshold_min": 0.6468690976089646,
+      "threshold_max": 0.6484318471032884,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8743315508021391,
+        "abstention_rate": 0.45811051693404636,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.3894830659536542,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8743315508021391,
+          "abstention_rate": 0.45811051693404636,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.3894830659536542,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold_mean": 0.613126039567563,
+      "threshold_min": 0.612257305171342,
+      "threshold_max": 0.6131394047121203,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.8342245989304813,
+        "abstention_rate": 0.3181818181818182,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.4376114081996435,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.8342245989304813,
+          "abstention_rate": 0.3181818181818182,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.4376114081996435,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold_mean": 0.5729950443356073,
+      "threshold_min": 0.5728912966219215,
+      "threshold_max": 0.5735680694984071,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.7789661319073083,
+        "abstention_rate": 0.18805704099821746,
+        "empty_set_rate": 0.0,
+        "flag_rate": 0.48484848484848486,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.7789661319073083,
+          "abstention_rate": 0.18805704099821746,
+          "empty_set_rate": 0.0,
+          "flag_rate": 0.48484848484848486,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold_mean": 0.4920846385301328,
+      "threshold_min": 0.4919387788468733,
+      "threshold_max": 0.4921338379226982,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6916221033868093,
+        "abstention_rate": 0.008912655971479501,
+        "empty_set_rate": 0.008912655971479501,
+        "flag_rate": 0.5668449197860963,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6916221033868093,
+          "abstention_rate": 0.008912655971479501,
+          "empty_set_rate": 0.008912655971479501,
+          "flag_rate": 0.5668449197860963,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold_mean": 0.4353051602686399,
+      "threshold_min": 0.435237526009996,
+      "threshold_max": 0.43549217580260846,
+      "fraction_infinite_threshold": 0.0,
+      "overall": {
+        "n": 1122,
+        "empirical_coverage": 0.6078431372549019,
+        "abstention_rate": 0.16131907308377896,
+        "empty_set_rate": 0.16131907308377896,
+        "flag_rate": 0.4982174688057041,
+        "positive_rate": 0.5115864527629234
+      },
+      "n_test": 1122,
+      "per_group": {
+        "unknown": {
+          "n": 1122,
+          "empirical_coverage": 0.6078431372549019,
+          "abstention_rate": 0.16131907308377896,
+          "empty_set_rate": 0.16131907308377896,
+          "flag_rate": 0.4982174688057041,
+          "positive_rate": 0.5115864527629234
+        }
+      }
+    }
+  ],
+  "covariate_shift_weights": {
+    "calibration": {
+      "limit": 20.0,
+      "fraction_at_ceiling": 0.0,
+      "fraction_at_floor": 0.0,
+      "fraction_clipped": 0.0,
+      "mean": 1.0006916143863838,
+      "max": 1.6583006146181838,
+      "min": 0.3786947159143572,
+      "effective_sample_size": 1563.0732943523067,
+      "n": 1612
+    },
+    "evaluation": {
+      "limit": 20.0,
+      "fraction_at_ceiling": 0.0,
+      "fraction_at_floor": 0.0,
+      "fraction_clipped": 0.0,
+      "mean": 1.0134198229305622,
+      "max": 1.7228274638999062,
+      "min": 0.35415575875287314,
+      "effective_sample_size": 1088.2029435412737,
+      "n": 1122
+    }
+  },
+  "verdict": [
+    {
+      "alpha": 0.05,
+      "band": 0.025420750459949088,
+      "unrepaired": {
+        "coverage": 0.9340463458110517,
+        "shortfall": 0.01595365418894823,
+        "abstention_rate": 0.6871657754010695,
+        "meets_target": true
+      },
+      "label_shift_estimated": {
+        "coverage": 0.9349376114081996,
+        "shortfall": 0.015062388591800313,
+        "abstention_rate": 0.6951871657754011,
+        "meets_target": true
+      },
+      "label_shift_oracle": {
+        "coverage": 0.9393939393939394,
+        "shortfall": 0.010606060606060508,
+        "abstention_rate": 0.7076648841354723,
+        "meets_target": true
+      },
+      "covariate_shift": {
+        "coverage": 0.928698752228164,
+        "shortfall": 0.02130124777183595,
+        "abstention_rate": 0.6702317290552585,
+        "meets_target": true
+      }
+    },
+    {
+      "alpha": 0.1,
+      "band": 0.03499152073385785,
+      "unrepaired": {
+        "coverage": 0.8778966131907309,
+        "shortfall": 0.022103386809269154,
+        "abstention_rate": 0.4696969696969697,
+        "meets_target": true
+      },
+      "label_shift_estimated": {
+        "coverage": 0.8832442067736186,
+        "shortfall": 0.016755793226381432,
+        "abstention_rate": 0.4857397504456328,
+        "meets_target": true
+      },
+      "label_shift_oracle": {
+        "coverage": 0.8885918003565062,
+        "shortfall": 0.011408199643493822,
+        "abstention_rate": 0.5062388591800356,
+        "meets_target": true
+      },
+      "covariate_shift": {
+        "coverage": 0.8743315508021391,
+        "shortfall": 0.025668449197860932,
+        "abstention_rate": 0.45811051693404636,
+        "meets_target": true
+      }
+    },
+    {
+      "alpha": 0.15,
+      "band": 0.04164824015445316,
+      "unrepaired": {
+        "coverage": 0.8324420677361853,
+        "shortfall": 0.017557932263814635,
+        "abstention_rate": 0.31283422459893045,
+        "meets_target": true
+      },
+      "label_shift_estimated": {
+        "coverage": 0.8342245989304813,
+        "shortfall": 0.01577540106951869,
+        "abstention_rate": 0.3181818181818182,
+        "meets_target": true
+      },
+      "label_shift_oracle": {
+        "coverage": 0.8377896613190731,
+        "shortfall": 0.012210338680926913,
+        "abstention_rate": 0.3324420677361854,
+        "meets_target": true
+      },
+      "covariate_shift": {
+        "coverage": 0.8342245989304813,
+        "shortfall": 0.01577540106951869,
+        "abstention_rate": 0.3181818181818182,
+        "meets_target": true
+      }
+    },
+    {
+      "alpha": 0.2,
+      "band": 0.046655360978477126,
+      "unrepaired": {
+        "coverage": 0.7789661319073083,
+        "shortfall": 0.0210338680926917,
+        "abstention_rate": 0.18805704099821746,
+        "meets_target": true
+      },
+      "label_shift_estimated": {
+        "coverage": 0.7789661319073083,
+        "shortfall": 0.0210338680926917,
+        "abstention_rate": 0.18805704099821746,
+        "meets_target": true
+      },
+      "label_shift_oracle": {
+        "coverage": 0.7825311942959001,
+        "shortfall": 0.01746880570409992,
+        "abstention_rate": 0.19340463458110516,
+        "meets_target": true
+      },
+      "covariate_shift": {
+        "coverage": 0.7789661319073083,
+        "shortfall": 0.0210338680926917,
+        "abstention_rate": 0.18805704099821746,
+        "meets_target": true
+      }
+    },
+    {
+      "alpha": 0.3,
+      "band": 0.0534504308148401,
+      "unrepaired": {
+        "coverage": 0.6907308377896613,
+        "shortfall": 0.009269162210338688,
+        "abstention_rate": 0.013368983957219251,
+        "meets_target": true
+      },
+      "label_shift_estimated": {
+        "coverage": 0.6907308377896613,
+        "shortfall": 0.009269162210338688,
+        "abstention_rate": 0.013368983957219251,
+        "meets_target": true
+      },
+      "label_shift_oracle": {
+        "coverage": 0.6925133689839572,
+        "shortfall": 0.007486631016042744,
+        "abstention_rate": 0.0071301247771836,
+        "meets_target": true
+      },
+      "covariate_shift": {
+        "coverage": 0.6916221033868093,
+        "shortfall": 0.00837789661319066,
+        "abstention_rate": 0.008912655971479501,
+        "meets_target": true
+      }
+    },
+    {
+      "alpha": 0.4,
+      "band": 0.057140914081313124,
+      "unrepaired": {
+        "coverage": 0.6033868092691622,
+        "shortfall": -0.0033868092691622387,
+        "abstention_rate": 0.1711229946524064,
+        "meets_target": true
+      },
+      "label_shift_estimated": {
+        "coverage": 0.6060606060606061,
+        "shortfall": -0.0060606060606061,
+        "abstention_rate": 0.16399286987522282,
+        "meets_target": true
+      },
+      "label_shift_oracle": {
+        "coverage": 0.6122994652406417,
+        "shortfall": -0.012299465240641738,
+        "abstention_rate": 0.1532976827094474,
+        "meets_target": true
+      },
+      "covariate_shift": {
+        "coverage": 0.6078431372549019,
+        "shortfall": -0.007843137254901933,
+        "abstention_rate": 0.16131907308377896,
+        "meets_target": true
+      }
+    }
+  ]
+}

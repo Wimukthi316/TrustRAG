@@ -74,13 +74,14 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import random
+from collections import defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Sequence, Tuple
 
 import numpy as np
 
-from src.c1_detector.ood_operating_point import split_by_subset
 from src.c2_calibration.calibration import Calibrator, to_logit
 from src.c2_calibration.clustered import (
     _nonconformity,
@@ -195,22 +196,59 @@ def split_target(
     fraction: float = TARGET_ESTIMATION_FRACTION,
     seed: int = SEED,
 ) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
-    """Stratified split of the target corpus into an estimation and an eval half.
+    """Stratified split of the target corpus, by question rather than by response.
 
-    Reuses `ood_operating_point.split_by_subset` rather than reimplementing it,
-    so the halves are carved exactly the way C1's operating-point study carved
-    them: grouped by subset, ordered by id, shuffled with the same seed. The
-    subsets differ by an order of magnitude in hallucination rate, so an
-    unstratified draw could hand the estimation half a base rate the evaluation
-    half does not share -- and since estimating that base rate is the whole
-    point of the label-shift repair, that would not be a small problem.
+    Two properties, and the second one was found by measurement rather than
+    assumed.
+
+    **Stratified by subset**, the way `ood_operating_point.split_by_subset`
+    carves its halves: grouped by subset, ordered deterministically, shuffled
+    with the same seed. The twelve subsets differ by an order of magnitude in
+    hallucination rate, so an unstratified draw could hand the estimation half a
+    base rate the evaluation half does not share -- and estimating that base
+    rate is the entire point of the label-shift repair.
+
+    **Grouped by question id**, which is the part `split_by_subset` does not do
+    and this corpus needs. RAGBench record ids are not unique: 4,355 of its
+    7,446 questions carry *two* responses, one from gpt-3.5-turbo-0125 and one
+    from claude-3-haiku-20240307, sharing a question and a context and differing
+    only in which model wrote the answer. Splitting by response would put one
+    model's answer to a question in the half the weights are estimated on and
+    the other model's answer to the same question in the half they are judged
+    on. The two halves would then share information, the evaluation half would
+    flatter the repair, and nothing in the output would say so.
+
+    RAGTruth has no such structure -- all 2,700 test ids are distinct -- which
+    is why this only shows up on the target side.
 
     Everything the repairs estimate is estimated on the first half. Every number
     they are judged by is measured on the second. The estimation half's labels
     are never read: BBSE and the domain classifier both take unlabeled target
     data, which is what makes the repair deployable at all.
     """
-    return split_by_subset(records, calib_fraction=fraction, seed=seed)
+    if not 0.0 < fraction < 1.0:
+        raise ValueError(f"fraction must be in (0, 1), got {fraction}")
+
+    grouped: Dict[str, Dict[str, List[Dict[str, Any]]]] = defaultdict(
+        lambda: defaultdict(list)
+    )
+    for record in records:
+        grouped[str(record.get("subset", "unknown"))][str(record.get("id"))].append(
+            record
+        )
+
+    rng = random.Random(seed)
+    estimation: List[Dict[str, Any]] = []
+    evaluation: List[Dict[str, Any]] = []
+    for subset in sorted(grouped):
+        questions = sorted(grouped[subset])
+        rng.shuffle(questions)
+        cut = int(round(fraction * len(questions)))
+        for question in questions[:cut]:
+            estimation.extend(grouped[subset][question])
+        for question in questions[cut:]:
+            evaluation.extend(grouped[subset][question])
+    return estimation, evaluation
 
 
 # --------------------------------------------------------------------------
@@ -784,6 +822,38 @@ def covariate_shift_conformal(
 # --------------------------------------------------------------------------
 
 
+def _question_structure(records: Sequence[Dict[str, Any]]) -> Dict[str, Any]:
+    """How many responses share a question, and which models wrote them.
+
+    Recorded in the diagnosis because it is the justification for splitting by
+    question, and because a reader who does not know RAGBench pairs two model
+    answers per question would otherwise read the response count as a sample
+    size it is not.
+    """
+    per_question: Dict[Tuple[str, str], List[str]] = defaultdict(list)
+    for record in records:
+        per_question[
+            (str(record.get("subset", "unknown")), str(record.get("id")))
+        ].append(str(record.get("model")))
+    sizes = [len(models) for models in per_question.values()]
+    models: Dict[str, int] = defaultdict(int)
+    for record in records:
+        models[str(record.get("model"))] += 1
+    return {
+        "n_responses": len(records),
+        "n_questions": len(per_question),
+        "responses_per_question_histogram": {
+            str(size): sizes.count(size) for size in sorted(set(sizes))
+        },
+        "responses_by_model": dict(sorted(models.items(), key=lambda kv: -kv[1])),
+        "note": (
+            "a question with more than one response has one context and one "
+            "question answered by several models. The split groups by question "
+            "so both responses land on the same side."
+        ),
+    }
+
+
 def meets_target(row: Dict[str, Any], band: float) -> bool:
     """Is this row's shortfall small enough to be sampling noise? Same rule as check_coverage."""
     shortfall = row["target_coverage"] - row["overall"]["empirical_coverage"]
@@ -851,6 +921,7 @@ def run_shift_study(
         "n_target_responses": len(target_records),
         "n_target_estimation_responses": len(estimation_records),
         "n_target_evaluation_responses": len(evaluation_records),
+        "target_question_structure": _question_structure(target_records),
         "base_rate": base_rate_diagnosis(source, target_all),
         "conditional_scores": conditional_score_diagnosis(source, target_all),
         "domain_classifier": {

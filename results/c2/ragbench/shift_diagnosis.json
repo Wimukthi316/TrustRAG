@@ -1,0 +1,237 @@
+{
+  "seed": 42,
+  "method": "platt",
+  "score_key": "mean_prob",
+  "n_source_responses": 1509,
+  "n_target_responses": 11801,
+  "n_target_estimation_responses": 5900,
+  "n_target_evaluation_responses": 5901,
+  "target_question_structure": {
+    "n_responses": 11801,
+    "n_questions": 7446,
+    "responses_per_question_histogram": {
+      "1": 3091,
+      "2": 4355
+    },
+    "responses_by_model": {
+      "claude-3-haiku-20240307": 4866,
+      "gpt-3.5-turbo-0125": 4355,
+      "HAGRID": 1318,
+      "gpt-3.5-turbo-1106": 1059,
+      "ExpertQA": 203
+    },
+    "note": "a question with more than one response has one context and one question answered by several models. The split groups by question so both responses land on the same side."
+  },
+  "base_rate": {
+    "source_span_positive_rate": 0.5856079404466501,
+    "target_span_positive_rate": 0.06909146248668391,
+    "absolute_change": -0.5165164779599662,
+    "ratio": 0.11798245500904074,
+    "source_n_spans": 1612,
+    "target_n_spans": 19713,
+    "target_per_group": {
+      "covidqa": {
+        "n_spans": 23,
+        "positive_rate": 0.21739130434782608
+      },
+      "cuad": {
+        "n_spans": 878,
+        "positive_rate": 0.030751708428246014
+      },
+      "delucionqa": {
+        "n_spans": 21,
+        "positive_rate": 0.42857142857142855
+      },
+      "emanual": {
+        "n_spans": 9,
+        "positive_rate": 0.1111111111111111
+      },
+      "expertqa": {
+        "n_spans": 397,
+        "positive_rate": 0.6221662468513854
+      },
+      "finqa": {
+        "n_spans": 9753,
+        "positive_rate": 0.03240028709115144
+      },
+      "hagrid": {
+        "n_spans": 464,
+        "positive_rate": 0.3254310344827586
+      },
+      "hotpotqa": {
+        "n_spans": 67,
+        "positive_rate": 0.05970149253731343
+      },
+      "msmarco": {
+        "n_spans": 47,
+        "positive_rate": 0.2127659574468085
+      },
+      "pubmedqa": {
+        "n_spans": 743,
+        "positive_rate": 0.2288021534320323
+      },
+      "tatqa": {
+        "n_spans": 6541,
+        "positive_rate": 0.015593945879834887
+      },
+      "techqa": {
+        "n_spans": 770,
+        "positive_rate": 0.4155844155844156
+      }
+    }
+  },
+  "conditional_scores": {
+    "y=0": {
+      "source": {
+        "n": 668,
+        "mean": 0.6768684048552257,
+        "sd": 0.12860160948421756,
+        "p10": 0.5322521358728409,
+        "p50": 0.6458098888397217,
+        "p90": 0.8810370847582818
+      },
+      "target": {
+        "n": 18351,
+        "mean": 0.7210450748973777,
+        "sd": 0.14074824507036512,
+        "p10": 0.5444821119308472,
+        "p50": 0.7007082551717758,
+        "p90": 0.9348615176147885
+      },
+      "ks_statistic": 0.1494974739094641,
+      "ks_p_value": 4.762111120175329e-13,
+      "mean_shift": 0.04417667004215198
+    },
+    "y=1": {
+      "source": {
+        "n": 944,
+        "mean": 0.8109476579009736,
+        "sd": 0.1351259303150829,
+        "p10": 0.5973540067672729,
+        "p50": 0.8430050171556926,
+        "p90": 0.9701589927077293
+      },
+      "target": {
+        "n": 1362,
+        "mean": 0.7284950593248475,
+        "sd": 0.15152050944618634,
+        "p10": 0.538466727733612,
+        "p50": 0.7045146375894547,
+        "p90": 0.954687625169754
+      },
+      "ks_statistic": 0.2805663406257,
+      "ks_p_value": 3.700782941647806e-39,
+      "mean_shift": -0.08245259857612608
+    }
+  },
+  "domain_classifier": {
+    "features": [
+      "logit_mean_prob",
+      "logit_max_prob",
+      "logit_min_prob",
+      "log_span_chars",
+      "log_span_tokens",
+      "log_answer_tokens",
+      "log_spans_in_response"
+    ],
+    "held_out_auc": 0.8793280787856363,
+    "coefficients": {
+      "logit_mean_prob": -0.6332014807487671,
+      "logit_max_prob": -0.09552473840659906,
+      "logit_min_prob": 0.10155040427452611,
+      "log_span_chars": -1.8450865296184136,
+      "log_span_tokens": 2.3864736068943273,
+      "log_answer_tokens": -1.2192573738190229,
+      "log_spans_in_response": 1.1334202855355147
+    },
+    "intercept": 2.5661033034986787,
+    "n_source_spans": 1612,
+    "n_target_spans": 9791,
+    "note": "AUC measured on a held-out third of the pooled spans; the coefficients come from a refit on all of them, which is what the importance weights are taken from. Context length is not among the features because the probability dump does not carry the context."
+  },
+  "label_shift_estimate": {
+    "method": "BBSE (black-box shift estimation), confusion-matrix form",
+    "predictor": "calibrated span score >= 0.5",
+    "decision_threshold": 0.5,
+    "source_predicted_positive_rate": 0.5719602977667494,
+    "source_joint_pred_by_true": [
+      [
+        0.27791563275434245,
+        0.1501240694789082
+      ],
+      [
+        0.13647642679900746,
+        0.43548387096774194
+      ]
+    ],
+    "condition_number": 2.692540884331081,
+    "target_predicted_distribution": [
+      0.5244612399142069,
+      0.4755387600857931
+    ],
+    "source_prior": [
+      0.4143920595533499,
+      0.5856079404466501
+    ],
+    "estimated_weights": [
+      1.5616229050898973,
+      0.6025804019067251
+    ],
+    "estimated_target_prior": [
+      0.647124131885888,
+      0.352875868114112
+    ],
+    "true_target_prior_for_reference_only": [
+      0.9362680012256154,
+      0.06373199877438464
+    ],
+    "estimation_error_on_positive_rate": 0.28914386933972736,
+    "usable": true,
+    "problems": []
+  },
+  "label_shift_estimate_on_raw_score": {
+    "method": "BBSE (black-box shift estimation), confusion-matrix form",
+    "predictor": "raw span score >= 0.5",
+    "decision_threshold": 0.5,
+    "source_predicted_positive_rate": 1.0,
+    "source_joint_pred_by_true": [
+      [
+        0.0,
+        0.0
+      ],
+      [
+        0.4143920595533499,
+        0.5856079404466501
+      ]
+    ],
+    "condition_number": Infinity,
+    "target_predicted_distribution": [
+      0.0002042692268409764,
+      0.999795730773159
+    ],
+    "source_prior": [
+      0.4143920595533499,
+      0.5856079404466501
+    ],
+    "estimated_weights": [
+      NaN,
+      NaN
+    ],
+    "estimated_target_prior": [
+      NaN,
+      NaN
+    ],
+    "true_target_prior_for_reference_only": [
+      0.9362680012256154,
+      0.06373199877438464
+    ],
+    "estimation_error_on_positive_rate": NaN,
+    "usable": false,
+    "problems": [
+      "the predictor is constant on the source split (it says 1 to every span), so its confusion matrix has a zero row and carries no information about the target's label distribution",
+      "the source joint matrix is singular and cannot be inverted",
+      "the solved weights are not finite",
+      "the source joint matrix is badly conditioned (cond inf); the predictor separates the classes too weakly for this estimate to carry information"
+    ]
+  }
+}
