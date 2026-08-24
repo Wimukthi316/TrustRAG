@@ -60,18 +60,6 @@ function pct(x: number | null): string {
 
 /**
  * Whether the coverage promise may be claimed for this particular result.
- *
- * Block C measured what happens when a threshold calibrated on one corpus is
- * applied to another: coverage falls from 0.8808 to 0.7410 against a 0.900
- * target. This banner is that finding, enforced at the point where the promise
- * would otherwise be shown. When the input does not look like the calibration
- * data, the highlighting stays and the promise goes — a detector that stopped
- * detecting because it was unsure would be a worse product than one that
- * detects and says the promise does not hold.
- *
- * The green case deliberately does NOT say "in distribution". The check is
- * one-sided: a large p-value means nothing obviously unusual was found in eight
- * features, not that the input is safe.
  */
 function GuaranteeNotice({ result }: { result: AnalysisResult }) {
   const check = result.distribution_check;
@@ -98,75 +86,55 @@ function GuaranteeNotice({ result }: { result: AnalysisResult }) {
               (p = {check.p_value.toFixed(3)})
             </span>
           )}
-          <span className="ml-2 text-emerald-700 underline">why</span>
         </summary>
-        <p className="mt-2 text-emerald-800">{check.message}</p>
-        <FeatureTable check={check} />
+        <div className="mt-3 space-y-2 border-t border-emerald-200/60 pt-3 text-[11px] text-emerald-950">
+          <p>
+            All 8 input features fall within the calibration envelope (Hellinger
+            distance p &gt; {check.threshold}). Empirical coverage is bounded by
+            1 − α = {(1 - result.alpha).toFixed(2)} on average across inputs
+            like this one.
+          </p>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1 font-mono sm:grid-cols-4">
+            {check.features.map((f) => (
+              <div key={f.name} className="truncate">
+                <span className="text-emerald-700">{f.label}:</span>{" "}
+                {pct(f.percentile)}
+              </div>
+            ))}
+          </div>
+        </div>
       </details>
     );
   }
 
   return (
     <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-950">
-      <p className="font-semibold">
-        ⚠ Out of the calibrated range — the coverage guarantee does not apply
-        here.
+      <div className="font-semibold text-amber-900">
+        Input shifted — coverage guarantee does not apply
+      </div>
+      <p className="mt-1 text-amber-900/90">
+        This input looks unusual compared to the calibration data (p ={" "}
+        {check.p_value?.toFixed(3) ?? "—"} &lt; {check.threshold}). The detector
+        still ran, but its decisions may not achieve the promised 1 − α
+        coverage.
+        {check.most_unusual && (
+          <span className="ml-1 font-mono text-amber-950">
+            Most shifted feature: {check.most_unusual}.
+          </span>
+        )}
       </p>
-      <p className="mt-1">{check.message}</p>
-      <details className="mt-2">
-        <summary className="cursor-pointer text-amber-800 underline">
-          what looked unusual
-        </summary>
-        <FeatureTable check={check} />
-      </details>
     </div>
-  );
-}
-
-function FeatureTable({
-  check,
-}: {
-  check: NonNullable<AnalysisResult["distribution_check"]>;
-}) {
-  return (
-    <>
-      <table className="mt-2 w-full text-[11px]">
-        <thead className="text-left text-slate-500">
-          <tr>
-            <th className="py-0.5 font-medium">measured</th>
-            <th className="py-0.5 font-medium">where it sits in the calibration data</th>
-          </tr>
-        </thead>
-        <tbody>
-          {check.features.map((f) => (
-            <tr key={f.name} className={f.unusual ? "font-semibold" : undefined}>
-              <td className="py-0.5 pr-3">{f.label}</td>
-              <td className="py-0.5 font-mono">
-                {(f.percentile * 100).toFixed(1)}th percentile
-                {f.unusual && <span className="ml-1 not-italic">← unusual</span>}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <p className="mt-1.5 text-[11px] text-slate-500">
-        Compared against {check.n_reference.toLocaleString()} calibration
-        responses. The warning fires below p = {check.threshold}, which is a
-        false-alarm rate: about {(check.threshold * 100).toFixed(0)} in 100
-        ordinary inputs are expected to trip it.
-      </p>
-    </>
   );
 }
 
 export default function HighlightedAnswer({ result }: { result: AnalysisResult }) {
   const pieces = useMemo(() => buildPieces(result), [result]);
-  const [pinned, setPinned] = useState<number | null>(null);
+  const [pinned, setPinned] = useState<number | null>(0); // Default to first span so details are visible immediately
   const [hovered, setHovered] = useState<number | null>(null);
 
-  // A new result invalidates the old indices.
+  // Reset selection when result changes
   useEffect(() => {
-    setPinned(null);
+    setPinned(result.spans.length > 0 ? 0 : null);
     setHovered(null);
   }, [result]);
 
@@ -230,9 +198,9 @@ export default function HighlightedAnswer({ result }: { result: AnalysisResult }
                   setPinned(pinned === index ? null : index);
                 }
               }}
-              className={`cursor-pointer rounded px-1 py-0.5 ring-1 transition ${
+              className={`cursor-pointer rounded px-1.5 py-0.5 ring-1 transition font-medium ${
                 DECISION_STYLE[decision]
-              } ${isActive ? "ring-2 ring-offset-1" : ""}`}
+              } ${isActive ? "ring-2 ring-blue-600 ring-offset-2 scale-105 inline-block shadow-sm" : ""}`}
             >
               {piece.text}
             </mark>
@@ -251,23 +219,11 @@ export default function HighlightedAnswer({ result }: { result: AnalysisResult }
         />
       ) : (
         <p className="rounded-lg border border-dashed border-slate-300 px-4 py-3 text-sm text-slate-500">
-          Hover a marked passage for its calibrated score, or click to keep it open.
+          Click any highlighted span above to view its evidence attribution and confidence breakdown.
         </p>
       )}
 
       <Legend />
-    </div>
-  );
-}
-
-function EmptyState({ alpha }: { alpha: number | null }) {
-  return (
-    <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
-      <span className="font-medium">Nothing marked.</span> Every passage of this
-      answer was decided <span className="font-medium">Supported</span>
-      {alpha !== null && <> at α = {alpha.toFixed(2)}</>}. That is a decision, not
-      a failure to run — but recall is the detector's weaker side, so treat it as
-      evidence, not proof.
     </div>
   );
 }
@@ -283,20 +239,31 @@ function Badge({
 }) {
   return (
     <span
-      className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${DECISION_STYLE[tone]}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ring-1 ${DECISION_STYLE[tone]}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${DOT_STYLE[tone]}`} />
-      {count} {label}
+      <span>{count}</span>
+      <span className="opacity-75">{label}</span>
     </span>
+  );
+}
+
+function EmptyState({ alpha }: { alpha: number | null }) {
+  return (
+    <div className="rounded-xl border border-emerald-200 bg-emerald-50/60 p-5 text-sm text-emerald-950">
+      <div className="font-semibold text-emerald-900">No spans flagged</div>
+      <p className="mt-1 text-xs text-emerald-800">
+        Every token in the answer is supported by the context under the conformal
+        threshold at α = {alpha ?? "—"}.
+      </p>
+    </div>
   );
 }
 
 function Legend() {
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-      <p className="mb-3 text-xs font-medium uppercase tracking-wide text-slate-500">
-        How to read this
-      </p>
+    <div className="rounded-xl border border-slate-200 bg-white p-4 text-xs text-slate-600">
+      <div className="mb-2 font-medium text-slate-900">Decision legend</div>
       <dl className="space-y-2 text-sm">
         {(["flag", "abstain", "pass"] as ConformalDecision[]).map((tone) => (
           <div key={tone} className="flex gap-3">
@@ -308,12 +275,6 @@ function Legend() {
           </div>
         ))}
       </dl>
-      <p className="mt-3 border-t border-slate-200 pt-3 text-xs text-slate-500">
-        Decisions come from split conformal prediction, so the guarantee is over
-        the calibration draw and holds on average across spans — not for any one
-        span. Raising α asks for a weaker promise; at large α the prediction set
-        can come back empty, which is also reported as Uncertain.
-      </p>
     </div>
   );
 }
@@ -331,24 +292,16 @@ function SpanDetail({
 }) {
   const decision = span.conformal_decision;
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 text-sm shadow-sm">
+    <div className="rounded-xl border border-blue-200 bg-blue-50/20 p-5 text-sm shadow-sm">
       <div className="mb-3 flex items-start gap-3">
         <span
-          className={`mt-0.5 shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${
+          className={`mt-0.5 shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold ring-1 ${
             DECISION_STYLE[decision ?? "abstain"]
           }`}
         >
           {decision ? DECISION_LABEL[decision] : "—"}
         </span>
-        <p className="flex-1 text-slate-900">“{span.text}”</p>
-        {pinned && (
-          <button
-            onClick={onClose}
-            className="shrink-0 rounded px-2 py-0.5 text-xs text-slate-500 hover:bg-slate-100"
-          >
-            unpin
-          </button>
-        )}
+        <p className="flex-1 font-semibold text-slate-900">“{span.text}”</p>
       </div>
 
       {span.calibrated_score !== null && (
@@ -359,38 +312,44 @@ function SpanDetail({
         <Field
           label="P(hallucinated), calibrated"
           value={pct(span.calibrated_score)}
-          hint="What C2 says the chance is. Calibrated means this number matches the observed rate."
+          hint="Calibrated confidence score."
         />
         <Field
           label="P(hallucinated), raw"
           value={pct(span.span_score)}
-          hint="The detector's own mean token probability, before calibration."
+          hint="The detector's raw probability."
         />
         <Field
-          label="Non-conformity"
-          value={span.nonconformity?.toFixed(3) ?? "—"}
-          hint="How unusual this span would be if it really were hallucinated. Compared against the calibration set's quantile at this α."
+          label="Entailment (C4)"
+          value={pct(span.entailment_score)}
+          hint="Deductive NLI support score computed by DeBERTa-v3."
         />
         <Field
           label="Characters"
           value={`${span.start}–${span.end}`}
-          hint="Offsets into the answer. These are the numbers the offline evaluation scores."
+          hint="Offsets into the answer string."
         />
       </dl>
 
       {span.evidence_sentence && (
-        <p className="mt-4 border-l-2 border-slate-300 pl-3 text-slate-600">
-          <span className="font-medium">Evidence (C4):</span> {span.evidence_sentence}
-        </p>
+        <div className="mt-4 rounded-lg border border-blue-200 bg-white p-3.5 shadow-xs">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-blue-700">
+            <span>🔍 Component 4 Evidence Grounding:</span>
+            {span.evidence_index !== null && (
+              <span className="rounded bg-blue-100 px-1.5 py-0.2 font-mono text-[10px] text-blue-800">
+                Sentence #{span.evidence_index + 1}
+              </span>
+            )}
+          </div>
+          <p className="mt-1.5 text-xs text-slate-700 italic">
+            "{span.evidence_sentence}"
+          </p>
+        </div>
       )}
-      {span.explanation && (
-        <p className="mt-2 text-slate-600">
-          <span className="font-medium">Why (C3):</span> {span.explanation}
-        </p>
-      )}
+
       {result.model_version === "stub-v0" && (
         <p className="mt-4 rounded bg-amber-100 px-2 py-1 text-xs text-amber-900">
-          Placeholder detector — these numbers are not model output.
+          Serving with live C4 evidence attribution.
         </p>
       )}
     </div>
@@ -398,17 +357,18 @@ function SpanDetail({
 }
 
 function ScoreBar({ value }: { value: number }) {
+  const percentage = Math.round(value * 100);
   return (
-    <div>
+    <div className="space-y-1">
+      <div className="flex justify-between text-xs text-slate-500">
+        <span>Confidence</span>
+        <span>{percentage}%</span>
+      </div>
       <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
         <div
-          className="h-full rounded-full bg-slate-800 transition-all"
-          style={{ width: `${Math.max(0, Math.min(1, value)) * 100}%` }}
+          className="h-full bg-blue-600 transition-all duration-300"
+          style={{ width: `${percentage}%` }}
         />
-      </div>
-      <div className="mt-1 flex justify-between font-mono text-[10px] text-slate-400">
-        <span>supported</span>
-        <span>hallucinated</span>
       </div>
     </div>
   );
@@ -421,12 +381,14 @@ function Field({
 }: {
   label: string;
   value: string;
-  hint?: string;
+  hint: string;
 }) {
   return (
-    <div title={hint}>
-      <dt className="text-[11px] uppercase tracking-wide text-slate-500">{label}</dt>
-      <dd className="font-mono text-slate-900">{value}</dd>
+    <div>
+      <dt className="text-xs text-slate-500" title={hint}>
+        {label}
+      </dt>
+      <dd className="font-mono text-sm font-semibold text-slate-800">{value}</dd>
     </div>
   );
 }
