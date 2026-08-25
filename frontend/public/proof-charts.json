@@ -1,0 +1,163 @@
+{
+  "generated": "2026-08-25",
+  "source": "results/c2/c1/c2_results.json, results/c1/test/probabilities.jsonl, results/c4",
+  "reliability": {
+    "before": [
+      {
+        "confidence": 0.5184,
+        "actual": 0.2517,
+        "n": 147
+      },
+      {
+        "confidence": 0.5678,
+        "actual": 0.2568,
+        "n": 370
+      },
+      {
+        "confidence": 0.6322,
+        "actual": 0.3166,
+        "n": 319
+      },
+      {
+        "confidence": 0.6977,
+        "actual": 0.4151,
+        "n": 265
+      },
+      {
+        "confidence": 0.7668,
+        "actual": 0.5172,
+        "n": 261
+      },
+      {
+        "confidence": 0.8318,
+        "actual": 0.6537,
+        "n": 283
+      },
+      {
+        "confidence": 0.8999,
+        "actual": 0.7425,
+        "n": 365
+      },
+      {
+        "confidence": 0.9665,
+        "actual": 0.8474,
+        "n": 380
+      }
+    ],
+    "after": [
+      {
+        "confidence": 0.3149,
+        "actual": 0.2347,
+        "n": 213
+      },
+      {
+        "confidence": 0.3653,
+        "actual": 0.2683,
+        "n": 410
+      },
+      {
+        "confidence": 0.4325,
+        "actual": 0.3586,
+        "n": 290
+      },
+      {
+        "confidence": 0.4976,
+        "actual": 0.4378,
+        "n": 217
+      },
+      {
+        "confidence": 0.5661,
+        "actual": 0.5327,
+        "n": 199
+      },
+      {
+        "confidence": 0.6327,
+        "actual": 0.5707,
+        "n": 198
+      },
+      {
+        "confidence": 0.7011,
+        "actual": 0.7294,
+        "n": 170
+      },
+      {
+        "confidence": 0.767,
+        "actual": 0.7204,
+        "n": 211
+      },
+      {
+        "confidence": 0.8315,
+        "actual": 0.821,
+        "n": 162
+      },
+      {
+        "confidence": 0.901,
+        "actual": 0.7935,
+        "n": 184
+      },
+      {
+        "confidence": 0.9608,
+        "actual": 0.9044,
+        "n": 136
+      }
+    ],
+    "ece_before": 0.2293,
+    "ece_after": 0.0644,
+    "n": 2390,
+    "n_bins": 15
+  },
+  "coverage": [
+    {
+      "promised": 0.95,
+      "delivered": 0.9393,
+      "band": 0.0211,
+      "held": true,
+      "sent_to_person": 0.6962
+    },
+    {
+      "promised": 0.9,
+      "delivered": 0.8808,
+      "band": 0.029,
+      "held": true,
+      "sent_to_person": 0.4803
+    },
+    {
+      "promised": 0.85,
+      "delivered": 0.8364,
+      "band": 0.0345,
+      "held": true,
+      "sent_to_person": 0.3347
+    },
+    {
+      "promised": 0.8,
+      "delivered": 0.7858,
+      "band": 0.0387,
+      "held": true,
+      "sent_to_person": 0.21
+    },
+    {
+      "promised": 0.7,
+      "delivered": 0.6828,
+      "band": 0.0443,
+      "held": true,
+      "sent_to_person": 0.023
+    },
+    {
+      "promised": 0.6,
+      "delivered": 0.587,
+      "band": 0.0474,
+      "held": true,
+      "sent_to_person": 0.1941
+    }
+  ],
+  "evidence": {
+    "alpha": 0.1,
+    "coverage": 0.9003,
+    "pool": 19.05,
+    "returned": 4.61,
+    "singleton_rate": 0.5034,
+    "share_returned": 0.2421,
+    "n": 582,
+    "sentence": "At 90% target coverage a reviewer reads 4.6 of 19.1 context sentences per flagged span, a 70.6% reduction, at measured coverage 0.9003."
+  }
+}

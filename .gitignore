@@ -58,6 +58,13 @@ results/**/tables.md
 results/**/*.png
 results/**/*.html
 
+# The packaged single-file app. 1.7 MB, and it churns on every build: the asset
+# hashes move and the bundle carries a build date. The generator is the
+# artefact -- rebuild it with `npm run build` then
+# `python -m src.common.package_standalone`. paper/trustrag_standalone.html is
+# hand-authored and small, so that one is tracked.
+paper/trustrag_app.html
+
 # --- editor / os ---
 .vscode/
 .idea/

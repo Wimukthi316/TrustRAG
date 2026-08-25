@@ -1,0 +1,1071 @@
+<title>The Marked Answer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,300;1,6..72,400&family=Archivo:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+/* ===========================================================================
+   TrustRAG — a marked-up specimen.
+
+   The page is built as a proofread document, because that is what the system
+   produces: a piece of writing with the unsupported parts marked and the
+   evidence noted in the margin. So the only colour on the page is correction
+   ink. Everything else is graphite on ledger paper. Nothing is tinted to look
+   like a product; the marks are the product.
+   =========================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  /* Ledger paper: a cool grey-green, not cream. The neutral is picked, not
+     inherited — it is the paper a statistician's notebook is printed on. */
+  --paper:      #F1F2EE;
+  --paper-2:    #E9EBE5;
+  --card:       #FAFBF8;
+  --ink:        #191C19;
+  --ink-2:      #5C625B;
+  --ink-3:      #8A9088;
+  --rule:       #D6D9D2;
+  --rule-soft:  #E3E5DF;
+
+  /* Correction inks. Semantic, and the page's only chroma. */
+  --flag:       #9E2B20;
+  --flag-wash:  #F3DFDB;
+  --abstain:    #8A6110;
+  --abstain-wash: #F4E8CE;
+  --pass:       #2E5F45;
+  --pass-wash:  #DDE9E0;
+
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Archivo", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --measure: 66ch;
+  --page: 1120px;
+}
+
+/* The un-stamped default: only prefers-color-scheme separates the two here.
+   Guarded so an explicit light choice still beats a dark OS. Written flat
+   rather than nested, because nesting is the one thing in this stylesheet that
+   would fail silently on an older engine and take the whole palette with it. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #131511;
+    --paper-2:    #191C17;
+    --card:       #1B1E19;
+    --ink:        #E9EAE3;
+    --ink-2:      #A0A69C;
+    --ink-3:      #767C73;
+    --rule:       #2C2F29;
+    --rule-soft:  #23261F;
+    --flag:       #E08777;
+    --flag-wash:  #3A211D;
+    --abstain:    #D8AA4C;
+    --abstain-wash: #342913;
+    --pass:       #82C09B;
+    --pass-wash:  #1C2E23;
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper:      #131511;
+  --paper-2:    #191C17;
+  --card:       #1B1E19;
+  --ink:        #E9EAE3;
+  --ink-2:      #A0A69C;
+  --ink-3:      #767C73;
+  --rule:       #2C2F29;
+  --rule-soft:  #23261F;
+  --flag:       #E08777;
+  --flag-wash:  #3A211D;
+  --abstain:    #D8AA4C;
+  --abstain-wash: #342913;
+  --pass:       #82C09B;
+  --pass-wash:  #1C2E23;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { max-width: var(--page); margin: 0 auto; padding: 0 28px; }
+.read { max-width: var(--measure); }
+
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; text-wrap: balance; margin: 0; }
+
+/* --- masthead ------------------------------------------------------------ */
+
+.masthead { padding: 76px 0 44px; border-bottom: 1px solid var(--rule); }
+.wordmark {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.wordmark b { color: var(--ink); font-weight: 500; letter-spacing: 0.22em; }
+.masthead h1 {
+  font-size: clamp(2.3rem, 5.4vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 30px 0 0;
+  max-width: 17ch;
+}
+.masthead h1 em { font-style: italic; color: var(--flag); }
+.standfirst {
+  margin: 22px 0 0;
+  max-width: 58ch;
+  font-family: var(--serif);
+  font-size: 1.22rem;
+  line-height: 1.62;
+  color: var(--ink-2);
+}
+.provenance {
+  margin: 34px 0 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.9;
+  color: var(--ink-3);
+  display: grid;
+  gap: 2px;
+}
+.provenance span { color: var(--ink-2); }
+
+/* --- sections ------------------------------------------------------------ */
+
+section { padding: 60px 0; border-bottom: 1px solid var(--rule-soft); }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.eyebrow::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--rule);
+}
+section h2 {
+  font-size: clamp(1.55rem, 3vw, 2.15rem);
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+  max-width: 22ch;
+}
+section p { color: var(--ink-2); }
+section .lede {
+  font-family: var(--serif);
+  font-size: 1.12rem;
+  line-height: 1.68;
+  margin: 18px 0 0;
+  max-width: var(--measure);
+  color: var(--ink-2);
+}
+section .lede strong { color: var(--ink); font-weight: 500; }
+
+/* --- the specimen -------------------------------------------------------- */
+
+.cases {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 30px 0 0;
+}
+.case-tab {
+  font-family: var(--sans);
+  font-size: 12.5px;
+  color: var(--ink-2);
+  background: transparent;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 7px 13px;
+  cursor: pointer;
+  transition: color 140ms, border-color 140ms, background 140ms;
+}
+.case-tab:hover { color: var(--ink); border-color: var(--ink-3); }
+.case-tab[aria-selected="true"] {
+  color: var(--paper);
+  background: var(--ink);
+  border-color: var(--ink);
+}
+.case-tab:focus-visible { outline: 2px solid var(--flag); outline-offset: 2px; }
+
+.case-note {
+  margin: 22px 0 0;
+  padding: 0 0 0 16px;
+  border-left: 2px solid var(--rule);
+  max-width: var(--measure);
+  font-size: 13.5px;
+  line-height: 1.7;
+  color: var(--ink-2);
+}
+.case-note b { color: var(--ink); font-weight: 500; }
+
+.verdict-line {
+  margin: 32px 0 0;
+  font-family: var(--serif);
+  font-size: clamp(1.25rem, 2.4vw, 1.6rem);
+  line-height: 1.35;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  max-width: 30ch;
+}
+.tally {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin: 14px 0 0;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-2);
+}
+.tally i { font-style: normal; display: inline-flex; align-items: center; gap: 7px; }
+.swatch { width: 9px; height: 9px; border-radius: 1px; display: inline-block; }
+
+.specimen {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 40px;
+  margin: 30px 0 0;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .specimen { grid-template-columns: minmax(0, 1fr); gap: 26px; }
+}
+
+.sheet {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 34px 36px 36px;
+  position: relative;
+}
+.sheet::before {
+  content: "the answer, as written";
+  position: absolute;
+  top: -1px;
+  left: 36px;
+  transform: translateY(-50%);
+  background: var(--paper);
+  padding: 0 10px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.sheet p {
+  font-family: var(--serif);
+  font-size: 1.16rem;
+  line-height: 1.95;
+  color: var(--ink);
+  margin: 0;
+}
+
+mark.m {
+  background: transparent;
+  color: inherit;
+  padding: 0.1em 0.24em;
+  margin: 0 -0.04em;
+  border-radius: 2px;
+  cursor: pointer;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  transition: background 160ms ease, box-shadow 160ms ease;
+  opacity: 0;
+  animation: ink 420ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes ink { from { opacity: 0; } to { opacity: 1; } }
+mark.m.flag { background: var(--flag-wash); box-shadow: inset 0 -2px 0 var(--flag); }
+mark.m.abstain { background: var(--abstain-wash); box-shadow: inset 0 -2px 0 var(--abstain); }
+mark.m:hover { filter: brightness(0.97); }
+mark.m[aria-current="true"] { box-shadow: inset 0 0 0 1.5px currentColor, inset 0 -2px 0 currentColor; }
+mark.m.flag[aria-current="true"] { color: var(--flag); }
+mark.m.abstain[aria-current="true"] { color: var(--abstain); }
+mark.m:focus-visible { outline: 2px solid currentColor; outline-offset: 1px; }
+
+/* --- the margin ---------------------------------------------------------- */
+
+.margin { position: sticky; top: 24px; display: grid; gap: 18px; }
+@media (max-width: 900px) { .margin { position: static; } }
+
+.note {
+  border-top: 2px solid var(--ink);
+  padding: 14px 0 0;
+  animation: rise 320ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.note.flag { border-top-color: var(--flag); }
+.note.abstain { border-top-color: var(--abstain); }
+.note .label {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+.note .verdict {
+  font-family: var(--sans);
+  font-size: 14px;
+  font-weight: 600;
+  margin: 8px 0 0;
+}
+.note.flag .verdict { color: var(--flag); }
+.note.abstain .verdict { color: var(--abstain); }
+.note .quoted {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  margin: 8px 0 0;
+}
+.note .body { font-size: 12.5px; line-height: 1.65; color: var(--ink-2); margin: 10px 0 0; }
+
+.meter { margin: 14px 0 0; }
+.meter .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.meter .row b { font-size: 13px; letter-spacing: 0; color: var(--ink); font-variant-numeric: tabular-nums; }
+.meter .track { height: 3px; background: var(--rule); margin: 6px 0 0; overflow: hidden; }
+.meter .fill { height: 100%; width: 0; transition: width 520ms cubic-bezier(0.16, 1, 0.3, 1); }
+
+.evidence {
+  margin: 16px 0 0;
+  padding: 12px 14px;
+  background: var(--paper-2);
+  border-radius: 2px;
+}
+.evidence .label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+.evidence .label span:last-child { letter-spacing: 0.06em; color: var(--ink-2); white-space: nowrap; }
+.evidence .where {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 3px 0 0;
+}
+.evidence q {
+  display: block;
+  font-family: var(--serif);
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--ink);
+  margin: 7px 0 0;
+}
+.evidence .none { font-size: 13px; line-height: 1.6; color: var(--ink-2); margin: 7px 0 0; }
+.evidence .none b { color: var(--ink); font-weight: 500; }
+
+.stepper { display: flex; gap: 6px; }
+.stepper button {
+  font-family: var(--mono);
+  font-size: 11px;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-2);
+  border-radius: 2px;
+  width: 22px;
+  height: 20px;
+  cursor: pointer;
+  line-height: 1;
+}
+.stepper button:hover { color: var(--ink); border-color: var(--ink-3); }
+.stepper button:focus-visible { outline: 2px solid var(--flag); outline-offset: 1px; }
+
+.promise {
+  margin: 22px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--rule);
+  border-left-width: 3px;
+  border-radius: 2px;
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--ink-2);
+  background: var(--card);
+}
+.promise b { display: block; color: var(--ink); font-size: 13.5px; margin: 0 0 4px; font-weight: 600; }
+.promise.holds { border-left-color: var(--pass); }
+.promise.withdrawn { border-left-color: var(--abstain); }
+
+/* --- verdict key --------------------------------------------------------- */
+
+.key { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; margin: 30px 0 0; border-top: 1px solid var(--rule); }
+@media (max-width: 760px) { .key { grid-template-columns: minmax(0, 1fr); } }
+.key > div { padding: 20px 24px 22px 0; border-right: 1px solid var(--rule-soft); }
+.key > div:last-child { border-right: 0; }
+@media (max-width: 760px) { .key > div { border-right: 0; border-bottom: 1px solid var(--rule-soft); padding-right: 0; } }
+.key h3 { font-family: var(--sans); font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 9px; }
+.key p { font-size: 13px; line-height: 1.66; margin: 8px 0 0; }
+
+/* --- tables -------------------------------------------------------------- */
+
+.table-scroll { overflow-x: auto; margin: 28px 0 0; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+caption {
+  text-align: left;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  padding: 0 0 10px;
+}
+th, td { text-align: right; padding: 9px 14px; font-size: 13px; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; padding-left: 0; }
+th:last-child, td:last-child { padding-right: 0; }
+thead th {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+  border-bottom: 1px solid var(--ink);
+}
+tbody td { border-bottom: 1px solid var(--rule-soft); color: var(--ink-2); }
+tbody td:first-child { color: var(--ink); }
+tbody tr.floor td { color: var(--ink-3); font-style: italic; }
+tbody tr.used td:first-child { font-weight: 600; }
+td .tag {
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-left: 9px;
+  font-style: normal;
+}
+td.good { color: var(--pass); }
+td.bad { color: var(--flag); }
+.footnote { font-size: 12.5px; line-height: 1.7; color: var(--ink-3); margin: 14px 0 0; max-width: var(--measure); }
+
+/* --- the ledger of failures ---------------------------------------------- */
+
+.faults { margin: 30px 0 0; border-top: 1px solid var(--rule); }
+.fault { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 28px; padding: 22px 0; border-bottom: 1px solid var(--rule-soft); }
+@media (max-width: 760px) { .fault { grid-template-columns: minmax(0, 1fr); gap: 8px; } }
+.fault .num { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--flag); text-transform: uppercase; }
+.fault h3 { font-family: var(--sans); font-size: 14.5px; font-weight: 600; }
+.fault p { font-size: 13.5px; line-height: 1.7; margin: 7px 0 0; max-width: 62ch; }
+.fault code { font-family: var(--mono); font-size: 12px; color: var(--ink); background: var(--paper-2); padding: 1px 5px; border-radius: 2px; }
+
+/* --- colophon ------------------------------------------------------------ */
+
+footer { padding: 46px 0 70px; }
+footer p { font-family: var(--mono); font-size: 11px; line-height: 1.95; color: var(--ink-3); max-width: 76ch; }
+footer p + p { margin-top: 14px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  mark.m { opacity: 1; }
+}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="wordmark">
+      <b>TrustRAG</b>
+      <span>span-level calibrated hallucination detection for retrieval-augmented generation</span>
+    </div>
+    <h1>Every AI answer reads as if it were true. <em>One line in this one isn't.</em></h1>
+    <p class="standfirst">
+      When an assistant is handed a document and asked to write from it, the
+      invented part comes out in the same voice as the rest. This system marks
+      the exact words the document does not support, says how sure it is in a
+      number that has been checked against reality, refuses to decide when it
+      cannot, and points at the sentence a person should go and read.
+    </p>
+    <div class="provenance">
+      <div>Corpus <span>RAGTruth — 17,790 responses, 14,289 human-annotated spans</span></div>
+      <div>Evaluated on <span>2,700 held-out responses · 2,390 predicted passages · calibrated on a frozen split of 1,509</span></div>
+      <div>Detector <span>ModernBERT-base, fine-tuned · runs on a laptop CPU</span></div>
+      <div>Status <span>research prototype · SLIIT IT4010 · every figure below came from a run, none from a claim</span></div>
+    </div>
+  </header>
+
+  <section id="specimen">
+    <p class="eyebrow">The specimen</p>
+    <h2>A real answer, marked</h2>
+    <p class="lede">
+      Three results recorded from finished runs. Nothing on this page is
+      simulated: the passages, the probabilities, the verdicts and the evidence
+      were each produced by the component that owns them and written down.
+      <strong>Click any marked passage</strong> to see what the system says
+      about it.
+    </p>
+
+    <div class="cases" role="tablist" aria-label="Recorded runs"></div>
+    <p class="case-note"></p>
+
+    <p class="verdict-line"></p>
+    <div class="tally">
+      <i><span class="swatch" style="background: var(--flag)"></span> not in the document</i>
+      <i><span class="swatch" style="background: var(--abstain)"></span> can't tell</i>
+      <i><span class="swatch" style="background: var(--rule)"></span> unmarked — the document backs it</i>
+    </div>
+
+    <div class="specimen">
+      <div class="sheet"><p id="answer"></p></div>
+      <aside class="margin" id="margin"></aside>
+    </div>
+
+    <div class="promise" id="promise"></div>
+  </section>
+
+  <section id="verdicts">
+    <p class="eyebrow">Three answers</p>
+    <h2>One of them is “I don’t know”, and that is the point</h2>
+    <p class="lede">
+      A system that always has an opinion is a system you cannot put in front of
+      anything that matters. The middle column is the one most tools will not
+      give you.
+    </p>
+    <div class="key">
+      <div>
+        <h3><span class="swatch" style="background: var(--flag)"></span> Not in the document</h3>
+        <p>
+          The system is willing to make this call on its own. On the specimen
+          above, both flagged passages have no supporting sentence anywhere in
+          the document — which is what an invented claim looks like from the
+          inside.
+        </p>
+      </div>
+      <div>
+        <h3><span class="swatch" style="background: var(--abstain)"></span> Can&rsquo;t tell</h3>
+        <p>
+          The evidence does not separate “supported” from “made up” at the level
+          of care that was asked for, so it goes to a person instead of being
+          guessed. At 90% coverage this is 48% of passages. That cost is
+          measured, printed, and not hidden.
+        </p>
+      </div>
+      <div>
+        <h3><span class="swatch" style="background: var(--rule)"></span> Backed by the document</h3>
+        <p>
+          Left unmarked. Unmarked text is text the system is comfortable with,
+          and drawing a box around the whole answer would say nothing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="calibration">
+    <p class="eyebrow">Does the number mean what it says</p>
+    <h2>A raw model score is not a probability</h2>
+    <p class="lede">
+      Out of the box the detector&rsquo;s confidence was wrong by 23 points on
+      average. Fitting a correction on held-out data cuts that to 6, so
+      &ldquo;70%&rdquo; on screen really does mean about seventy in a hundred.
+      <strong>The bottom row is a predictor that ignores its input entirely</strong>
+      and always says the same thing — and it wins the first column.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <caption>Calibration on 2,390 held-out passages</caption>
+        <thead>
+          <tr>
+            <th scope="col">Method</th>
+            <th scope="col">Score error</th>
+            <th scope="col">Worst bin</th>
+            <th scope="col">Brier</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Uncalibrated</td><td>0.2293</td><td>0.3156</td><td>0.2585</td></tr>
+          <tr><td>Temperature</td><td>0.1346</td><td>0.2632</td><td>0.2302</td></tr>
+          <tr class="used"><td>Platt<span class="tag">in use</span></td><td>0.0644</td><td>0.1075</td><td class="good">0.2049</td></tr>
+          <tr><td>Isotonic</td><td>0.0651</td><td>1.0000</td><td>0.2060</td></tr>
+          <tr class="floor"><td>Constant base rate<span class="tag">ignores the input</span></td><td class="bad">0.0601</td><td>0.0601</td><td>0.2530</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="footnote">
+      That is not a bug in the table, it is the finding. Score error alone can be
+      won by a model that knows nothing, so it is never printed here without the
+      floor beneath it. The column that separates them is ranking quality: the
+      calibrated detector scores <b>0.753</b> and the constant predictor scores
+      exactly <b>0.500</b>. The same thing happened again on the error-type layer
+      and a third time on the evidence layer — at which point it stops being an
+      anecdote about one model and starts being a fact about the metric.
+    </p>
+  </section>
+
+  <section id="coverage">
+    <p class="eyebrow">Did the promise hold</p>
+    <h2>Ask for ninety per cent and you should get at least ninety</h2>
+    <p class="lede">
+      Each row is a promise the system made and what actually happened on data it
+      had never seen. The tolerance column is how far a single honest run may
+      fall short by chance — <strong>below target but inside it is not a miss;
+      outside it is.</strong> The last column is what the promise costs.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <caption>Coverage against target, held-out split</caption>
+        <thead>
+          <tr>
+            <th scope="col">Promised</th>
+            <th scope="col">Delivered</th>
+            <th scope="col">Tolerance</th>
+            <th scope="col">Held</th>
+            <th scope="col">Sent to a person</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>95%</td><td>93.93%</td><td>±2.11</td><td class="good">yes</td><td>69.6%</td></tr>
+          <tr class="used"><td>90%</td><td>88.08%</td><td>±2.90</td><td class="good">yes</td><td>48.0%</td></tr>
+          <tr><td>85%</td><td>83.64%</td><td>±3.45</td><td class="good">yes</td><td>33.5%</td></tr>
+          <tr><td>80%</td><td>78.58%</td><td>±3.87</td><td class="good">yes</td><td>21.0%</td></tr>
+          <tr><td>70%</td><td>68.28%</td><td>±4.43</td><td class="good">yes</td><td>2.3%</td></tr>
+          <tr><td>60%</td><td>58.70%</td><td>±4.74</td><td class="good">yes</td><td>19.4%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="footnote">
+      Coverage on its own is free — a system that returns everything covers
+      everything — so the cost column travels with it everywhere it is quoted.
+      Broken down by kind of document, the same promise delivers 89.8% on
+      question answering, 88.0% on summarisation and 86.8% on writing up a
+      record, each inside its own tolerance.
+    </p>
+  </section>
+
+  <section id="evidence-numbers">
+    <p class="eyebrow">Where the evidence is</p>
+    <h2>Half the time, one sentence out of nineteen</h2>
+    <p class="lede">
+      Instead of one guess, the evidence layer returns a <em>set</em> of
+      candidate sentences with a coverage statement attached. On the held-out
+      split it localises the sentence a human annotator actually quoted to
+      <strong>4.6 of 19.1 sentences</strong> — and to a single sentence half the
+      time.
+    </p>
+    <div class="table-scroll">
+      <table>
+        <caption>Evidence sets on 582 scored passages</caption>
+        <thead>
+          <tr>
+            <th scope="col">Promised</th>
+            <th scope="col">Delivered</th>
+            <th scope="col">Sentences returned</th>
+            <th scope="col">Exactly one</th>
+            <th scope="col">A reviewer reads</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>95%</td><td>100.0%</td><td>19.05</td><td>0%</td><td>the whole document</td></tr>
+          <tr class="used"><td>90%</td><td>90.03%</td><td>4.61</td><td>50.3%</td><td class="good">70.6% less</td></tr>
+          <tr><td>85%</td><td>86.43%</td><td>3.71</td><td>50.3%</td><td>74.5% less</td></tr>
+          <tr><td>80%</td><td>81.96%</td><td>2.81</td><td>50.5%</td><td>79.1% less</td></tr>
+          <tr><td>70%</td><td>71.65%</td><td>1.38</td><td>51.9%</td><td>89.1% less</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="footnote">
+      At 95% the method returns the entire document, which is it saying plainly
+      that it has nothing useful to offer at that level. The row is printed
+      rather than left out.
+    </p>
+    <p class="footnote">
+      The layer can also return <em>nothing</em>. A fifth of the annotators&rsquo;
+      own evidence notes are not quotes at all — they say the information simply
+      is not in the source — and recovering that answer scores an F1 of
+      <b>0.481</b> against an always-abstain floor of <b>0.352</b>. A
+      nearest-sentence baseline scores <b>zero</b> here, not because it is weak
+      but because it always returns its nearest sentence and can never say
+      &ldquo;none&rdquo;. Per task the picture splits, and one of the three is a
+      loss: see fault 06.
+    </p>
+  </section>
+
+  <section id="faults">
+    <p class="eyebrow">The ledger of failures</p>
+    <h2>What it gets wrong, at the same size as what it gets right</h2>
+    <p class="lede">
+      A system that only reports its wins is one you cannot deploy. These are in
+      the paper, in the same type, and none of them was found by a reviewer.
+    </p>
+    <div class="faults">
+      <div class="fault">
+        <div class="num">Fault 01</div>
+        <div>
+          <h3>It is beaten by the published detector, and says so</h3>
+          <p>
+            The best public model scores <code>0.7918</code> on this task. Ours
+            scores <code>0.7623</code>, because theirs is a larger model and ours
+            is not. Reproducing their published figure to within 0.04 of a point
+            on our own evaluation code is the evidence that every other number
+            here is measured correctly.
+          </p>
+        </div>
+      </div>
+      <div class="fault">
+        <div class="num">Fault 02</div>
+        <div>
+          <h3>Move it to a different corpus and the promise breaks</h3>
+          <p>
+            At a 90% target, coverage falls from <code>0.8808</code> to
+            <code>0.7410</code> on a corpus it was not calibrated on. Two repairs
+            were tried and a third was given the answer in advance. None of them
+            fixed it. So the system checks each input at run time and withdraws
+            the promise rather than the detection — which is what the third
+            specimen above is showing.
+          </p>
+        </div>
+      </div>
+      <div class="fault">
+        <div class="num">Fault 03</div>
+        <div>
+          <h3>Half the human evidence quotes are not exact</h3>
+          <p>
+            The people who annotated the benchmark paraphrased the source when
+            they quoted it: only <code>50.7%</code> of their evidence quotes
+            appear verbatim in the document. Anything scored on string matching
+            is scored against a reference that moves, so the evidence layer
+            scores on content-token containment and prints both columns.
+          </p>
+        </div>
+      </div>
+      <div class="fault">
+        <div class="num">Fault 04</div>
+        <div>
+          <h3>On one task, two trivial policies beat the evidence layer</h3>
+          <p>
+            For writing up a structured record, always returning the longest
+            sentence scores <code>0.9879</code> against the real matcher&rsquo;s
+            <code>0.9456</code>. The reason is that those documents are
+            serialised data rather than prose, so their &ldquo;sentences&rdquo;
+            are an artefact of the serialisation. That is why nothing on this
+            page is quoted as a single pooled average.
+          </p>
+        </div>
+      </div>
+      <div class="fault">
+        <div class="num">Fault 05</div>
+        <div>
+          <h3>On question answering, saying nothing beats the system</h3>
+          <p>
+            73% of the evidence notes on that task say the information is absent,
+            so a policy of always abstaining scores <code>0.8421</code>. The real
+            abstention layer scores <code>0.8191</code>. It wins on the other two
+            tasks — <code>0.3400</code> against <code>0.2002</code>, and
+            <code>0.4865</code> against <code>0.4293</code> — but it loses this
+            one, and the floor is printed beside every task rather than only
+            beside the pooled average, which is how the loss was found.
+          </p>
+        </div>
+      </div>
+      <div class="fault">
+        <div class="num">Fault 06</div>
+        <div>
+          <h3>The cheap first stage throws away a fifth of the answers</h3>
+          <p>
+            A fast embedding filter narrows nineteen candidate sentences to five
+            before the expensive model sees them, and it drops the right sentence
+            <code>21.9%</code> of the time. A plain word-overlap ranking, scored
+            on the same rows, would have dropped <code>2.4%</code>. That was the
+            wrong choice, it is measured, and it is reported here rather than
+            quietly re-run.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <p>
+      TrustRAG — span-level calibrated hallucination detection for
+      retrieval-augmented generation. Four components: a span detector, a
+      calibration and conformal layer, a typed explanation layer, and a
+      retrieval-attribution layer. Research prototype, SLIIT IT4010, 2026.
+    </p>
+    <p>
+      The three specimens on this page were rebuilt from artefacts on disk: the
+      passages and per-token probabilities from the detector&rsquo;s recorded
+      run, the calibrated score and the verdict from the calibration
+      layer&rsquo;s own saved calibrator and conformal class, the run-time input
+      check from its own reference, and the evidence from the attribution
+      layer&rsquo;s own scorer. No value on this page was written by hand.
+    </p>
+  </footer>
+
+</div>
+
+<script id="runs" type="application/json">{"note":"Recorded runs, not live calls. Every field was produced by the components themselves: the spans and token probabilities by C1's training run, the calibrated score and the decision by C2's own calibrator and conformal class, the distribution check by C2's reference, the evidence by C4's attributor. Regenerate with python -m src.common.recorded_analysis","alpha":0.1,"cases":[{"slug":"carbon-footprint","title":"A confident answer with two invented claims","why":"All three verdicts on one paragraph, and both evidence states. The two passages the system flags have no supporting sentence in the document; the two it will not decide do. That is the mechanism working, not a coincidence -- an invented claim has nothing to point at.","response_id":"14297","source":"RAGTruth test split, recorded run","result":{"question":"what is the effect of carbon footprint","answer":"Based on the given passages, the effect of carbon footprint is the amount of greenhouse gases produced by various human activities, which contributes to the environmental impact of one's lifestyle. It is measured in tons of carbon dioxide (CO2) released into the atmosphere and can be reduced by making changes in daily activities, such as using public transportation instead of driving, using energy-efficient appliances, and reducing meat consumption.\n\nTherefore, the effect of carbon footprint is the direct contribution to climate change and its associated impacts, such as rising sea levels, more frequent natural disasters, and air pollution.","context_sentences":["passage 1:Your carbon footprint measures the environmental impact of your lifestyle.","Everything you do has an impact --- positive or negative --- on the environment.","That's the concept behind your carbon footprint, which is one method of measuring the environmental effect of your lifestyle.","A carbon footprint, measured in tons, indicates the amount of carbon dioxide and other greenhouse gases that are produced as a result of your daily activities.","You can reduce your footprint by changing the way you live your life.","Even seemingly tiny changes can make a significant difference.","passage 2:It all comes back to the average carbon footprint.","The average per capita carbon footprint is 6 tons per year.","In the U.S.","the average is 20 tons per year, and a third of that is created by automobile emissions -- meaning your car itself can put out over 6 tons of C02 a year -- enough for two people.","passage 3:So what exactly is a carbon footprint?","In simplest terms, carbon footprint is the total amount of greenhouse gases produced by various human activities within a given time frame.","Carbon footprint is usually measured in tons of carbon dioxide (CO2) released into the atmosphere.","Your home has a carbon footprint if you use oil, coal or gas to heat it.","That cheeseburger at your favorite restaurant has a carbon footprint: raising the beef and wheat and operating the restaurant all involves greenhouse gases.","Your car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance."],"spans":[{"start":379,"end":386,"text":"driving","span_score":0.6109,"calibrated_score":0.3913,"nonconformity":0.6087,"conformal_decision":"abstain","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":"Your car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance.","evidence_index":15,"entailment_score":1.0},{"start":388,"end":422,"text":"using energy-efficient appliances,","span_score":0.9033,"calibrated_score":0.7807,"nonconformity":0.2193,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null},{"start":436,"end":452,"text":"meat consumption","span_score":0.6536,"calibrated_score":0.434,"nonconformity":0.566,"conformal_decision":"abstain","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":"Your car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance.","evidence_index":15,"entailment_score":0.5},{"start":570,"end":648,"text":"such as rising sea levels, more frequent natural disasters, and air pollution.","span_score":0.8868,"calibrated_score":0.7505,"nonconformity":0.2495,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null}],"task_type":"qa","model_version":"modernbert-base-e6+c2","schema_version":"1.0.0","alpha":0.1,"distribution_check":{"checked":true,"in_distribution":true,"p_value":0.12980132450331125,"threshold":0.01,"n_reference":1509,"most_unusual":"log_candidate_spans","message":"Nothing about this input looks unlike the data the guarantee was calibrated on. That is not proof it is in distribution -- the check sees a handful of features, and a shift can be real and invisible to all of them."},"guarantee_applies":true,"latency_ms":null,"timestamp":"2026-08-25T02:26:45.623140Z"}},{"slug":"news-summary","title":"A news summary with a detail the article never gave","why":"Prose rather than a passage list, so the sentence the attributor points at is a sentence a person would actually read.","response_id":"1826","source":"RAGTruth test split, recorded run","result":{"question":"Summarize the following news article.","answer":"Multiples: First Set of Female Quintuplets Born in Almost 50 Years Delivers Four Girls. Danielle Busby delivers her fifth daughter at Woman's Hospital of Texas via C-section. This is the first set of female quintuplets born in Houston since 1969. Danielle and husband Adam have four other children and are now a family of eight. The babies are named Ava Lane, Hazel Grace, Olivia Marie, Parker Kate and Riley Paige. Parents share their journey on their blog, \"It's a Buzz World\". In 1959, Charles and Cecilia Hannan delivered the first set of quintuplet girls in the U.S., which ended in tragedy as all of them died within 24 hours. Sharon and Korey Rademacher also welcomed two girls into the world, keeping the pregnancy a secret from family and friends. Video of the surprise reaction to the newborn twins goes viral on YouTube with over 700,000 views.","context_sentences":["It's been a busy few weeks for multiples.","The first set of female quintuplets in the world since 1969 was born in Houston on April 8, and the parents are blogging about their unique experience.","Danielle Busby delivered all five girls at the Woman's Hospital of Texas via C-section at 28 weeks and two days, according to CNN affiliate KPRC.","Parents Danielle and Adam and big sister Blayke are now a family of eight.","The babies are named Ava Lane, Hazel Grace, Olivia Marie, Parker Kate and Riley Paige.","\"We are so thankful and blessed,\" said Danielle Busby, who had intrauterine insemination to get pregnant.","\"I honestly give all the credit to my God.","I am so thankful for this wonderful hospital and team of people here.","They truly all are amazing.\" You can learn all about their journey at their blog, \"It's a Buzz World.\" Early news reports said the Busby girls were the first all-female quintuplets born in the U.S.","But a user alerted CNN to news clippings that show quintuplet girls were born in 1959 to Charles and Cecilia Hannan in San Antonio.","All of the girls died within 24 hours.","Like the Busby family, Sharon and Korey Rademacher were hoping for a second child.","When they found out what they were having, they decided to keep it a secret from family and friends.","That's why they didn't tell their family the gender of baby No.","2 -- or that Sharon was actually expecting not one but two girls, according to CNN affiliate WEAR.","And when everyone arrived at West Florida Hospital in Pensacola, Florida, after Sharon gave birth March 11, they recorded everyone's reactions to meeting twins Mary Ann Grace and Brianna Faith.","The video was uploaded to YouTube on Saturday and has been viewed more than 700,000 times.","Could you keep it a secret?"],"spans":[{"start":11,"end":87,"text":"First Set of Female Quintuplets Born in Almost 50 Years Delivers Four Girls.","span_score":0.896,"calibrated_score":0.7673,"nonconformity":0.2327,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":"The first set of female quintuplets in the world since 1969 was born in Houston on April 8, and the parents are blogging about their unique experience.","evidence_index":1,"entailment_score":0.438},{"start":103,"end":130,"text":"delivers her fifth daughter","span_score":0.7335,"calibrated_score":0.5242,"nonconformity":0.4758,"conformal_decision":"abstain","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null},{"start":247,"end":297,"text":"Danielle and husband Adam have four other children","span_score":0.9463,"calibrated_score":0.8676,"nonconformity":0.1324,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":"Parents Danielle and Adam and big sister Blayke are now a family of eight.","evidence_index":3,"entailment_score":0.3733}],"task_type":"summarization","model_version":"modernbert-base-e6+c2","schema_version":"1.0.0","alpha":0.1,"distribution_check":{"checked":true,"in_distribution":true,"p_value":0.2304635761589404,"threshold":0.01,"n_reference":1509,"most_unusual":"max_token_prob","message":"Nothing about this input looks unlike the data the guarantee was calibrated on. That is not proof it is in distribution -- the check sees a handful of features, and a shift can be real and invisible to all of them."},"guarantee_applies":true,"latency_ms":null,"timestamp":"2026-08-25T02:26:45.626325Z"}},{"slug":"promise-withdrawn","title":"An input the promise does not cover","why":"The run-time check found this input unlike the data the guarantee was calibrated on, so the coverage claim is withdrawn while the marks stay. This is the case worth showing on purpose: what is taken away is the promise, not the detection.","response_id":"16359","source":"RAGTruth test split, recorded run","result":{"question":"where does 1099-patr go on 1040","answer":"Based on the provided passages, 1099-PATR goes on Line 21 of the 1040 tax return as follows:\n\nPassage 1 states, \"Per the IRS instructions, patronage dividends and other distributions in boxes 1, 2, 3, and 5 from a cooperative are reported on Schedule C, Schedule F, or Form 4835.\"\n\nSchedule F (Farmer's Taxable Income) is used to report income from farming, including patronage dividends and other distributions from cooperatives. Therefore, 1099-PATR goes on Line 21 of Schedule F.\n\nPassage 2 also mentions that 1099-PATR is used to report taxable distributions received from cooperatives, and Line 21 of Schedule F is specifically designated for reporting farm income and losses.\n\nUnable to answer based on given passages.","context_sentences":["passage 1:Audit Assistant.","Get the information you need.","Form 1099-PATR (Taxable Distributions Received From Cooperatives).","Per the IRS instructions, patronage dividends and other distributions in boxes 1,2,3, and 5 from a cooperative are reported on Schedule C, Schedule F, or Form 4835.","passage 2:Get the information you need.","Form 1099-PATR (Taxable Distributions Received From Cooperatives).","Per the IRS instructions, patronage dividends and other distributions in boxes 1,2,3, and 5 from a cooperative are reported on Schedule C, Schedule F, or Form 4835.","passage 3:Copy A appears in red, similar to the official IRS form.","Do not file copy A downloaded from this website.","The official printed version of this IRS form is scannable, but the online version of it, printed from this website, is not."],"spans":[{"start":6,"end":8,"text":"on","span_score":0.615,"calibrated_score":0.3952,"nonconformity":0.6048,"conformal_decision":"abstain","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null},{"start":30,"end":92,"text":", 1099-PATR goes on Line 21 of the 1040 tax return as follows:","span_score":0.9648,"calibrated_score":0.9091,"nonconformity":0.0909,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null},{"start":282,"end":482,"text":"Schedule F (Farmer's Taxable Income) is used to report income from farming, including patronage dividends and other distributions from cooperatives. Therefore, 1099-PATR goes on Line 21 of Schedule F.","span_score":0.9858,"calibrated_score":0.9607,"nonconformity":0.0393,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null},{"start":484,"end":681,"text":"Passage 2 also mentions that 1099-PATR is used to report taxable distributions received from cooperatives, and Line 21 of Schedule F is specifically designated for reporting farm income and losses.","span_score":0.9414,"calibrated_score":0.857,"nonconformity":0.143,"conformal_decision":"flag","alpha":0.1,"error_type":null,"explanation":null,"escalated":false,"evidence_sentence":null,"evidence_index":null,"entailment_score":null}],"task_type":"qa","model_version":"modernbert-base-e6+c2","schema_version":"1.0.0","alpha":0.1,"distribution_check":{"checked":true,"in_distribution":false,"p_value":0.008609271523178808,"threshold":0.01,"n_reference":1509,"most_unusual":"max_token_prob","message":"This input is unlike the data the guarantee was calibrated on -- most obviously its peak suspicion. The highlighting below is still the detector's, but the coverage promise does not apply to it. Recalibrate on your own data before trusting the dial."},"guarantee_applies":false,"latency_ms":null,"timestamp":"2026-08-25T02:26:45.628355Z"}}]}</script>
+<script>
+(() => {
+  "use strict";
+
+  const RUNS = JSON.parse(document.getElementById("runs").textContent);
+  const cases = RUNS.cases;
+
+  const tabs = document.querySelector(".cases");
+  const note = document.querySelector(".case-note");
+  const verdictLine = document.querySelector(".verdict-line");
+  const answerEl = document.getElementById("answer");
+  const marginEl = document.getElementById("margin");
+  const promiseEl = document.getElementById("promise");
+
+  const VERDICT = {
+    flag: {
+      label: "Not in the document",
+      lead: "The document does not back this up.",
+      body:
+        "At the level of care asked for, this is the one call the system is willing to make on its own.",
+    },
+    abstain: {
+      label: "Can't tell",
+      lead: "The system will not decide this one.",
+      body:
+        "The evidence does not separate 'supported' from 'made up' at the level of care asked for. Saying so is the honest answer; guessing would not be.",
+    },
+  };
+
+  let current = 0;
+  let selected = 0;
+
+  function escapeHtml(text) {
+    return text.replace(/[&<>"]/g, (c) =>
+      ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+    );
+  }
+
+  function orderedSpans(result) {
+    return [...result.spans].sort((a, b) => a.start - b.start);
+  }
+
+  function renderTabs() {
+    tabs.innerHTML = "";
+    cases.forEach((item, index) => {
+      const button = document.createElement("button");
+      button.className = "case-tab";
+      button.type = "button";
+      button.role = "tab";
+      button.textContent = item.title;
+      button.setAttribute("aria-selected", String(index === current));
+      button.addEventListener("click", () => {
+        current = index;
+        selected = 0;
+        render();
+      });
+      tabs.appendChild(button);
+    });
+  }
+
+  function renderAnswer(result) {
+    const spans = orderedSpans(result);
+    const answer = result.answer;
+    let html = "";
+    let cursor = 0;
+
+    spans.forEach((span, index) => {
+      if (span.start < cursor) return;
+      if (span.start > cursor) html += escapeHtml(answer.slice(cursor, span.start));
+      const decision = span.conformal_decision || "abstain";
+      html +=
+        `<mark class="m ${decision}" data-index="${index}" tabindex="0" role="button" ` +
+        `aria-label="${escapeHtml(VERDICT[decision].label)}: ${escapeHtml(span.text)}" ` +
+        `style="animation-delay:${60 * index}ms">${escapeHtml(span.text)}</mark>`;
+      cursor = span.end;
+    });
+    if (cursor < answer.length) html += escapeHtml(answer.slice(cursor));
+    answerEl.innerHTML = html;
+
+    answerEl.querySelectorAll("mark.m").forEach((el) => {
+      const pick = () => {
+        selected = Number(el.dataset.index);
+        renderMargin(result);
+        markCurrent();
+      };
+      el.addEventListener("click", pick);
+      el.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          pick();
+        }
+      });
+    });
+  }
+
+  function markCurrent() {
+    answerEl.querySelectorAll("mark.m").forEach((el) => {
+      el.setAttribute("aria-current", String(Number(el.dataset.index) === selected));
+    });
+  }
+
+  function renderMargin(result) {
+    const spans = orderedSpans(result);
+    const span = spans[selected];
+    if (!span) {
+      marginEl.innerHTML = "";
+      return;
+    }
+    const decision = span.conformal_decision || "abstain";
+    const verdict = VERDICT[decision];
+    const score = span.calibrated_score;
+    const colour = decision === "flag" ? "var(--flag)" : "var(--abstain)";
+
+    // "the attributor found nothing" and "no attributor ran" are different
+    // claims. If nothing in the whole result carries evidence, say the weaker
+    // one.
+    const attached = spans.some(
+      (s) => s.evidence_sentence !== null || s.entailment_score !== null,
+    );
+
+    let evidence;
+    if (span.evidence_sentence) {
+      // Deliberately "score", not "% sure". The field is the scorer's
+      // confidence that this is the sentence a human would cite, which is not
+      // a probability that the citation is correct, and rendering 1.00 as
+      // "100% sure" would claim the second thing while measuring the first.
+      const score =
+        span.entailment_score === null
+          ? ""
+          : `<span>score ${span.entailment_score.toFixed(2)}</span>`;
+      const where =
+        span.evidence_index === null
+          ? ""
+          : `<div class="where">sentence ${span.evidence_index + 1} of ${result.context_sentences.length}</div>`;
+      evidence =
+        `<div class="evidence"><div class="label"><span>Where we looked</span>${score}</div>` +
+        where +
+        `<q>${escapeHtml(span.evidence_sentence)}</q></div>`;
+    } else if (attached) {
+      evidence =
+        `<div class="evidence"><div class="label">Where we looked</div>` +
+        `<p class="none"><b>No supporting sentence in the document.</b> ` +
+        `The system read every sentence and would cite none of them. Most tools ` +
+        `cannot say this — they return their nearest match whatever it is.</p></div>`;
+    } else {
+      evidence =
+        `<div class="evidence"><div class="label">Where we looked</div>` +
+        `<p class="none">No attribution layer was attached to this run, so the ` +
+        `system is not saying anything either way about where the evidence is.</p></div>`;
+    }
+
+    marginEl.innerHTML =
+      `<div class="note ${decision}">` +
+      `<div class="label"><span>Passage ${selected + 1} of ${spans.length}</span>` +
+      `<span class="stepper"><button type="button" data-step="-1" aria-label="Previous passage">&#8593;</button>` +
+      `<button type="button" data-step="1" aria-label="Next passage">&#8595;</button></span></div>` +
+      `<p class="verdict">${verdict.label}</p>` +
+      `<p class="quoted">&ldquo;${escapeHtml(span.text)}&rdquo;</p>` +
+      `<p class="body">${verdict.lead} ${verdict.body}</p>` +
+      (score === null
+        ? ""
+        : `<div class="meter"><div class="row"><span>How likely this is made up</span>` +
+          `<b>${Math.round(score * 100)}%</b></div>` +
+          `<div class="track"><div class="fill" style="background:${colour}"></div></div></div>`) +
+      evidence +
+      `</div>`;
+
+    const fill = marginEl.querySelector(".fill");
+    if (fill && score !== null) requestAnimationFrame(() => (fill.style.width = `${score * 100}%`));
+
+    marginEl.querySelectorAll("[data-step]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const step = Number(button.dataset.step);
+        selected = (selected + step + spans.length) % spans.length;
+        renderMargin(result);
+        markCurrent();
+      });
+    });
+  }
+
+  function renderSummary(result) {
+    const counts = { flag: 0, abstain: 0 };
+    result.spans.forEach((s) => {
+      if (s.conformal_decision in counts) counts[s.conformal_decision] += 1;
+    });
+    const parts = [];
+    if (counts.flag)
+      parts.push(
+        `${counts.flag} ${counts.flag === 1 ? "passage is" : "passages are"} not in the document`,
+      );
+    if (counts.abstain)
+      parts.push(
+        `${counts.abstain} ${counts.abstain === 1 ? "needs" : "need"} a person to look`,
+      );
+    const care =
+      result.alpha === null ? "" : ` Asked for ${Math.round((1 - result.alpha) * 100)}% coverage.`;
+    verdictLine.textContent = parts.length
+      ? `${parts.join(", and ")}.${care}`
+      : `Nothing in this answer needed marking.${care}`;
+  }
+
+  function renderPromise(result) {
+    const check = result.distribution_check;
+    if (result.guarantee_applies) {
+      promiseEl.className = "promise holds";
+      promiseEl.innerHTML =
+        `<b>The promise applies to this input</b>` +
+        (check && check.message
+          ? escapeHtml(check.message)
+          : "Nothing about this input looked unlike the data the promise was measured on.");
+    } else {
+      promiseEl.className = "promise withdrawn";
+      promiseEl.innerHTML =
+        `<b>The promise does not apply to this input</b>` +
+        (check && check.message
+          ? escapeHtml(check.message)
+          : "This input does not look like the data the promise was measured on.");
+    }
+  }
+
+  function render() {
+    const item = cases[current];
+    const result = item.result;
+    renderTabs();
+    note.innerHTML = `<b>${escapeHtml(item.title)}.</b> ${escapeHtml(item.why)}`;
+    renderSummary(result);
+    renderAnswer(result);
+    renderMargin(result);
+    markCurrent();
+    renderPromise(result);
+  }
+
+  render();
+})();
+</script>

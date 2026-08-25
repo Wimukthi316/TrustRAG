@@ -227,6 +227,33 @@ def _tail_depth(sorted_values: np.ndarray, value: float) -> Tuple[float, float]:
     return min(at_or_below, at_or_above), at_or_below
 
 
+def distribution_message(in_distribution: bool, most_unusual: str) -> str:
+    """The sentence an interface prints about the check's outcome.
+
+    Kept here, beside FEATURE_LABELS, so the serving path and any offline
+    rebuild of a served payload say the same thing. Two copies of this wording
+    that drift apart would be a small lie told twice.
+
+    The in-distribution wording deliberately does NOT say "in distribution".
+    The check is one-sided: a small p-value is evidence against exchangeability,
+    a large one is not evidence for it.
+    """
+    if in_distribution:
+        return (
+            "Nothing about this input looks unlike the data the guarantee "
+            "was calibrated on. That is not proof it is in distribution -- "
+            "the check sees a handful of features, and a shift can be real "
+            "and invisible to all of them."
+        )
+    odd = FEATURE_LABELS.get(most_unusual, most_unusual)
+    return (
+        f"This input is unlike the data the guarantee was calibrated "
+        f"on -- most obviously its {odd}. The highlighting below is "
+        "still the detector's, but the coverage promise does not apply "
+        "to it. Recalibrate on your own data before trusting the dial."
+    )
+
+
 @dataclass
 class ExchangeabilityReference:
     """What the calibration split looked like, and how odd a new response is."""
