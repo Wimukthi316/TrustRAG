@@ -1,0 +1,77 @@
+# C3 type head - Kaggle P100 16GB or T4x2, roughly one to two hours.
+#
+# This is a SEPARATE model from C1. It does not touch C1's checkpoint, C1's
+# splits or anything under results/c1/, which are frozen inputs: every C2 number
+# in the handoff assumes them unchanged.
+#
+# max_length 1024, not C1's 3072. The type question is local to the span and its
+# nearest context sentence, and the input is ordered so that truncation can only
+# ever cut the far end of the context:
+#
+#     <answer, with the span wrapped in markers>  [SEP]  <question>  [SEP]  <context>
+#
+# The marked answer comes first so the span markers survive truncation by
+# construction. Putting the context first, as C1 does, would silently drop the
+# marked span on long data-to-text records and the model would train on inputs
+# with nothing marked in them.
+#
+# Span markers are plain text (<< and >>) rather than added special tokens. That
+# avoids resizing the embedding matrix, keeps the checkpoint loadable by a stock
+# AutoModel, and costs two subword tokens per span.
+#
+# Two heads, not one 4-way head. RAGTruth's taxonomy is a 2x2 -- mechanism
+# (conflict against baseless) and severity (evident against subtle) -- and the
+# two are different kinds of question. Reporting them separately is the design
+# contribution; a flat 4-way accuracy would hide the severity result inside an
+# average. The loss is the sum of the two cross-entropies.
+#
+# class_weights: null on purpose for the headline run. Subtle Conflict is 1.41%
+# of annotated spans (201 of 14,289, measured in results/c3/analysis/label_audit.json),
+# so a weighted run is worth having as an ABLATION with its own config file and
+# its own results directory -- not as an edit to this one.
+#
+# UNVERIFIED until the first launch: batch_size 8 at 1024 tokens is an estimate.
+# If it runs out of memory, halve batch_size and double grad_accum; the effective
+# batch stays 16 and the run stays comparable.
+
+run_name: c3-type-modernbert-base
+seed: 42
+
+data:
+  train_file: data/processed/ragtruth_train.jsonl
+  test_file: data/processed/ragtruth_test.jsonl
+  split_ids: results/c1/modernbert-base/split_ids.json   # reuse C1's frozen splits
+  typed_predictions_test: results/c3/analysis/typed_predictions_test.jsonl
+  typed_predictions_calib: results/c3/analysis/typed_predictions_calib.jsonl
+  max_length: 1024
+  span_open: "<<"
+  span_close: ">>"
+
+model:
+  name: answerdotai/ModernBERT-base
+  dropout: 0.1
+  gradient_checkpointing: false
+
+train:
+  epochs: 4
+  batch_size: 8
+  grad_accum: 2          # effective batch 16
+  lr: 2.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  max_grad_norm: 1.0
+  precision: auto        # bf16 where available, fp16 on the P100
+  num_workers: 2
+  class_weights: null
+  log_every: 50
+  eval_batch_size: 32
+
+output:
+  dir: results/c3/type/modernbert-base
+  save_best: true
+  select_on: mechanism_macro_f1   # axis A is the axis a model can actually move
+
+wandb:
+  enabled: false
+  project: trustrag-c3
+  entity: null
