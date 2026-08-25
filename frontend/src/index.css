@@ -241,12 +241,18 @@ body {
   );
 }
 
+/* Below the two-column breakpoint the field stacks under the text and centres
+   itself, so the light has to move with it. Offset to the right of centre there
+   would light empty margin. */
 @media (max-width: 1023px) {
   .hero-halo {
-    top: 40%;
-    right: -30%;
-    width: 44rem;
-    height: 30rem;
+    top: auto;
+    bottom: 2%;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(46rem, 130vw);
+    height: 32rem;
   }
 }
 

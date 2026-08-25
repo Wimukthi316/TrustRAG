@@ -1,12 +1,19 @@
+import type { CSSProperties } from "react";
 import {
   ArrowRight,
   CircleHelp,
   FileText,
+  Highlighter,
+  ListChecks,
+  Percent,
   Quote,
+  Scale,
+  ScanText,
+  SearchCheck,
   ShieldAlert,
   ShieldCheck,
 } from "lucide-react";
-import { SCORECARD, STEPS, TASK_LABEL, VERDICT_CARDS } from "../copy";
+import { SCORECARD, STEPS, VERDICT_CARDS } from "../copy";
 import type { RecordedCase } from "../recorded";
 import type { Span } from "../types";
 import { VerdictLegend } from "../components/Marked";
@@ -142,122 +149,126 @@ const HERO_STAT_LABEL: Record<string, string> = {
 };
 
 /**
- * The hero's visual: the product, doing its job.
+ * The hero's visual.
  *
- * It was a field of drifting icons. Icons drift on every landing page ever
- * built and they said nothing about this one -- and on a machine with system
- * animations switched off, which is most laptops, they did not even drift.
+ * Small tiles, arranged rather than scattered.
  *
- * This is a real recorded check instead: a real answer, the passage the system
- * marked, the number it put on it, and the sentence from the document you would
- * read to settle it. It is the whole product in one card, it is true, and it
- * works standing perfectly still.
+ * This was a drifting field of icons once and it read as confetti, for two
+ * reasons worth writing down. The positions were random, so the eye found no
+ * order in them; and the only thing holding it together was an animation, which
+ * `prefers-reduced-motion` stops dead -- and that setting is on by default on
+ * any machine with Windows animation effects switched off, which is most
+ * laptops. What most people actually saw was eight static shapes at random.
  *
- * A light card on a dark hero, because the marks are light tints and because the
- * contrast is what makes it read as the thing rather than as decoration.
+ * So: fixed positions on a deliberate diagonal, hairlines drawn between the
+ * ones that belong together, three sizes to give it depth, and one accent tile
+ * at the optical centre. It has to be finished standing perfectly still, and the
+ * drift is a bonus for the people whose machines allow it.
+ *
+ * Every icon is one the interface actually uses. A document, a mark, a shield,
+ * a quotation, a pair of scales -- the product's own vocabulary, not stock
+ * ornament.
  */
-function HeroCheck({
-  specimen,
-}: {
-  specimen: ReturnType<typeof pickSpecimen>;
-}) {
-  if (!specimen) return <HeroCheckSkeleton />;
 
-  const { lead, marked, tail } = excerpt(specimen.result.answer, specimen.span);
-  const score = specimen.span.calibrated_score;
-  const marks = specimen.result.spans.length;
+type Tile = {
+  Icon: typeof FileText;
+  /** Percentage coordinates in the field's square coordinate space. */
+  x: number;
+  y: number;
+  size: number;
+  accent?: boolean;
+  delay: number;
+  dur: number;
+  opacity: number;
+};
 
-  return (
-    <figure className="relative mx-auto w-full max-w-2xl">
-      <div className="card-gloss overflow-hidden rounded-2xl shadow-[0_40px_90px_-30px_rgb(0_0_0/0.75)]">
-        <header className="flex items-center gap-3 border-b border-slate-200/80 px-5 py-3.5">
-          <span className="inline-flex items-center gap-2 text-[0.8125rem] font-semibold text-slate-700">
-            <FileText className="h-4 w-4 text-brand-600" aria-hidden />
-            One real check, recorded
-          </span>
-          <span className="tnum ml-auto rounded-full bg-slate-100 px-2.5 py-1 text-[0.75rem] font-medium text-slate-600">
-            {marks} marked
-          </span>
-        </header>
+const TILES: Record<string, Tile> = {
+  document: { Icon: FileText, x: 26, y: 20, size: 56, delay: 0, dur: 12, opacity: 1 },
+  mark: { Icon: Highlighter, x: 55, y: 45, size: 68, accent: true, delay: 1.6, dur: 14, opacity: 1 },
+  shield: { Icon: ShieldCheck, x: 79, y: 73, size: 52, delay: 3.1, dur: 13, opacity: 0.95 },
 
-        <div className="px-5 py-6 sm:px-6">
-          <p className="text-[1.0625rem] leading-[1.95] text-slate-800">
-            <span className="text-slate-500">{lead}</span>
-            <span className="mark bg-flag-soft text-flag-ink [--mark-ring:var(--color-flag-ring)]">
-              {marked}
-            </span>
-            <span className="text-slate-500">{tail}</span>
-          </p>
-        </div>
+  read: { Icon: ScanText, x: 53, y: 13, size: 36, delay: 0.8, dur: 11, opacity: 0.7 },
+  quote: { Icon: Quote, x: 84, y: 27, size: 34, delay: 2.4, dur: 15, opacity: 0.6 },
+  check: { Icon: SearchCheck, x: 13, y: 50, size: 40, delay: 1.1, dur: 12.5, opacity: 0.75 },
+  scale: { Icon: Scale, x: 33, y: 70, size: 34, delay: 3.6, dur: 13.5, opacity: 0.6 },
+  unsure: { Icon: CircleHelp, x: 91, y: 52, size: 32, delay: 2.0, dur: 11.5, opacity: 0.55 },
+  steps: { Icon: ListChecks, x: 62, y: 90, size: 36, delay: 4.2, dur: 14.5, opacity: 0.6 },
+  score: { Icon: Percent, x: 20, y: 87, size: 30, delay: 2.8, dur: 12, opacity: 0.5 },
+};
 
-        <div className="border-t border-slate-200/80 bg-slate-50/80 px-5 py-5 sm:px-6">
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <span className="inline-flex items-center gap-2 rounded-full bg-flag-soft px-3 py-1.5 text-[0.8125rem] font-semibold text-flag-ink">
-              <ShieldAlert className="h-4 w-4" aria-hidden />
-              Not in the document
-            </span>
-            {score !== null && (
-              <span className="tnum ml-auto text-[1.375rem] font-semibold text-slate-900">
-                {Math.round(score * 100)}%
-                <span className="ml-1.5 text-[0.8125rem] font-medium text-slate-500">
-                  chance it is made up
-                </span>
-              </span>
-            )}
-          </div>
+/** Which tiles are drawn as connected. Order is irrelevant; each pair is a line. */
+const THREADS: [keyof typeof TILES, keyof typeof TILES][] = [
+  ["document", "read"],
+  ["document", "mark"],
+  ["mark", "quote"],
+  ["mark", "check"],
+  ["mark", "shield"],
+  ["check", "scale"],
+  ["shield", "steps"],
+  ["shield", "unsure"],
+  ["scale", "score"],
+];
 
-          {score !== null && (
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-slate-200">
-              <div
-                className="h-full rounded-full bg-flag"
-                style={{ width: `${Math.round(score * 100)}%` }}
-              />
-            </div>
-          )}
+function IconField() {
+  const tiles = Object.entries(TILES);
 
-          {specimen.span.evidence_sentence ? (
-            <p className="mt-5 flex gap-2.5 text-[0.9375rem] leading-6 text-slate-600">
-              <Quote className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" aria-hidden />
-              <span>
-                <span className="font-medium text-slate-800">
-                  The document says:
-                </span>{" "}
-                {specimen.span.evidence_sentence}
-              </span>
-            </p>
-          ) : (
-            <p className="mt-5 text-[0.9375rem] leading-6 text-slate-600">
-              <span className="font-medium text-slate-800">
-                Nothing in the document says this.
-              </span>{" "}
-              Every sentence was read and not one of them backs it up.
-            </p>
-          )}
-        </div>
-      </div>
-
-      <figcaption className="mt-4 text-center text-[0.8125rem] text-brand-100/55">
-        {TASK_LABEL[specimen.result.task_type]} · a recorded run on the RAGTruth
-        test split, not a mock-up
-      </figcaption>
-    </figure>
-  );
-}
-
-/** The same frame, before the recorded runs have arrived. */
-function HeroCheckSkeleton() {
   return (
     <div
-      className="mx-auto w-full max-w-2xl animate-pulse rounded-2xl bg-white/[0.06] p-6 ring-1 ring-inset ring-white/10"
       aria-hidden
+      className="relative mx-auto hidden aspect-square w-full max-w-[30rem] select-none sm:block lg:max-w-[34rem]"
     >
-      <div className="h-4 w-2/3 rounded bg-white/10" />
-      <div className="mt-6 space-y-3">
-        <div className="h-3.5 w-full rounded bg-white/10" />
-        <div className="h-3.5 w-11/12 rounded bg-white/10" />
-        <div className="h-3.5 w-4/5 rounded bg-white/10" />
-      </div>
-      <div className="mt-8 h-10 w-full rounded-xl bg-white/10" />
+      {/* The threads, behind the tiles. Thin, faint, and only between tiles that
+          belong together -- a line to everything would be a cobweb. */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        fill="none"
+      >
+        {THREADS.map(([from, to], i) => (
+          <line
+            key={i}
+            x1={TILES[from].x}
+            y1={TILES[from].y}
+            x2={TILES[to].x}
+            y2={TILES[to].y}
+            stroke="rgb(255 255 255 / 0.13)"
+            strokeWidth={0.28}
+          />
+        ))}
+        {tiles.map(([key, t]) => (
+          <circle
+            key={key}
+            cx={t.x}
+            cy={t.y}
+            r={0.55}
+            fill="rgb(255 255 255 / 0.28)"
+          />
+        ))}
+      </svg>
+
+      {tiles.map(([key, t]) => (
+        <span
+          key={key}
+          className={`glyph absolute flex -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-2xl border backdrop-blur-[2px] ${
+            t.accent
+              ? "border-white/25 bg-brand-500/25 text-white shadow-[0_12px_36px_-10px_oklch(0.55_0.2_288_/_0.8)]"
+              : "border-white/15 bg-white/[0.07] text-white shadow-[0_10px_28px_-16px_rgb(0_0_0/0.8)]"
+          }`}
+          style={
+            {
+              left: `${t.x}%`,
+              top: `${t.y}%`,
+              width: t.size,
+              height: t.size,
+              opacity: t.opacity,
+              animationDelay: `${t.delay}s`,
+              "--dur": `${t.dur}s`,
+            } as CSSProperties
+          }
+        >
+          <t.Icon style={{ width: t.size * 0.4, height: t.size * 0.4 }} />
+        </span>
+      ))}
     </div>
   );
 }
@@ -349,10 +360,10 @@ export default function Home({
               </Reveal>
             </div>
 
-            {/* ---- the product, doing the thing ---- */}
+            {/* ---- the field ---- */}
             <div className="lg:col-span-6">
               <Reveal delay={0.12}>
-                <HeroCheck specimen={specimen} />
+                <IconField />
               </Reveal>
             </div>
           </div>
