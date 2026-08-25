@@ -2,18 +2,19 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Menu, ShieldCheck, X } from "lucide-react";
 
-export type View = "home" | "demo" | "proof";
+export type View = "home" | "demo" | "proof" | "history";
 
 const ITEMS: { id: View; label: string }[] = [
   { id: "home", label: "How it works" },
   { id: "demo", label: "See it work" },
   { id: "proof", label: "Why believe it" },
+  { id: "history", label: "Your history" },
 ];
 
 /**
  * The nav bar.
  *
- * Three destinations and nothing else. It carried a build identifier and a
+ * Four destinations and nothing else. It carried a build identifier and a
  * technical-detail switch before; both were removed, because neither answered a
  * question anyone in the room was going to ask.
  *

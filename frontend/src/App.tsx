@@ -4,7 +4,9 @@ import Nav, { type View } from "./components/Nav";
 import Home from "./pages/Home";
 import Demo from "./pages/Demo";
 import Proof from "./pages/Proof";
+import History from "./pages/History";
 import { getRecordedRuns, type RecordedCase } from "./recorded";
+import type { AnalysisResult } from "./types";
 
 /**
  * Three pages, not three panels.
@@ -12,6 +14,7 @@ import { getRecordedRuns, type RecordedCase } from "./recorded";
  *   Home     what the thing is, for someone who has never heard of RAG
  *   Demo     what it does, on a document, one step at a time
  *   Proof    why anyone should believe the number it just produced
+ *   History  everything this person has already checked
  *
  * They were one page with tabs before, and everything was on it at once. The
  * people this is shown to are not the people who built it; they get one idea
@@ -31,6 +34,11 @@ export default function App() {
   // have returned. Having them means the demo still works when the backend
   // does not, which in front of a room is the only thing that matters.
   const [recorded, setRecorded] = useState<RecordedCase[]>([]);
+
+  // A check opened from the history page. It is shown on the demo page rather
+  // than on a fourth kind of screen, because a saved result and a fresh one are
+  // the same thing and deserve the same six bands.
+  const [opened, setOpened] = useState<AnalysisResult | null>(null);
 
   useEffect(() => {
     getRecordedRuns()
@@ -72,9 +80,25 @@ export default function App() {
               />
             )}
             {view === "demo" && (
-              <Demo recorded={recorded} onProof={() => setView("proof")} />
+              <Demo
+                recorded={recorded}
+                opened={opened}
+                onProof={() => setView("proof")}
+              />
             )}
             {view === "proof" && <Proof onDemo={() => setView("demo")} />}
+            {view === "history" && (
+              <History
+                onOpen={(result) => {
+                  setOpened(result);
+                  setView("demo");
+                }}
+                onDemo={() => {
+                  setOpened(null);
+                  setView("demo");
+                }}
+              />
+            )}
           </motion.div>
         </AnimatePresence>
       </main>

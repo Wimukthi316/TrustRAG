@@ -18,6 +18,8 @@ if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
 from contextlib import asynccontextmanager  # noqa: E402
+from datetime import datetime, timezone  # noqa: E402
+from typing import Optional  # noqa: E402
 
 from fastapi import FastAPI, HTTPException  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
@@ -25,6 +27,7 @@ from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 from fastapi.responses import FileResponse  # noqa: E402
 
 from backend.app.services.detector import get_detector  # noqa: E402
+from backend.app.services.history import get_store  # noqa: E402
 from backend.app.services.metrics import (  # noqa: E402
     FIGURE_DIR,
     FIGURE_ORDER,
@@ -35,6 +38,9 @@ from src.common.schema import (  # noqa: E402
     AnalysisResult,
     AnalyzeRequest,
     HealthResponse,
+    HistoryDetail,
+    HistoryEntry,
+    HistoryPage,
     MetricsResponse,
     TaskType,
 )
@@ -163,6 +169,112 @@ def analyze(req: AnalyzeRequest) -> AnalysisResult:
     except ValueError as exc:
         # Contract violations (bad offsets, text mismatch) surface here.
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+# --- history ----------------------------------------------------------------
+# Saved checks, so a person can open one again.
+#
+# Every route here treats an absent or unreachable store as a normal answer
+# rather than as an error. A history page that loads and says "the store is
+# unreachable" is worth more than one that fails to load, and the interface has
+# a real fallback for it -- it keeps the checks in the browser instead.
+
+
+@app.get("/api/history", response_model=HistoryPage)
+def history(
+    q: Optional[str] = None,
+    task: Optional[str] = None,
+    only_flagged: bool = False,
+    limit: Optional[int] = None,
+    offset: int = 0,
+) -> HistoryPage:
+    """Saved checks, newest first, with the filter applied.
+
+    `total` counts everything matching the filter, not the page. A reader who
+    narrowed two hundred checks down to three needs to be told both numbers.
+    """
+    store = get_store()
+    if not store.available():
+        return HistoryPage(available=False, backend=store.backend, note=store.note())
+    try:
+        entries, total = store.list(q, task, only_flagged, limit, offset)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return HistoryPage(
+        available=True,
+        backend=store.backend,
+        total=total,
+        entries=entries,
+    )
+
+
+@app.post("/api/history", response_model=HistoryEntry, status_code=201)
+def history_save(result: AnalysisResult) -> HistoryEntry:
+    """Keep one result.
+
+    The analyse route does not write here. Analysing and remembering are
+    separate things a caller might want separately, and a POST that quietly
+    persisted its input would be the wrong default for a tool whose whole
+    subject is what a system does without telling you.
+    """
+    store = get_store()
+    if not store.available():
+        raise HTTPException(status_code=503, detail=store.note())
+    return store.save(result)
+
+
+@app.get("/api/history/export")
+def history_export() -> dict:
+    """Everything, as one JSON document, for a person who wants to keep it.
+
+    Above the /{entry_id} route on purpose: FastAPI matches in declaration
+    order, and declared the other way round this path would be read as an id.
+    """
+    store = get_store()
+    if not store.available():
+        raise HTTPException(status_code=503, detail=store.note())
+    checks = store.export()
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "exported_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat(),
+        "backend": store.backend,
+        "count": len(checks),
+        "checks": checks,
+    }
+
+
+@app.get("/api/history/{entry_id}", response_model=HistoryDetail)
+def history_get(entry_id: str) -> HistoryDetail:
+    """One saved check, in full."""
+    store = get_store()
+    if not store.available():
+        raise HTTPException(status_code=503, detail=store.note())
+    detail = store.get(entry_id)
+    if detail is None:
+        raise HTTPException(status_code=404, detail=f"no saved check {entry_id!r}")
+    return detail
+
+
+@app.delete("/api/history/{entry_id}", status_code=204)
+def history_delete(entry_id: str) -> None:
+    """Forget one check.
+
+    A person who pasted a document into this must be able to take it back out.
+    """
+    store = get_store()
+    if not store.available():
+        raise HTTPException(status_code=503, detail=store.note())
+    if not store.delete(entry_id):
+        raise HTTPException(status_code=404, detail=f"no saved check {entry_id!r}")
+
+
+@app.delete("/api/history", status_code=200)
+def history_clear() -> dict:
+    """Forget all of them."""
+    store = get_store()
+    if not store.available():
+        raise HTTPException(status_code=503, detail=store.note())
+    return {"deleted": store.clear()}
 
 
 # RAGTruth test record 16121 (MIT licence), question-answering task, response

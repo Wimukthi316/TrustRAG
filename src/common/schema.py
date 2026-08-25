@@ -350,3 +350,60 @@ class MetricsResponse(BaseModel):
         default_factory=list, description="Figure names served under /api/figures/"
     )
     notes: List[str] = Field(default_factory=list)
+
+
+# --- history ----------------------------------------------------------------
+# A check a person ran, kept so they can open it again. The store behind it is
+# swappable and may be absent; every response says which one answered, because
+# "your history is empty" and "the history store is unreachable" are different
+# sentences and only one of them is the reader's problem.
+
+
+class HistoryEntry(BaseModel):
+    """One saved check, as it appears in the list.
+
+    Deliberately not the whole result. A list of fifty checks should not carry
+    fifty documents and fifty span arrays across the wire; the full result is
+    fetched only when someone opens one.
+    """
+
+    id: str
+    # ISO 8601, UTC, seconds precision. A string rather than a datetime because
+    # this crosses into TypeScript, where a Date is whatever the parser made of
+    # it, and an ISO string is the same instant in both languages.
+    created_at: str
+    task_type: TaskType
+    question: str
+    answer_preview: str
+    n_spans: int = 0
+    n_flagged: int = 0
+    n_unsure: int = 0
+    guarantee_applies: bool = True
+    alpha: Optional[float] = None
+    model_version: str = ""
+
+
+class HistoryDetail(BaseModel):
+    """One saved check, opened."""
+
+    entry: HistoryEntry
+    result: AnalysisResult
+
+
+class HistoryPage(BaseModel):
+    """A page of saved checks, and the truth about where they came from."""
+
+    schema_version: str = SCHEMA_VERSION
+    available: bool = Field(
+        ..., description="False when no store is configured or it is unreachable"
+    )
+    backend: str = Field(
+        "none", description='Which store answered: "mongodb", or "none"'
+    )
+    note: str = Field(
+        "", description="Why it is unavailable, in words a reader can act on"
+    )
+    # Matching the filter, not the page. A reader who filtered to three results
+    # out of two hundred needs to be told both numbers.
+    total: int = 0
+    entries: List[HistoryEntry] = Field(default_factory=list)

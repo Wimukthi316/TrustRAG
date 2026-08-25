@@ -24,6 +24,13 @@ pyyaml>=6.0          # training configs; arrives as a transitive dep, pinned her
 # package -- transformers above already covers them.
 sentence-transformers>=3.0
 
+# --- history store ---
+# MongoDB Atlas keeps the checks a person has run. Apache-2.0. The driver is
+# only imported when MONGODB_URI is set, so a checkout with no cluster behind it
+# starts and serves normally -- the interface falls back to browser storage and
+# says so.
+pymongo>=4.8
+
 # --- C2: calibration + conformal ---
 scikit-learn>=1.5
 netcal>=1.3

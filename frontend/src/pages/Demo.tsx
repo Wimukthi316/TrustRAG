@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   CircleHelp,
+  Clock,
   FileText,
   Loader2,
   MessageSquare,
@@ -14,6 +15,7 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { analyze } from "../api";
+import { saveCheck } from "../history";
 import {
   EVIDENCE,
   FIELD,
@@ -79,9 +81,12 @@ const pct = (x: number | null) => (x === null ? "—" : `${Math.round(x * 100)}%
 
 export default function Demo({
   recorded,
+  opened = null,
   onProof,
 }: {
   recorded: RecordedCase[];
+  /** A check reopened from the history page, if the reader came that way. */
+  opened?: AnalysisResult | null;
   onProof: () => void;
 }) {
   const [slug, setSlug] = useState<string | null>(null);
@@ -98,13 +103,28 @@ export default function Demo({
   const [alpha, setAlpha] = useState(0.1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<"saved" | "failed" | null>(null);
+  const [reopened, setReopened] = useState(false);
 
-  // Open on the first recorded case, so the page is never a blank form.
+  // A check reopened from the history page wins over everything: the reader
+  // clicked a specific row and is owed that row.
   useEffect(() => {
-    if (result || recorded.length === 0) return;
+    if (!opened) return;
+    setSlug(null);
+    setOwn(false);
+    setError(null);
+    setSaved(null);
+    setReopened(true);
+    setResult(opened);
+  }, [opened]);
+
+  // Otherwise open on the first recorded case, so the page is never a blank
+  // form.
+  useEffect(() => {
+    if (result || opened || recorded.length === 0) return;
     setSlug(recorded[0].slug);
     setResult(recorded[0].result);
-  }, [recorded, result]);
+  }, [recorded, result, opened]);
 
   const spans = useMemo(() => (result ? sortedSpans(result) : []), [result]);
 
@@ -117,6 +137,8 @@ export default function Demo({
     if (!item) return;
     setError(null);
     setOwn(false);
+    setSaved(null);
+    setReopened(false);
     setSlug(next);
     setResult(item.result);
   }
@@ -124,6 +146,8 @@ export default function Demo({
   async function runOwn() {
     setBusy(true);
     setError(null);
+    setSaved(null);
+    setReopened(false);
     try {
       const next = await analyze({
         question,
@@ -134,6 +158,16 @@ export default function Demo({
       });
       setSlug(null);
       setResult(next);
+
+      // Only a real check is kept. Clicking through the three recorded
+      // examples is not something anyone wants a history of, and filling the
+      // list with them would bury the reader's own work.
+      //
+      // The save is awaited but never allowed to throw: the check has already
+      // happened and is already on screen, and losing that to a storage
+      // failure would be the wrong trade.
+      const entry = await saveCheck(next);
+      setSaved(entry ? "saved" : "failed");
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -371,6 +405,19 @@ export default function Demo({
                 </div>
               </Card>
             </Reveal>
+
+            {(saved || reopened) && (
+              <Reveal delay={0.05}>
+                <p className="t-small mt-4 flex items-center gap-2 text-slate-500">
+                  <Clock className="h-4 w-4" aria-hidden />
+                  {reopened
+                    ? "Reopened from your history. This is exactly what came back when you ran it."
+                    : saved === "saved"
+                      ? "Kept in your history. You can open this again later."
+                      : "This one could not be saved, so it will not be in your history."}
+                </p>
+              </Reveal>
+            )}
 
             <Reveal delay={0.1}>
               <div className="mt-6 grid gap-4 sm:grid-cols-3">

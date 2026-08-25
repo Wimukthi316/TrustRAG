@@ -6,7 +6,11 @@ import type {
 } from "./types";
 
 // Vite proxies /api -> http://127.0.0.1:8000 in dev (see vite.config.ts).
-const BASE = "/api";
+//
+// Exported, because history.ts talks to the same server and a second copy of
+// this string is a second thing to change when the deployment moves.
+export const API_ROOT = "/api";
+const BASE = API_ROOT;
 
 /**
  * A copy of the offline artefacts, inlined into the page at package time.

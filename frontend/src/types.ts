@@ -172,3 +172,51 @@ export interface MetricsResponse {
   figures: string[];
   notes: string[];
 }
+
+// --- history ----------------------------------------------------------------
+// A check a person ran, kept so they can open it again. Two stores can answer:
+// the API when a MongoDB connection is configured, and the browser itself when
+// it is not. Every response says which one did, because "your history is empty"
+// and "the history store is unreachable" are different sentences and only one of
+// them is the reader's problem.
+
+export interface HistoryEntry {
+  id: string;
+  // ISO 8601, UTC. A string rather than a Date, so the same instant survives the
+  // trip in both languages.
+  created_at: string;
+  task_type: TaskType;
+  question: string;
+  answer_preview: string;
+  n_spans: number;
+  n_flagged: number;
+  n_unsure: number;
+  guarantee_applies: boolean;
+  alpha: number | null;
+  model_version: string;
+}
+
+export interface HistoryDetail {
+  entry: HistoryEntry;
+  result: AnalysisResult;
+}
+
+export interface HistoryPage {
+  schema_version: string;
+  available: boolean;
+  // "mongodb" when the API answered, "browser" when this device did, "none"
+  // when neither could.
+  backend: string;
+  note: string;
+  // Matching the filter, not the page.
+  total: number;
+  entries: HistoryEntry[];
+}
+
+export interface HistoryQuery {
+  q?: string;
+  task?: TaskType | "all";
+  only_flagged?: boolean;
+  limit?: number;
+  offset?: number;
+}
