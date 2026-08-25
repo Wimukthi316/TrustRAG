@@ -1,0 +1,44 @@
+{
+  "selected": {
+    "backend": "lexical",
+    "hypothesis": "sentence",
+    "n_returned": 1533,
+    "self_faithfulness": 1.0,
+    "index_out_of_range": 0,
+    "n_errors": 61,
+    "near_miss": 16,
+    "far_miss": 45,
+    "share_near_miss": 0.26229508196721313,
+    "mean_index_distance": 8.049180327868852,
+    "median_index_distance": 5.0,
+    "index_distance_histogram": {
+      "2": 5,
+      "1": 16,
+      "4": 4,
+      "5": 4,
+      "6+": 30,
+      "3": 2
+    },
+    "note": "self_faithfulness below 1.0 means the system quoted text that is not in the context it was given, which is an index bug rather than a modelling weakness. index_out_of_range counts the case that would crash the serving path, and it must be zero."
+  },
+  "lexical": {
+    "n_returned": 1533,
+    "self_faithfulness": 1.0,
+    "index_out_of_range": 0,
+    "n_errors": 61,
+    "near_miss": 16,
+    "far_miss": 45,
+    "share_near_miss": 0.26229508196721313,
+    "mean_index_distance": 8.049180327868852,
+    "median_index_distance": 5.0,
+    "index_distance_histogram": {
+      "2": 5,
+      "1": 16,
+      "4": 4,
+      "5": 4,
+      "6+": 30,
+      "3": 2
+    },
+    "note": "self_faithfulness below 1.0 means the system quoted text that is not in the context it was given, which is an index bug rather than a modelling weakness. index_out_of_range counts the case that would crash the serving path, and it must be zero."
+  }
+}

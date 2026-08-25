@@ -1,0 +1,921 @@
+{
+  "models": {
+    "prefilter": "sentence-transformers/all-MiniLM-L6-v2",
+    "nli": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+    "hhem": "vectara/hallucination_evaluation_model"
+  },
+  "licences_checked_2026_08_24": {
+    "sentence-transformers/all-MiniLM-L6-v2": "Apache-2.0",
+    "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli": "MIT",
+    "vectara/hallucination_evaluation_model": "Apache-2.0",
+    "bespokelabs/Bespoke-MiniCheck-7B": "CC BY-NC 4.0, non-commercial -- rejected on licence grounds, which is the evidence the check was made"
+  },
+  "prefilter": {
+    "top_k_used": 5,
+    "candidates": {
+      "embedding_used": [
+        {
+          "k": 1,
+          "n": 580,
+          "recall": 0.3017241379310345,
+          "error_floor": 0.6982758620689655
+        },
+        {
+          "k": 3,
+          "n": 580,
+          "recall": 0.6482758620689655,
+          "error_floor": 0.3517241379310345
+        },
+        {
+          "k": 5,
+          "n": 580,
+          "recall": 0.7810344827586206,
+          "error_floor": 0.21896551724137936
+        },
+        {
+          "k": 10,
+          "n": 580,
+          "recall": 0.9413793103448276,
+          "error_floor": 0.05862068965517242
+        }
+      ],
+      "idf_lexical_not_used": [
+        {
+          "k": 1,
+          "n": 580,
+          "recall": 0.8948275862068965,
+          "error_floor": 0.10517241379310349
+        },
+        {
+          "k": 3,
+          "n": 580,
+          "recall": 0.9655172413793104,
+          "error_floor": 0.03448275862068961
+        },
+        {
+          "k": 5,
+          "n": 580,
+          "recall": 0.9758620689655172,
+          "error_floor": 0.024137931034482807
+        },
+        {
+          "k": 10,
+          "n": 580,
+          "recall": 0.9896551724137931,
+          "error_floor": 0.010344827586206917
+        }
+      ]
+    },
+    "rows": [
+      {
+        "k": 1,
+        "n": 580,
+        "recall": 0.3017241379310345,
+        "error_floor": 0.6982758620689655
+      },
+      {
+        "k": 3,
+        "n": 580,
+        "recall": 0.6482758620689655,
+        "error_floor": 0.3517241379310345
+      },
+      {
+        "k": 5,
+        "n": 580,
+        "recall": 0.7810344827586206,
+        "error_floor": 0.21896551724137936
+      },
+      {
+        "k": 10,
+        "n": 580,
+        "recall": 0.9413793103448276,
+        "error_floor": 0.05862068965517242
+      }
+    ],
+    "error_floor_at_k_used": 0.21896551724137936,
+    "alternative_error_floor_at_k_used": 0.024137931034482807,
+    "note": "The embedding backend is scored over ALL sentences and is not affected by this truncation. The entailment and HHEM backends see only the top 5, so every one of their numbers carries this error floor. The second candidate row is the pre-filter that was NOT used, scored on the same rows; if it is better, that is a measured design mistake and it is reported as one."
+  },
+  "selected_on_calibration": {
+    "backend": "lexical",
+    "hypothesis": "sentence",
+    "selected_by": "Convention B top-1 on the calibration split. B's gold is exact string containment and is not coupled to a lexical argmax the way A's is, so it does not flatter the lexical baseline in the comparison meant to judge it.",
+    "table": {
+      "lexical|sentence": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.8822222222222222,
+          "mrr": 0.9233395633206202,
+          "recall_at_5": 0.9777777777777777
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.8918918918918919,
+          "mrr": 0.9318188007121206,
+          "recall_at_5": 0.978978978978979
+        }
+      },
+      "embed|sentence": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.33555555555555555,
+          "mrr": 0.5292311153057104,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.3303303303303303,
+          "mrr": 0.5173603269191506,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "nli_entail|span": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.5133333333333333,
+          "mrr": 0.6470129353529008,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.48348348348348347,
+          "mrr": 0.6232485007202522,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "nli_entail|sentence": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.6244444444444445,
+          "mrr": 0.7130499723899381,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.6006006006006006,
+          "mrr": 0.6917169691887206,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "nli_entail|marked": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.5955555555555555,
+          "mrr": 0.6938647872047529,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.5675675675675675,
+          "mrr": 0.6712464987182502,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "nli_signed|span": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.5577777777777778,
+          "mrr": 0.6846796020195676,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.5285285285285285,
+          "mrr": 0.662137389609141,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "nli_signed|sentence": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.62,
+          "mrr": 0.7217907131306788,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.6126126126126126,
+          "mrr": 0.7126879401596916,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "nli_signed|marked": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.5955555555555555,
+          "mrr": 0.7037907131306788,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.5855855855855856,
+          "mrr": 0.6936188710906225,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "hhem_support|sentence": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.7222222222222222,
+          "mrr": 0.7801610835010492,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.7057057057057057,
+          "mrr": 0.7632384907102422,
+          "recall_at_5": 0.7627627627627628
+        }
+      },
+      "hhem_decisive|sentence": {
+        "convention_a": {
+          "n": 450,
+          "top1_accuracy": 0.011111111111111112,
+          "mrr": 0.20819812053808617,
+          "recall_at_5": 0.7888888888888889
+        },
+        "convention_b": {
+          "n": 333,
+          "top1_accuracy": 0.015015015015015015,
+          "mrr": 0.21093618840793985,
+          "recall_at_5": 0.7627627627627628
+        }
+      }
+    }
+  },
+  "test_table": {
+    "lexical|sentence": {
+      "n": 582,
+      "top1_accuracy": 0.8951890034364262,
+      "mrr": 0.9307488342715033,
+      "in_gold_set_rate": 0.8969072164948454,
+      "snippet_containment": 0.9037204705374807,
+      "exact_snippet_rate": 0.6323024054982818,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.8951890034364262,
+      "recall_at_3": 0.9656357388316151,
+      "recall_at_5": 0.9759450171821306,
+      "recall_at_10": 0.9896907216494846,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.9455645161290323,
+          "mrr": 0.9673371823069403,
+          "in_gold_set_rate": 0.9455645161290323,
+          "snippet_containment": 0.9455645161290323,
+          "exact_snippet_rate": 0.6895161290322581,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.9455645161290323,
+          "recall_at_3": 0.9899193548387096,
+          "recall_at_5": 0.9959677419354839,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.7777777777777778,
+          "mrr": 0.8487654320987654,
+          "in_gold_set_rate": 0.7777777777777778,
+          "snippet_containment": 0.8703373015873015,
+          "exact_snippet_rate": 0.2777777777777778,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.7777777777777778,
+          "recall_at_3": 0.9444444444444444,
+          "recall_at_5": 0.9444444444444444,
+          "recall_at_10": 1.0
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.5588235294117647,
+          "mrr": 0.6855706079999242,
+          "in_gold_set_rate": 0.5735294117647058,
+          "snippet_containment": 0.6073418003565062,
+          "exact_snippet_rate": 0.3088235294117647,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.5588235294117647,
+          "recall_at_3": 0.7941176470588235,
+          "recall_at_5": 0.8382352941176471,
+          "recall_at_10": 0.9264705882352942
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.9164835164835164,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": false
+    },
+    "embed|sentence": {
+      "n": 582,
+      "top1_accuracy": 0.3006872852233677,
+      "mrr": 0.5067723390019333,
+      "in_gold_set_rate": 0.3024054982817869,
+      "snippet_containment": 0.3147200093720713,
+      "exact_snippet_rate": 0.21649484536082475,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.3006872852233677,
+      "recall_at_3": 0.6494845360824743,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9415807560137457,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.2862903225806452,
+          "mrr": 0.4948511265648206,
+          "in_gold_set_rate": 0.2862903225806452,
+          "snippet_containment": 0.28923451100870456,
+          "exact_snippet_rate": 0.2217741935483871,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.2862903225806452,
+          "recall_at_3": 0.6370967741935484,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9415322580645161
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.4444444444444444,
+          "mrr": 0.6144179894179894,
+          "in_gold_set_rate": 0.4444444444444444,
+          "snippet_containment": 0.514697570947571,
+          "exact_snippet_rate": 0.16666666666666666,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.4444444444444444,
+          "recall_at_3": 0.7222222222222222,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 1.0
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.36764705882352944,
+          "mrr": 0.5652326281389749,
+          "in_gold_set_rate": 0.38235294117647056,
+          "snippet_containment": 0.44767899584076054,
+          "exact_snippet_rate": 0.19117647058823528,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.36764705882352944,
+          "recall_at_3": 0.7205882352941176,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.9264705882352942
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.38461538461538464,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": false
+    },
+    "nli_entail|span": {
+      "n": 582,
+      "top1_accuracy": 0.5274914089347079,
+      "mrr": 0.6530083238418297,
+      "in_gold_set_rate": 0.5309278350515464,
+      "snippet_containment": 0.5430482468422128,
+      "exact_snippet_rate": 0.3917525773195876,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.5274914089347079,
+      "recall_at_3": 0.6958762886597938,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.5524193548387096,
+          "mrr": 0.6736039833822092,
+          "in_gold_set_rate": 0.5544354838709677,
+          "snippet_containment": 0.555779569892473,
+          "exact_snippet_rate": 0.4092741935483871,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.5524193548387096,
+          "recall_at_3": 0.7096774193548387,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.4444444444444444,
+          "mrr": 0.6280389363722697,
+          "in_gold_set_rate": 0.4444444444444444,
+          "snippet_containment": 0.5436658249158248,
+          "exact_snippet_rate": 0.2777777777777778,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.4444444444444444,
+          "recall_at_3": 0.7777777777777778,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.36764705882352944,
+          "mrr": 0.509390703877475,
+          "in_gold_set_rate": 0.38235294117647056,
+          "snippet_containment": 0.4500210021620057,
+          "exact_snippet_rate": 0.29411764705882354,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.36764705882352944,
+          "recall_at_3": 0.5735294117647058,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.6747252747252748,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "nli_entail|sentence": {
+      "n": 582,
+      "top1_accuracy": 0.6391752577319587,
+      "mrr": 0.7227964108979581,
+      "in_gold_set_rate": 0.6426116838487973,
+      "snippet_containment": 0.6518968271469788,
+      "exact_snippet_rate": 0.48281786941580757,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.6391752577319587,
+      "recall_at_3": 0.7285223367697594,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.6995967741935484,
+          "mrr": 0.7669507575757575,
+          "in_gold_set_rate": 0.7016129032258065,
+          "snippet_containment": 0.7016969086021506,
+          "exact_snippet_rate": 0.532258064516129,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.6995967741935484,
+          "recall_at_3": 0.7600806451612904,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.4444444444444444,
+          "mrr": 0.6345204178537512,
+          "in_gold_set_rate": 0.4444444444444444,
+          "snippet_containment": 0.5032617845117845,
+          "exact_snippet_rate": 0.3333333333333333,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.4444444444444444,
+          "recall_at_3": 0.7777777777777778,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.25,
+          "mrr": 0.42409658623041613,
+          "in_gold_set_rate": 0.2647058823529412,
+          "snippet_containment": 0.3279937442891595,
+          "exact_snippet_rate": 0.16176470588235295,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.25,
+          "recall_at_3": 0.4852941176470588,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.8175824175824176,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "nli_entail|marked": {
+      "n": 582,
+      "top1_accuracy": 0.6168384879725086,
+      "mrr": 0.7075902253309477,
+      "in_gold_set_rate": 0.6202749140893471,
+      "snippet_containment": 0.6279850287506442,
+      "exact_snippet_rate": 0.4639175257731959,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.6168384879725086,
+      "recall_at_3": 0.7147766323024055,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.6794354838709677,
+          "mrr": 0.7539467253176929,
+          "in_gold_set_rate": 0.6814516129032258,
+          "snippet_containment": 0.6800235215053763,
+          "exact_snippet_rate": 0.5141129032258065,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.6794354838709677,
+          "recall_at_3": 0.75,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.3888888888888889,
+          "mrr": 0.6002611585944919,
+          "in_gold_set_rate": 0.3888888888888889,
+          "snippet_containment": 0.44353956228956226,
+          "exact_snippet_rate": 0.2777777777777778,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.3888888888888889,
+          "recall_at_3": 0.7777777777777778,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.22058823529411764,
+          "mrr": 0.3978710960343377,
+          "in_gold_set_rate": 0.23529411764705882,
+          "snippet_containment": 0.2972339403675908,
+          "exact_snippet_rate": 0.14705882352941177,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.22058823529411764,
+          "recall_at_3": 0.4411764705882353,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.789010989010989,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "nli_signed|span": {
+      "n": 582,
+      "top1_accuracy": 0.5567010309278351,
+      "mrr": 0.6853966399930326,
+      "in_gold_set_rate": 0.5567010309278351,
+      "snippet_containment": 0.5635785136353663,
+      "exact_snippet_rate": 0.40034364261168387,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.5567010309278351,
+      "recall_at_3": 0.7491408934707904,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.5705645161290323,
+          "mrr": 0.6984695747800587,
+          "in_gold_set_rate": 0.5705645161290323,
+          "snippet_containment": 0.5736748690377723,
+          "exact_snippet_rate": 0.4173387096774194,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.5705645161290323,
+          "recall_at_3": 0.7580645161290323,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.3888888888888889,
+          "mrr": 0.5910018993352327,
+          "in_gold_set_rate": 0.3888888888888889,
+          "snippet_containment": 0.43055254930254927,
+          "exact_snippet_rate": 0.3333333333333333,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.3888888888888889,
+          "recall_at_3": 0.6666666666666666,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.5,
+          "mrr": 0.6150279587794357,
+          "in_gold_set_rate": 0.5,
+          "snippet_containment": 0.5251472647882682,
+          "exact_snippet_rate": 0.29411764705882354,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.5,
+          "recall_at_3": 0.7058823529411765,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.7120879120879121,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "nli_signed|sentence": {
+      "n": 582,
+      "top1_accuracy": 0.5962199312714777,
+      "mrr": 0.7071893089506499,
+      "in_gold_set_rate": 0.5962199312714777,
+      "snippet_containment": 0.605785852878788,
+      "exact_snippet_rate": 0.4329896907216495,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.5962199312714777,
+      "recall_at_3": 0.7525773195876289,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.6270161290322581,
+          "mrr": 0.7297195747800587,
+          "in_gold_set_rate": 0.6270161290322581,
+          "snippet_containment": 0.6282352839812517,
+          "exact_snippet_rate": 0.4596774193548387,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.6270161290322581,
+          "recall_at_3": 0.7620967741935484,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.3888888888888889,
+          "mrr": 0.5974833808167141,
+          "in_gold_set_rate": 0.3888888888888889,
+          "snippet_containment": 0.4839436026936027,
+          "exact_snippet_rate": 0.3333333333333333,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.3888888888888889,
+          "recall_at_3": 0.7777777777777778,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.4264705882352941,
+          "mrr": 0.5718907038774749,
+          "in_gold_set_rate": 0.4264705882352941,
+          "snippet_containment": 0.4742894216510133,
+          "exact_snippet_rate": 0.2647058823529412,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.4264705882352941,
+          "recall_at_3": 0.6764705882352942,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.7626373626373626,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "nli_signed|marked": {
+      "n": 582,
+      "top1_accuracy": 0.5807560137457045,
+      "mrr": 0.6969945781373623,
+      "in_gold_set_rate": 0.5807560137457045,
+      "snippet_containment": 0.5894391807179861,
+      "exact_snippet_rate": 0.4209621993127148,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.5807560137457045,
+      "recall_at_3": 0.7542955326460481,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.6048387096774194,
+          "mrr": 0.7158754887585532,
+          "in_gold_set_rate": 0.6048387096774194,
+          "snippet_containment": 0.6058769299696719,
+          "exact_snippet_rate": 0.4475806451612903,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.6048387096774194,
+          "recall_at_3": 0.7641129032258065,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.4444444444444444,
+          "mrr": 0.6447056030389364,
+          "in_gold_set_rate": 0.4444444444444444,
+          "snippet_containment": 0.4839436026936027,
+          "exact_snippet_rate": 0.2777777777777778,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.4444444444444444,
+          "recall_at_3": 0.8333333333333334,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.4411764705882353,
+          "mrr": 0.5731161940735533,
+          "in_gold_set_rate": 0.4411764705882353,
+          "snippet_containment": 0.4974656038886143,
+          "exact_snippet_rate": 0.2647058823529412,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.4411764705882353,
+          "recall_at_3": 0.6617647058823529,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.7428571428571429,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "hhem_support|sentence": {
+      "n": 582,
+      "top1_accuracy": 0.6958762886597938,
+      "mrr": 0.7599098129598137,
+      "in_gold_set_rate": 0.6993127147766323,
+      "snippet_containment": 0.7098184887905931,
+      "exact_snippet_rate": 0.5103092783505154,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.6958762886597938,
+      "recall_at_3": 0.7474226804123711,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.7479838709677419,
+          "mrr": 0.7971926930596285,
+          "in_gold_set_rate": 0.75,
+          "snippet_containment": 0.7488110008271298,
+          "exact_snippet_rate": 0.5625,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.7479838709677419,
+          "recall_at_3": 0.7721774193548387,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.5,
+          "mrr": 0.6539648622981956,
+          "in_gold_set_rate": 0.5,
+          "snippet_containment": 0.6041035353535353,
+          "exact_snippet_rate": 0.3333333333333333,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.5,
+          "recall_at_3": 0.7222222222222222,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.36764705882352944,
+          "mrr": 0.5160083509362985,
+          "in_gold_set_rate": 0.38235294117647056,
+          "snippet_containment": 0.45338588866919316,
+          "exact_snippet_rate": 0.17647058823529413,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.36764705882352944,
+          "recall_at_3": 0.5735294117647058,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.8901098901098901,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    },
+    "hhem_decisive|sentence": {
+      "n": 582,
+      "top1_accuracy": 0.018900343642611683,
+      "mrr": 0.2185867889048309,
+      "in_gold_set_rate": 0.018900343642611683,
+      "snippet_containment": 0.02648188485817352,
+      "exact_snippet_rate": 0.006872852233676976,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.018900343642611683,
+      "recall_at_3": 0.06701030927835051,
+      "recall_at_5": 0.781786941580756,
+      "recall_at_10": 0.9742268041237113,
+      "by_task": {
+        "data2text": {
+          "n": 496,
+          "top1_accuracy": 0.006048387096774193,
+          "mrr": 0.2038795210166178,
+          "in_gold_set_rate": 0.006048387096774193,
+          "snippet_containment": 0.008555624483043837,
+          "exact_snippet_rate": 0.0020161290322580645,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.006048387096774193,
+          "recall_at_3": 0.02620967741935484,
+          "recall_at_5": 0.7782258064516129,
+          "recall_at_10": 0.9979838709677419
+        },
+        "qa": {
+          "n": 18,
+          "top1_accuracy": 0.05555555555555555,
+          "mrr": 0.30396486229819564,
+          "in_gold_set_rate": 0.05555555555555555,
+          "snippet_containment": 0.09933160974827641,
+          "exact_snippet_rate": 0.05555555555555555,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.05555555555555555,
+          "recall_at_3": 0.2777777777777778,
+          "recall_at_5": 0.8888888888888888,
+          "recall_at_10": 0.9444444444444444
+        },
+        "summarization": {
+          "n": 68,
+          "top1_accuracy": 0.10294117647058823,
+          "mrr": 0.3032632528970827,
+          "in_gold_set_rate": 0.10294117647058823,
+          "snippet_containment": 0.13795438629997453,
+          "exact_snippet_rate": 0.029411764705882353,
+          "abstention_rate": 0.0,
+          "index_in_range_rate": 1.0,
+          "recall_at_1": 0.10294117647058823,
+          "recall_at_3": 0.3088235294117647,
+          "recall_at_5": 0.7794117647058824,
+          "recall_at_10": 0.8088235294117647
+        }
+      },
+      "top1_given_gold_survived_prefilter": 0.024175824175824177,
+      "n_given_gold_survived_prefilter": 455,
+      "sees_only_prefiltered_sentences": true
+    }
+  },
+  "floors_test": {
+    "first": {
+      "n": 582,
+      "top1_accuracy": 0.8487972508591065,
+      "mrr": 0.875346604098569,
+      "in_gold_set_rate": 0.8487972508591065,
+      "snippet_containment": 0.8557002330766733,
+      "exact_snippet_rate": 0.6254295532646048,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.8487972508591065,
+      "recall_at_3": 0.8814432989690721,
+      "recall_at_5": 0.9020618556701031,
+      "recall_at_10": 0.9261168384879725,
+      "ignores_input": true
+    },
+    "longest": {
+      "n": 582,
+      "top1_accuracy": 0.872852233676976,
+      "mrr": 0.8928133494903877,
+      "in_gold_set_rate": 0.872852233676976,
+      "snippet_containment": 0.88431852747347,
+      "exact_snippet_rate": 0.6460481099656358,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.872852233676976,
+      "recall_at_3": 0.8951890034364262,
+      "recall_at_5": 0.915807560137457,
+      "recall_at_10": 0.9398625429553265,
+      "ignores_input": true
+    },
+    "random": {
+      "n": 582,
+      "top1_accuracy": 0.058419243986254296,
+      "mrr": 0.4786554293772484,
+      "in_gold_set_rate": 0.06013745704467354,
+      "snippet_containment": 0.06995771337796808,
+      "exact_snippet_rate": 0.044673539518900345,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.058419243986254296,
+      "recall_at_3": 0.8814432989690721,
+      "recall_at_5": 0.9037800687285223,
+      "recall_at_10": 0.9312714776632303,
+      "ignores_input": true
+    },
+    "abstain": {
+      "n": 582,
+      "top1_accuracy": 0.0,
+      "mrr": 0.0,
+      "in_gold_set_rate": 0.0,
+      "snippet_containment": 0.0,
+      "exact_snippet_rate": 0.0,
+      "abstention_rate": 1.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.0,
+      "recall_at_3": 0.0,
+      "recall_at_5": 0.0,
+      "recall_at_10": 0.0,
+      "ignores_input": true
+    }
+  },
+  "direction_note": "nli_entail is P(entailment); nli_signed is max(P_entail, P_contradict). For a hallucinated span the sentence a human would cite is often the one it contradicts, so entailment alone is the wrong score and both are reported."
+}

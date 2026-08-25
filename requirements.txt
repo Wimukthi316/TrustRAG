@@ -18,6 +18,12 @@ sentencepiece>=0.2
 safetensors>=0.4
 pyyaml>=6.0          # training configs; arrives as a transitive dep, pinned here on purpose
 
+# --- C4: attribution ---
+# The embedding pre-filter that keeps the cross-encoder cost down. Apache-2.0,
+# 22.7M parameters, CPU-runnable. The entailment and HHEM backends need no extra
+# package -- transformers above already covers them.
+sentence-transformers>=3.0
+
 # --- C2: calibration + conformal ---
 scikit-learn>=1.5
 netcal>=1.3

@@ -1,0 +1,234 @@
+{
+  "ragbench": {
+    "checked": true,
+    "n_subsets": 12,
+    "n_records": 11801,
+    "fields": [
+      "adherence_score",
+      "annotator",
+      "answer",
+      "context",
+      "id",
+      "model",
+      "quality",
+      "question",
+      "source",
+      "source_id",
+      "spans",
+      "split",
+      "task_type"
+    ],
+    "evidence_like_fields": [],
+    "available": false,
+    "reason": "RAGBench as processed here carries spans and an adherence score and no field linking an answer to the source sentence it was judged against. There is nothing to score an evidence attribution against, so the out-of-domain evidence row is n/a. The transfer study below is the generalisation result C4 can actually run."
+  },
+  "folds": [
+    {
+      "held_out_task": "qa",
+      "n_calibration_spans": 989,
+      "n_test_spans": 235,
+      "attribution": {
+        "n": 18,
+        "top1_accuracy": 0.7777777777777778,
+        "mrr": 0.8487654320987654,
+        "recall_at_5": 0.9444444444444444,
+        "snippet_containment": 0.8703373015873015
+      },
+      "conformal": {
+        "alpha": 0.1,
+        "target_coverage": 0.9,
+        "empirical_coverage": 1.0,
+        "band": 0.21646662136490608,
+        "inside_band": true,
+        "mean_set_size": 4.277777777777778,
+        "singleton_rate": 0.2222222222222222,
+        "n_calibration": 436,
+        "n_test": 18
+      },
+      "abstention": {
+        "threshold": 0.33,
+        "precision": 0.8369565217391305,
+        "recall": 0.8020833333333334,
+        "f1": 0.8191489361702128,
+        "base_rate": 0.7272727272727273,
+        "n": 132
+      },
+      "abstention_threshold_fitted_on": "the two tasks that were not held out",
+      "in_task": {
+        "conformal": {
+          "alpha": 0.1,
+          "target_coverage": 0.9,
+          "empirical_coverage": 1.0,
+          "band": 0.32071349029490925,
+          "inside_band": true,
+          "mean_set_size": 13.222222222222221,
+          "singleton_rate": 0.0,
+          "n_calibration": 14,
+          "n_test": 18
+        },
+        "abstention": {
+          "threshold": 0.51,
+          "precision": 0.7777777777777778,
+          "recall": 0.9479166666666666,
+          "f1": 0.8544600938967136,
+          "base_rate": 0.7272727272727273,
+          "n": 132
+        },
+        "n_calibration_spans": 225
+      }
+    },
+    {
+      "held_out_task": "data2text",
+      "n_calibration_spans": 403,
+      "n_test_spans": 1054,
+      "attribution": {
+        "n": 496,
+        "top1_accuracy": 0.9455645161290323,
+        "mrr": 0.9673371823069403,
+        "recall_at_5": 0.9959677419354839,
+        "snippet_containment": 0.9455645161290323
+      },
+      "conformal": {
+        "alpha": 0.1,
+        "target_coverage": 0.9,
+        "empirical_coverage": 0.9536290322580645,
+        "band": 0.11953792082903664,
+        "inside_band": true,
+        "mean_set_size": 6.241935483870968,
+        "singleton_rate": 0.5625,
+        "n_calibration": 64,
+        "n_test": 496
+      },
+      "abstention": {
+        "threshold": 0.41000000000000003,
+        "precision": 0.17218543046357615,
+        "recall": 0.9285714285714286,
+        "f1": 0.2905027932960894,
+        "base_rate": 0.11125827814569536,
+        "n": 755
+      },
+      "abstention_threshold_fitted_on": "the two tasks that were not held out",
+      "in_task": {
+        "conformal": {
+          "alpha": 0.1,
+          "target_coverage": 0.9,
+          "empirical_coverage": 0.8991935483870968,
+          "band": 0.06108608771221116,
+          "inside_band": true,
+          "mean_set_size": 4.5,
+          "singleton_rate": 0.5625,
+          "n_calibration": 386,
+          "n_test": 496
+        },
+        "abstention": {
+          "threshold": 0.19,
+          "precision": 0.22340425531914893,
+          "recall": 0.75,
+          "f1": 0.34426229508196726,
+          "base_rate": 0.11125827814569536,
+          "n": 755
+        },
+        "n_calibration_spans": 811
+      }
+    },
+    {
+      "held_out_task": "summarization",
+      "n_calibration_spans": 1036,
+      "n_test_spans": 244,
+      "attribution": {
+        "n": 68,
+        "top1_accuracy": 0.5588235294117647,
+        "mrr": 0.6855706079999242,
+        "recall_at_5": 0.8382352941176471,
+        "snippet_containment": 0.6073418003565062
+      },
+      "conformal": {
+        "alpha": 0.1,
+        "target_coverage": 0.9,
+        "empirical_coverage": 0.8823529411764706,
+        "band": 0.11805407534635284,
+        "inside_band": true,
+        "mean_set_size": 5.514705882352941,
+        "singleton_rate": 0.14705882352941177,
+        "n_calibration": 400,
+        "n_test": 68
+      },
+      "abstention": {
+        "threshold": 0.33,
+        "precision": 0.40298507462686567,
+        "recall": 0.6136363636363636,
+        "f1": 0.4864864864864865,
+        "base_rate": 0.2732919254658385,
+        "n": 161
+      },
+      "abstention_threshold_fitted_on": "the two tasks that were not held out",
+      "in_task": {
+        "conformal": {
+          "alpha": 0.1,
+          "target_coverage": 0.9,
+          "empirical_coverage": 0.9117647058823529,
+          "band": 0.1676656336459036,
+          "inside_band": true,
+          "mean_set_size": 8.588235294117647,
+          "singleton_rate": 0.14705882352941177,
+          "n_calibration": 50,
+          "n_test": 68
+        },
+        "abstention": {
+          "threshold": 0.37,
+          "precision": 0.3670886075949367,
+          "recall": 0.6590909090909091,
+          "f1": 0.47154471544715443,
+          "base_rate": 0.2732919254658385,
+          "n": 161
+        },
+        "n_calibration_spans": 178
+      }
+    }
+  ],
+  "in_task_reference": {
+    "data2text": {
+      "n": 496,
+      "top1_accuracy": 0.9455645161290323,
+      "mrr": 0.9673371823069403,
+      "in_gold_set_rate": 0.9455645161290323,
+      "snippet_containment": 0.9455645161290323,
+      "exact_snippet_rate": 0.6895161290322581,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.9455645161290323,
+      "recall_at_3": 0.9899193548387096,
+      "recall_at_5": 0.9959677419354839,
+      "recall_at_10": 0.9979838709677419
+    },
+    "qa": {
+      "n": 18,
+      "top1_accuracy": 0.7777777777777778,
+      "mrr": 0.8487654320987654,
+      "in_gold_set_rate": 0.7777777777777778,
+      "snippet_containment": 0.8703373015873015,
+      "exact_snippet_rate": 0.2777777777777778,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.7777777777777778,
+      "recall_at_3": 0.9444444444444444,
+      "recall_at_5": 0.9444444444444444,
+      "recall_at_10": 1.0
+    },
+    "summarization": {
+      "n": 68,
+      "top1_accuracy": 0.5588235294117647,
+      "mrr": 0.6855706079999242,
+      "in_gold_set_rate": 0.5735294117647058,
+      "snippet_containment": 0.6073418003565062,
+      "exact_snippet_rate": 0.3088235294117647,
+      "abstention_rate": 0.0,
+      "index_in_range_rate": 1.0,
+      "recall_at_1": 0.5588235294117647,
+      "recall_at_3": 0.7941176470588235,
+      "recall_at_5": 0.8382352941176471,
+      "recall_at_10": 0.9264705882352942
+    }
+  },
+  "reading_note": "The selected attribution backend is `lexical`, which has no parameter fitted on a calibration split -- it scores a span against the sentences of its own context and nothing else. Its top-1 accuracy therefore CANNOT degrade under a task shift, and a zero drop in that column is a property of the scorer rather than evidence of robustness. What genuinely transfers, or fails to, is the conformal quantile and the abstention threshold, and both are reported against their in-task counterparts."
+}

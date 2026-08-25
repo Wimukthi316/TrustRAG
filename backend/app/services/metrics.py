@@ -49,6 +49,16 @@ FIGURE_ORDER = (
     "c2_reliability",
     "c2_shift",
     "c2_risk_control",
+    # C4. The route checks a requested name against this tuple and never
+    # path-joins user input; adding a figure means adding its name here, not
+    # relaxing the check.
+    "c4_theta_sweep",
+    "c4_evidence_by_task",
+    "c4_prefilter_recall",
+    "c4_coverage_vs_alpha",
+    "c4_set_size_vs_alpha",
+    "c4_review_cost",
+    "c4_error_distance",
 )
 
 

@@ -1,0 +1,452 @@
+[
+  {
+    "response_id": "58",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "Additionally, the fact that the statement was about a sensitive topic like sexual assault may impact the legal approach.",
+    "snippet": "This generated details is not mentioned in source content.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "404",
+    "split": "calib",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "are allowing doctors to practice medicine without passing traditional medical exams",
+    "snippet": "No mentioned of allowing doctors to practice medicine exams. However, source content mentioned that the traiditional way to become the doctor is to pass national exams.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "596",
+    "split": "calib",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "The new book will follow Bruce Wayne as he deals with a new threat to Gotham City.",
+    "snippet": "This is information related to Bruce Wayne is not mentioned in the source content.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "2121",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "who also made a cameo appearance in their performance.",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "2243",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "The author, a civil rights lawyer,",
+    "snippet": "No mentioned of the author being a civil rights lawyer in the source content.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "2878",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "and suicide bombings",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "2937",
+    "split": "calib",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "Conflicting reports surround his death, with some saying it was caused by a drone strike while others claim it was a prison break.",
+    "snippet": "This info is not mentioned in the source content.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "3082",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Conflict",
+    "span_text": "its third week",
+    "snippet": "\"After weeks... in the Boston Marathon bombing trial.\" (The exact number of weeks is not mentioned.)",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "3146",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "August 8th",
+    "snippet": "The specific date was not mentioned",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "3149",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "identified her through her IP address",
+    "snippet": "It is not mentioned that that police identified her through her IP address.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "3861",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "This is the highest COLA since 2000",
+    "snippet": "No mention of these details in the source content.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "3873",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "according to a new study.",
+    "snippet": "No mention of such study",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "4442",
+    "split": "test",
+    "task": "summarization",
+    "label_type": "Evident Baseless Info",
+    "span_text": "a position she held for 26 years.",
+    "snippet": "No mention of the exact number of years that Wahl have kept the position.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "5909",
+    "split": "calib",
+    "task": "data2text",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "its extensive wine list, which includes a wide selection of red, white, and sparkling wines from around the world.",
+    "snippet": "*not mentioned but could be part \"Wine Bar\" catergory*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "6767",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "Korean-style barbecue",
+    "snippet": "Indeed, Korean-style barbecue is a Korean cuisine, however, it is not mentioned in the data.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "6772",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "cozy",
+    "snippet": "No mention of the atmosphere being cozy.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "6920",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "and another stated that their DoorDash order was delivered late",
+    "snippet": "This reviewer complained that his/her food was so salty and so spicy. No mention that it was delivered late.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "7036",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "burgers, sandwiches, salads, and entrees.",
+    "snippet": "This information is not mentioned in the business info or reviews.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "7204",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "and delivery options, and customers can also place orders online.",
+    "snippet": "No mention of delivery options and online orders",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "7294",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "The restaurant also serves brunch on weekends and has a special menu for New Year's Eve.",
+    "snippet": "No mentioned of this info.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "7328",
+    "split": "calib",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "vegetarian and gluten-free options",
+    "snippet": "No mentioned of vegetarian and gluten-free options",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "7821",
+    "split": "calib",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "locally owned restaurant",
+    "snippet": "It is not mentioned in the original source that Bougainvillea is a locally owned restaurant.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "7919",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "some commenting that the food is a bit pricey but worth it.",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "8108",
+    "split": "calib",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "has free parking available",
+    "snippet": "\"lot\": true (but not stated whether it is free or not)",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "9081",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "soups",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "9248",
+    "split": "calib",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "Jeff, the owner of the business",
+    "snippet": "It is not mentioned if Jeff was the owner.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "9770",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": ". Customers can order online or through the phone for pick-up or delivery.",
+    "snippet": "Not mentioned in the structured data.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "9771",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "convenience of takeout.",
+    "snippet": "This specific info is not mentioned in any of the reviews.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "9832",
+    "split": "calib",
+    "task": "data2text",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "and other related items",
+    "snippet": "No mention of other menus related to hotdogs",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "11446",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "prices are moderate to high, with an average entree price range of $15-$30.",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "11521",
+    "split": "test",
+    "task": "data2text",
+    "label_type": "Evident Baseless Info",
+    "span_text": "Seafood",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "12260",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "4. Click on the Application tab.\n5. Scroll down to the Default browser section.\n6. Select Firefox from the list of installed browsers.\n7. Click the Set as default button.",
+    "snippet": "These steps are not mentioned in the passage 3 (steps in setting up Mozilla Firefox as default browser.)",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "12449",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "Essential amino acids are also referred to as \"limiting\" amino acids, meaning that the body cannot synthesize them and thus they must be obtained from outside sources. In contrast, non-essential amino acids are considered \"dispensable\" because the body can either synthesize them or obtain them from the diet.",
+    "snippet": "*this is not mentioned in the sourced data*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "13094",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "7. Close the letter with a polite sign-off and include your contact information.",
+    "snippet": "*not mentioned in the sourced data*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "13363",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "10. Make sure to dry them completely to avoid any stains or spots.",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "13376",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "7. Repeat steps 4-6 for all the potatoes.",
+    "snippet": "*this is not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "13865",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "innocence",
+    "snippet": "No mention of the color white representing innocence",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14133",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "A ball rolling down a hill has gravitational potential energy due to its height (Passage 3).",
+    "snippet": "*this is not mentioned in Passage 3*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14133",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "due to the movement of water (Passage 2).",
+    "snippet": "*this is not mentioned in Passage 2*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14146",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "The tank has two compartments: one for the water and one for the air.",
+    "snippet": "*did not mentioned these as \"two compartments\"*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14572",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "These symptoms occur in response to cold temperatures or other triggers and can affect one or more fingers at a time.",
+    "snippet": "It is true that the symptoms of Raynaud's disease appear due to cold temperature, however, this is not mentioned in the passages.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14715",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "it may still be safe for consumption for individuals with gluten sensitivity or celiac disease if it has been processed properly and meets certain safety standards.",
+    "snippet": "No mention of the items being safe to consume for those people with gluten sensitivity or celiac disease",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14806",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "Therefore, the current temperature in Bucharest is 22\u00b0C (72\u00b0F).",
+    "snippet": "No mention of the current temperature in Bucharest",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "14942",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "If needed, use scissors or clippers to trim any excessively long fur or to shape your dog's ears or paws.",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "15178",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Conflict",
+    "span_text": "1. Provide a mechanism for the tree to regenerate and grow rapidly after a fire (Passage 1).",
+    "snippet": "This information is found in passage 2, not in passage 1.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "15836",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "and lay it flat.",
+    "snippet": "*not mentioned*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "16053",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "5. Familiarize yourself with the format and content of the actual G1 test, including the types of questions that may be asked and the time limit for each section.",
+    "snippet": "*not mentioned in the source data*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "16060",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "This will allow your player to perform various skill moves such as flip fouls, step-overs, and heel-to-heel turns.",
+    "snippet": "These details are not mentioned in the passages.",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "16898",
+    "split": "test",
+    "task": "qa",
+    "label_type": "Subtle Baseless Info",
+    "span_text": "until there are no more suds coming out.",
+    "snippet": "*this is a fact but not stated in the sourced data*",
+    "human_says_no_evidence": null
+  },
+  {
+    "response_id": "17621",
+    "split": "calib",
+    "task": "qa",
+    "label_type": "Evident Baseless Info",
+    "span_text": "reveal crisp, clean edges",
+    "snippet": "This particular detail was not mentioned in any of the passages",
+    "human_says_no_evidence": null
+  }
+]

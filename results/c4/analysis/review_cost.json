@@ -1,0 +1,98 @@
+{
+  "backend": "lexical",
+  "curve": [
+    {
+      "alpha": 0.05,
+      "empirical_coverage": 1.0,
+      "mean_sentences_per_span": 19.051546391752577,
+      "mean_pool_per_span": 19.051546391752577,
+      "compression_per_span": 1.0,
+      "reduction_in_reading_per_span": 0.0,
+      "mean_sentences_per_response": 18.725247524752476,
+      "mean_pool_per_response": 18.725247524752476,
+      "compression_per_response": 1.0,
+      "policy_return_everything_sentences_per_span": 19.051546391752577,
+      "policy_one_guess_sentences_per_span": 1.0,
+      "policy_one_guess_coverage": 0.8487972508591065
+    },
+    {
+      "alpha": 0.1,
+      "empirical_coverage": 0.9003436426116839,
+      "mean_sentences_per_span": 4.6116838487972505,
+      "mean_pool_per_span": 19.051546391752577,
+      "compression_per_span": 0.2937308983993959,
+      "reduction_in_reading_per_span": 0.7062691016006041,
+      "mean_sentences_per_response": 5.75,
+      "mean_pool_per_response": 18.725247524752476,
+      "compression_per_response": 0.368135877752064,
+      "policy_return_everything_sentences_per_span": 19.051546391752577,
+      "policy_one_guess_sentences_per_span": 1.0,
+      "policy_one_guess_coverage": 0.8161512027491409
+    },
+    {
+      "alpha": 0.15,
+      "empirical_coverage": 0.8642611683848798,
+      "mean_sentences_per_span": 3.709621993127148,
+      "mean_pool_per_span": 19.051546391752577,
+      "compression_per_span": 0.2552101552123478,
+      "reduction_in_reading_per_span": 0.7447898447876522,
+      "mean_sentences_per_response": 4.77970297029703,
+      "mean_pool_per_response": 18.725247524752476,
+      "compression_per_response": 0.3261520819915617,
+      "policy_return_everything_sentences_per_span": 19.051546391752577,
+      "policy_one_guess_sentences_per_span": 1.0,
+      "policy_one_guess_coverage": 0.7800687285223368
+    },
+    {
+      "alpha": 0.2,
+      "empirical_coverage": 0.8195876288659794,
+      "mean_sentences_per_span": 2.8075601374570445,
+      "mean_pool_per_span": 19.051546391752577,
+      "compression_per_span": 0.20865918790777388,
+      "reduction_in_reading_per_span": 0.7913408120922261,
+      "mean_sentences_per_response": 3.5841584158415842,
+      "mean_pool_per_response": 18.725247524752476,
+      "compression_per_response": 0.2648284009798922,
+      "policy_return_everything_sentences_per_span": 19.051546391752577,
+      "policy_one_guess_sentences_per_span": 1.0,
+      "policy_one_guess_coverage": 0.7439862542955327
+    },
+    {
+      "alpha": 0.3,
+      "empirical_coverage": 0.7164948453608248,
+      "mean_sentences_per_span": 1.3780068728522337,
+      "mean_pool_per_span": 19.051546391752577,
+      "compression_per_span": 0.1091141123735473,
+      "reduction_in_reading_per_span": 0.8908858876264527,
+      "mean_sentences_per_response": 1.7178217821782178,
+      "mean_pool_per_response": 18.725247524752476,
+      "compression_per_response": 0.13522599080647732,
+      "policy_return_everything_sentences_per_span": 19.051546391752577,
+      "policy_one_guess_sentences_per_span": 1.0,
+      "policy_one_guess_coverage": 0.6649484536082474
+    },
+    {
+      "alpha": 0.4,
+      "empirical_coverage": 0.6305841924398625,
+      "mean_sentences_per_span": 0.8144329896907216,
+      "mean_pool_per_span": 19.051546391752577,
+      "compression_per_span": 0.055958237509864235,
+      "reduction_in_reading_per_span": 0.9440417624901357,
+      "mean_sentences_per_response": 0.9678217821782178,
+      "mean_pool_per_response": 18.725247524752476,
+      "compression_per_response": 0.0653042436843728,
+      "policy_return_everything_sentences_per_span": 19.051546391752577,
+      "policy_one_guess_sentences_per_span": 1.0,
+      "policy_one_guess_coverage": 0.6254295532646048
+    }
+  ],
+  "headline": {
+    "alpha": 0.1,
+    "available": true,
+    "coverage": 0.9003436426116839,
+    "sentences_read": 4.6116838487972505,
+    "sentences_available": 19.051546391752577,
+    "reduction_in_reading": 0.7062691016006041,
+    "sentence": "At 90% target coverage a reviewer reads 4.6 of 19.1 context sentences per flagged span, a 70.6% reduction, at measured coverage 0.9003."
+  }
+}

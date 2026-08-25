@@ -1,0 +1,157 @@
+{
+  "theta": 0.9,
+  "theta_fixed_before_any_model_result": true,
+  "conventions": {
+    "A": "argmax content-token containment, gold when it clears theta",
+    "B": "verbatim inside exactly one sentence, otherwise excluded"
+  },
+  "overall": {
+    "n": 1214,
+    "counts": {
+      "verbatim_unique": 333,
+      "verbatim_multiple": 1,
+      "containment": 115,
+      "spans_multiple_sentences": 1,
+      "unmatched": 202,
+      "no_evidence": 134,
+      "no_evidence_label": 428
+    },
+    "shares": {
+      "verbatim_unique": 0.2742998352553542,
+      "verbatim_multiple": 0.0008237232289950577,
+      "containment": 0.09472817133443164,
+      "spans_multiple_sentences": 0.0008237232289950577,
+      "unmatched": 0.16639209225700163,
+      "no_evidence": 0.11037891268533773,
+      "no_evidence_label": 0.3525535420098847
+    }
+  },
+  "by_task": {
+    "data2text": {
+      "n": 811,
+      "counts": {
+        "verbatim_unique": 294,
+        "verbatim_multiple": 0,
+        "containment": 92,
+        "spans_multiple_sentences": 0,
+        "unmatched": 140,
+        "no_evidence": 47,
+        "no_evidence_label": 238
+      },
+      "shares": {
+        "verbatim_unique": 0.3625154130702836,
+        "verbatim_multiple": 0.0,
+        "containment": 0.11344019728729964,
+        "spans_multiple_sentences": 0.0,
+        "unmatched": 0.17262638717632553,
+        "no_evidence": 0.05795314426633785,
+        "no_evidence_label": 0.2934648581997534
+      }
+    },
+    "qa": {
+      "n": 225,
+      "counts": {
+        "verbatim_unique": 6,
+        "verbatim_multiple": 1,
+        "containment": 7,
+        "spans_multiple_sentences": 0,
+        "unmatched": 29,
+        "no_evidence": 56,
+        "no_evidence_label": 126
+      },
+      "shares": {
+        "verbatim_unique": 0.02666666666666667,
+        "verbatim_multiple": 0.0044444444444444444,
+        "containment": 0.03111111111111111,
+        "spans_multiple_sentences": 0.0,
+        "unmatched": 0.1288888888888889,
+        "no_evidence": 0.24888888888888888,
+        "no_evidence_label": 0.56
+      }
+    },
+    "summarization": {
+      "n": 178,
+      "counts": {
+        "verbatim_unique": 33,
+        "verbatim_multiple": 0,
+        "containment": 16,
+        "spans_multiple_sentences": 1,
+        "unmatched": 33,
+        "no_evidence": 31,
+        "no_evidence_label": 64
+      },
+      "shares": {
+        "verbatim_unique": 0.1853932584269663,
+        "verbatim_multiple": 0.0,
+        "containment": 0.0898876404494382,
+        "spans_multiple_sentences": 0.0056179775280898875,
+        "unmatched": 0.1853932584269663,
+        "no_evidence": 0.17415730337078653,
+        "no_evidence_label": 0.3595505617977528
+      }
+    }
+  },
+  "agreement": {
+    "n_both_defined": 333,
+    "same_sentence": 333,
+    "agreement": 1.0,
+    "n_a_only": 117
+  },
+  "theta_sweep": [
+    {
+      "theta": 0.5,
+      "n": 1214,
+      "convention_a_matched": 540,
+      "convention_a_rate": 0.44481054365733114,
+      "convention_b_matched": 333,
+      "convention_b_rate": 0.2742998352553542,
+      "unmatched": 112
+    },
+    {
+      "theta": 0.6,
+      "n": 1214,
+      "convention_a_matched": 500,
+      "convention_a_rate": 0.41186161449752884,
+      "convention_b_matched": 333,
+      "convention_b_rate": 0.2742998352553542,
+      "unmatched": 152
+    },
+    {
+      "theta": 0.7,
+      "n": 1214,
+      "convention_a_matched": 470,
+      "convention_a_rate": 0.3871499176276771,
+      "convention_b_matched": 333,
+      "convention_b_rate": 0.2742998352553542,
+      "unmatched": 182
+    },
+    {
+      "theta": 0.8,
+      "n": 1214,
+      "convention_a_matched": 457,
+      "convention_a_rate": 0.37644151565074135,
+      "convention_b_matched": 333,
+      "convention_b_rate": 0.2742998352553542,
+      "unmatched": 195
+    },
+    {
+      "theta": 0.9,
+      "n": 1214,
+      "convention_a_matched": 450,
+      "convention_a_rate": 0.37067545304777594,
+      "convention_b_matched": 333,
+      "convention_b_rate": 0.2742998352553542,
+      "unmatched": 202
+    },
+    {
+      "theta": 1.0,
+      "n": 1214,
+      "convention_a_matched": 450,
+      "convention_a_rate": 0.37067545304777594,
+      "convention_b_matched": 333,
+      "convention_b_rate": 0.2742998352553542,
+      "unmatched": 202
+    }
+  ],
+  "note": "Spans in the spans_multiple_sentences bucket have a gold sentence SET, not a gold sentence. They are kept in Convention A through their argmax sentence and are the reason Layer 6 returns a set at all. The rate is reported here so the choice is visible."
+}

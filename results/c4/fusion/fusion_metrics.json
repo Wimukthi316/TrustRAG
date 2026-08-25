@@ -1,0 +1,119 @@
+{
+  "c2_rebuild": {
+    "rebuilt_coverage": 0.8807531380753139,
+    "recorded_coverage": 0.8807531380753139,
+    "matches_recorded": true
+  },
+  "attributor": "lexical",
+  "abstention_threshold": 0.33,
+  "threshold_fitted_on": "calibration split, predicted spans",
+  "gold_span_threshold_for_comparison": 0.33,
+  "rules": {
+    "c1_alone": {
+      "precision": 0.7663451232583065,
+      "recall": 0.7582184517497349,
+      "f1": 0.7622601279317698,
+      "tp": 715,
+      "fp": 218,
+      "fn": 228,
+      "tn": 1539,
+      "accuracy": 0.8348148148148148
+    },
+    "c1_c2_flag_only": {
+      "precision": 0.8747993579454254,
+      "recall": 0.5779427359490986,
+      "f1": 0.6960408684546617,
+      "tp": 545,
+      "fp": 78,
+      "fn": 398,
+      "tn": 1679,
+      "accuracy": 0.8237037037037037
+    },
+    "c1_c2_gated_by_c4": {
+      "precision": 0.8752783964365256,
+      "recall": 0.41675503711558853,
+      "f1": 0.564655172413793,
+      "tp": 393,
+      "fp": 56,
+      "fn": 550,
+      "tn": 1701,
+      "accuracy": 0.7755555555555556
+    },
+    "c4_tie_break": {
+      "precision": 0.8096969696969697,
+      "recall": 0.7083775185577943,
+      "f1": 0.755656108597285,
+      "tp": 668,
+      "fp": 157,
+      "fn": 275,
+      "tn": 1600,
+      "accuracy": 0.84
+    }
+  },
+  "c1_alone": {
+    "precision": 0.7663451232583065,
+    "recall": 0.7582184517497349,
+    "f1": 0.7622601279317698,
+    "tp": 715,
+    "fp": 218,
+    "fn": 228,
+    "tn": 1539,
+    "accuracy": 0.8348148148148148
+  },
+  "fused": {
+    "precision": 0.8096969696969697,
+    "recall": 0.7083775185577943,
+    "f1": 0.755656108597285,
+    "tp": 668,
+    "fp": 157,
+    "fn": 275,
+    "tn": 1600,
+    "accuracy": 0.84
+  },
+  "headline_rule": "c4_tie_break",
+  "c4_contribution": {
+    "against": "c1_c2_flag_only",
+    "delta_f1_points": 5.961524014262332,
+    "note": "This is the isolated contribution: the two rules differ only in whether an ABSTAIN span is promoted when C4 finds no supporting evidence for it. C2 abstains rather than decides on a large share of spans, and an abstention is a span nobody has decided."
+  },
+  "comparison": {
+    "example_f1": 0.755656108597285,
+    "floors": {
+      "trivial_always_positive": 0.5177,
+      "c1_alone": 0.7623,
+      "hhem_adapted": 0.7012,
+      "lettucedetect_large": 0.7918
+    },
+    "gain_over_c1_points": -0.664389140271493,
+    "noise_seed_sd_points": 0.384,
+    "noise_bootstrap_width_points": 4.18,
+    "distinguishable_from_zero": false,
+    "verdict": "-0.66 points against C1 alone. C1's seed sd is 0.384 points and its bootstrap interval is 4.18 points wide, so a change smaller than about 1 point is not distinguishable from zero and is reported as such."
+  },
+  "c1_alone_reproduces_reported": true,
+  "disagreement_cells": {
+    "n": 2390,
+    "cells": {
+      "c1_flag_c4_evidence": 323,
+      "c1_flag_c4_none": 588,
+      "c1_pass_c4_evidence": 484,
+      "c1_pass_c4_none": 995
+    },
+    "shares": {
+      "c1_flag_c4_evidence": 0.13514644351464436,
+      "c1_flag_c4_none": 0.24602510460251045,
+      "c1_pass_c4_evidence": 0.20251046025104602,
+      "c1_pass_c4_none": 0.41631799163179917
+    },
+    "reading": "c1_flag_c4_none is the agreement case that matters: the detector flagged it and there is nothing in the context to support it. c1_flag_c4_evidence is where the two components disagree and is where a precision gain would have to come from."
+  },
+  "gold_vs_predicted_spans": {
+    "n_predicted_spans": 2390,
+    "n_spurious": 1134,
+    "spurious_rate": 0.47447698744769873,
+    "n_predicted_with_evidence_label": 858,
+    "n_predicted_scorable": 514,
+    "top1_on_predicted_spans": 0.9260700389105059,
+    "note": "A spurious predicted span touches no annotation, so it has no gold type and no gold evidence. It is excluded from attribution scoring and counted here rather than in a footnote. The top-1 row is the gold-spans-versus-predicted-spans ablation: what attribution is worth in the system that actually ships, rather than when the localisation is already right."
+  }
+}

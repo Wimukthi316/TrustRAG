@@ -69,12 +69,14 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from backend.app.services.c3_typer import C3Typer
 from backend.app.services.detector import split_sentences
 from src.c2_calibration.exchangeability import (
-    FEATURE_LABELS,
     ExchangeabilityReference,
+    distribution_message,
     response_features,
 )
+from src.c4_attribution.serving import ARTIFACT as C4_ARTIFACT, C4Attributor
 from src.common.schema import (
     AnalysisResult,
     AnalyzeRequest,
@@ -201,6 +203,9 @@ class LettuceDetectDetector:
         label: Optional[str] = None,
         decode: str = "threshold",
         reference_path: Optional[Path | str] = None,
+        c3_model_path: Optional[Path | str] = None,
+        c3_conformal_path: Optional[Path | str] = None,
+        c4_artifact_path: Optional[Path | str] = None,
     ) -> None:
         if decode not in ("threshold", "bio_argmax"):
             raise ValueError(f"unknown decode {decode!r}")
@@ -219,6 +224,29 @@ class LettuceDetectDetector:
         self.reference = (
             ExchangeabilityReference.load(reference_path) if reference_path else None
         )
+        # C3 is optional in exactly the way C2 is. With no type model on disk the
+        # layer is None, the three C3 fields stay None, and the interface renders
+        # what it rendered before C3 existed.
+        #
+        # model_version deliberately does NOT gain a "+c3" suffix. That string
+        # names what produced the span scores, and C3 produces none of them -- it
+        # labels and explains spans C1 found and C2 judged. Appending to it would
+        # also have quietly broken four assertions in tests/test_serving.py that
+        # pin the badge exactly.
+        self.c3 = (
+            C3Typer.load(c3_model_path, c3_conformal_path)
+            if c3_model_path
+            else C3Typer.load()
+        )
+        # C4 is optional in exactly the way C2 and C3 are. With no artefact on
+        # disk the layer is unavailable, the three C4 fields stay None, and the
+        # interface renders what it rendered before C4 existed.
+        #
+        # model_version does NOT gain a "+c4" suffix either, for the same reason
+        # it does not gain "+c3": it names what produced the span scores, and C4
+        # produces none of them. It points at the evidence for spans C1 found,
+        # C2 judged and C3 typed.
+        self.c4 = C4Attributor.load(c4_artifact_path or C4_ARTIFACT)
         self._device_preference = device
         self._model = None
         self._tokenizer = None
@@ -425,6 +453,8 @@ class LettuceDetectDetector:
 
         calibrated = self.c2.calibrate(raw_scores) if self.c2 else list(raw_scores)
 
+        context_sentences = split_sentences(req.context)
+
         spans: List[Span] = []
         for (start, end), raw, cal, covered in zip(
             candidates, raw_scores, calibrated, covered_probs
@@ -436,6 +466,15 @@ class LettuceDetectDetector:
             # A PASS span is the rest of the answer and is not worth drawing.
             if decision is ConformalDecision.PASS:
                 continue
+
+            # C3 runs only on the spans that survive, so the type model is never
+            # asked about the parts of the answer the system is not showing.
+            c3 = self._type_span(
+                req, start, end, context_sentences, decision
+            )
+            # C4 last, and on the same surviving spans: the evidence points at
+            # something the interface is already showing.
+            c4 = self._attribute_span(req, start, end, context_sentences)
             spans.append(
                 Span(
                     start=start,
@@ -449,6 +488,12 @@ class LettuceDetectDetector:
                     else None,
                     conformal_decision=decision,
                     alpha=req.alpha if self.c2 else None,
+                    error_type=c3.get("error_type"),
+                    explanation=c3.get("explanation"),
+                    escalated=bool(c3.get("escalated", False)),
+                    evidence_sentence=c4.get("evidence_sentence"),
+                    evidence_index=c4.get("evidence_index"),
+                    entailment_score=c4.get("entailment_score"),
                 )
             )
 
@@ -456,7 +501,7 @@ class LettuceDetectDetector:
             question=req.question,
             context=req.context,
             answer=req.answer,
-            context_sentences=split_sentences(req.context),
+            context_sentences=context_sentences,
             spans=spans,
             task_type=req.task_type,
             model_version=self.model_version,
@@ -465,6 +510,71 @@ class LettuceDetectDetector:
             guarantee_applies=guarantee_applies,
             latency_ms=round((time.perf_counter() - started) * 1000, 2),
         )
+
+    def _type_span(
+        self,
+        req: AnalyzeRequest,
+        start: int,
+        end: int,
+        context_sentences: Sequence[str],
+        decision: Optional[ConformalDecision],
+    ) -> Dict[str, Any]:
+        """C3's three fields for one span, or an empty dict when C3 is not loaded.
+
+        A failure here must never take the detection down with it: the span, its
+        calibrated score and its conformal decision are the product, and the type
+        and the explanation are additions to it.
+        """
+        if self.c3 is None or not self.c3.available:
+            return {}
+        try:
+            from src.c3_explanation.grounding import span_features
+
+            features = span_features(
+                req.answer[start:end],
+                req.answer,
+                start,
+                context_sentences,
+                req.task_type.value,
+            )
+            return self.c3.annotate(
+                features,
+                req.answer[start:end],
+                context_sentences,
+                req.alpha,
+                decision,
+            )
+        except Exception as error:  # pragma: no cover - defensive
+            print(f"C3 typing failed for span [{start}:{end}]: {error}")
+            return {}
+
+    def _attribute_span(
+        self,
+        req: AnalyzeRequest,
+        start: int,
+        end: int,
+        context_sentences: Sequence[str],
+    ) -> Dict[str, Any]:
+        """C4's three fields for one span, or an empty dict when C4 is not loaded.
+
+        Wrapped, like C3's, so a failure here can never take the detection down
+        with it. The span, its calibrated score and its conformal decision are
+        the product; the evidence is an addition to it.
+
+        Abstaining returns all three fields as None rather than a low-confidence
+        guess. `HighlightedAnswer.tsx` guards on truthiness, so nothing renders,
+        which is the correct behaviour: "there is no supporting sentence in this
+        context" is a real answer and inventing a citation is not.
+        """
+        if self.c4 is None or not self.c4.available:
+            return {}
+        try:
+            return self.c4.annotate(
+                req.answer[start:end], list(context_sentences), req.alpha
+            )
+        except Exception as error:  # pragma: no cover - defensive
+            print(f"C4 attribution failed for span [{start}:{end}]: {error}")
+            return {}
 
     def _distribution_check(
         self,
@@ -525,22 +635,7 @@ class LettuceDetectDetector:
         )
         raw = self.reference.check(features)
         in_distribution = bool(raw["in_distribution"])
-        odd = FEATURE_LABELS.get(raw["most_unusual"], raw["most_unusual"])
-
-        if in_distribution:
-            message = (
-                "Nothing about this input looks unlike the data the guarantee "
-                "was calibrated on. That is not proof it is in distribution -- "
-                "the check sees a handful of features, and a shift can be real "
-                "and invisible to all of them."
-            )
-        else:
-            message = (
-                f"This input is unlike the data the guarantee was calibrated "
-                f"on -- most obviously its {odd}. The highlighting below is "
-                "still the detector's, but the coverage promise does not apply "
-                "to it. Recalibrate on your own data before trusting the dial."
-            )
+        message = distribution_message(in_distribution, raw["most_unusual"])
 
         check = DistributionCheck(
             checked=True,

@@ -1,0 +1,283 @@
+{
+  "backend": "lexical",
+  "threshold_fitted_on": "calib",
+  "threshold": 0.33,
+  "threshold_selection": {
+    "n": 786,
+    "tp": 112,
+    "fp": 284,
+    "fn": 22,
+    "tn": 368,
+    "precision": 0.2828282828282828,
+    "recall": 0.835820895522388,
+    "f1": 0.4226415094339622,
+    "accuracy": 0.6106870229007634,
+    "abstention_rate": 0.5038167938931297,
+    "base_rate": 0.17048346055979643,
+    "threshold": 0.33,
+    "grid_index": 33,
+    "on_grid_edge": false,
+    "grid_size": 101
+  },
+  "test": {
+    "n": 1048,
+    "tp": 181,
+    "fp": 347,
+    "fn": 43,
+    "tn": 477,
+    "precision": 0.3428030303030303,
+    "recall": 0.8080357142857143,
+    "f1": 0.4813829787234042,
+    "accuracy": 0.6278625954198473,
+    "abstention_rate": 0.5038167938931297,
+    "base_rate": 0.21374045801526717,
+    "threshold": 0.33,
+    "f1_ci": {
+      "ci_low": 0.42856664754255114,
+      "ci_high": 0.5294960015360745,
+      "sd": 0.02547786704646229,
+      "n_finite": 2000,
+      "n_infinite": 0
+    },
+    "recall_ci": {
+      "ci_low": 0.7511088435374149,
+      "ci_high": 0.8609896611858495,
+      "sd": 0.028052685031424714,
+      "n_finite": 2000,
+      "n_infinite": 0
+    },
+    "by_task": {
+      "data2text": {
+        "n": 755,
+        "tp": 77,
+        "fp": 292,
+        "fn": 7,
+        "tn": 379,
+        "precision": 0.2086720867208672,
+        "recall": 0.9166666666666666,
+        "f1": 0.33995584988962474,
+        "accuracy": 0.6039735099337749,
+        "abstention_rate": 0.48874172185430464,
+        "base_rate": 0.11125827814569536
+      },
+      "qa": {
+        "n": 132,
+        "tp": 77,
+        "fp": 15,
+        "fn": 19,
+        "tn": 21,
+        "precision": 0.8369565217391305,
+        "recall": 0.8020833333333334,
+        "f1": 0.8191489361702128,
+        "accuracy": 0.7424242424242424,
+        "abstention_rate": 0.696969696969697,
+        "base_rate": 0.7272727272727273
+      },
+      "summarization": {
+        "n": 161,
+        "tp": 27,
+        "fp": 40,
+        "fn": 17,
+        "tn": 77,
+        "precision": 0.40298507462686567,
+        "recall": 0.6136363636363636,
+        "f1": 0.4864864864864865,
+        "accuracy": 0.6459627329192547,
+        "abstention_rate": 0.4161490683229814,
+        "base_rate": 0.2732919254658385
+      }
+    },
+    "by_error_type": {
+      "Evident Baseless Info": {
+        "n": 418,
+        "tp": 160,
+        "fp": 129,
+        "fn": 38,
+        "tn": 91,
+        "precision": 0.5536332179930796,
+        "recall": 0.8080808080808081,
+        "f1": 0.6570841889117044,
+        "accuracy": 0.6004784688995215,
+        "abstention_rate": 0.6913875598086124,
+        "base_rate": 0.47368421052631576
+      },
+      "Evident Conflict": {
+        "n": 585,
+        "tp": 4,
+        "fp": 206,
+        "fn": 1,
+        "tn": 374,
+        "precision": 0.01904761904761905,
+        "recall": 0.8,
+        "f1": 0.037209302325581395,
+        "accuracy": 0.6461538461538462,
+        "abstention_rate": 0.358974358974359,
+        "base_rate": 0.008547008547008548
+      },
+      "Subtle Baseless Info": {
+        "n": 31,
+        "tp": 16,
+        "fp": 9,
+        "fn": 2,
+        "tn": 4,
+        "precision": 0.64,
+        "recall": 0.8888888888888888,
+        "f1": 0.7441860465116279,
+        "accuracy": 0.6451612903225806,
+        "abstention_rate": 0.8064516129032258,
+        "base_rate": 0.5806451612903226
+      },
+      "Subtle Conflict": {
+        "n": 14,
+        "tp": 1,
+        "fp": 3,
+        "fn": 2,
+        "tn": 8,
+        "precision": 0.25,
+        "recall": 0.3333333333333333,
+        "f1": 0.28571428571428575,
+        "accuracy": 0.6428571428571429,
+        "abstention_rate": 0.2857142857142857,
+        "base_rate": 0.21428571428571427
+      }
+    },
+    "implicit_true": {
+      "n": 27,
+      "recall_on_implicit_true": 0.8571428571428571,
+      "recall_on_rest": 0.8047619047619048,
+      "note": "implicit_true marks a span that is factually correct but absent from the context. There is genuinely no sentence to point at, so abstention recall should be highest exactly here. That is the mechanism, not a coincidence, and it is checked rather than asserted."
+    }
+  },
+  "floors": {
+    "always_abstain": {
+      "n": 1048,
+      "tp": 224,
+      "fp": 824,
+      "fn": 0,
+      "tn": 0,
+      "precision": 0.21374045801526717,
+      "recall": 1.0,
+      "f1": 0.35220125786163525,
+      "accuracy": 0.21374045801526717,
+      "abstention_rate": 1.0,
+      "base_rate": 0.21374045801526717
+    },
+    "never_abstain": {
+      "n": 1048,
+      "tp": 0,
+      "fp": 0,
+      "fn": 224,
+      "tn": 824,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "accuracy": 0.7862595419847328,
+      "abstention_rate": 0.0,
+      "base_rate": 0.21374045801526717
+    },
+    "base_rate": 0.21374045801526717,
+    "base_rate_by_task": {
+      "data2text": 0.11125827814569536,
+      "qa": 0.7272727272727273,
+      "summarization": 0.2732919254658385
+    },
+    "by_task": {
+      "data2text": {
+        "n": 755,
+        "base_rate": 0.11125827814569536,
+        "always_abstain": {
+          "n": 755,
+          "tp": 84,
+          "fp": 671,
+          "fn": 0,
+          "tn": 0,
+          "precision": 0.11125827814569536,
+          "recall": 1.0,
+          "f1": 0.200238379022646,
+          "accuracy": 0.11125827814569536,
+          "abstention_rate": 1.0,
+          "base_rate": 0.11125827814569536
+        },
+        "never_abstain": {
+          "n": 755,
+          "tp": 0,
+          "fp": 0,
+          "fn": 84,
+          "tn": 671,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "accuracy": 0.8887417218543047,
+          "abstention_rate": 0.0,
+          "base_rate": 0.11125827814569536
+        }
+      },
+      "qa": {
+        "n": 132,
+        "base_rate": 0.7272727272727273,
+        "always_abstain": {
+          "n": 132,
+          "tp": 96,
+          "fp": 36,
+          "fn": 0,
+          "tn": 0,
+          "precision": 0.7272727272727273,
+          "recall": 1.0,
+          "f1": 0.8421052631578948,
+          "accuracy": 0.7272727272727273,
+          "abstention_rate": 1.0,
+          "base_rate": 0.7272727272727273
+        },
+        "never_abstain": {
+          "n": 132,
+          "tp": 0,
+          "fp": 0,
+          "fn": 96,
+          "tn": 36,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "accuracy": 0.2727272727272727,
+          "abstention_rate": 0.0,
+          "base_rate": 0.7272727272727273
+        }
+      },
+      "summarization": {
+        "n": 161,
+        "base_rate": 0.2732919254658385,
+        "always_abstain": {
+          "n": 161,
+          "tp": 44,
+          "fp": 117,
+          "fn": 0,
+          "tn": 0,
+          "precision": 0.2732919254658385,
+          "recall": 1.0,
+          "f1": 0.4292682926829268,
+          "accuracy": 0.2732919254658385,
+          "abstention_rate": 1.0,
+          "base_rate": 0.2732919254658385
+        },
+        "never_abstain": {
+          "n": 161,
+          "tp": 0,
+          "fp": 0,
+          "fn": 44,
+          "tn": 117,
+          "precision": 0.0,
+          "recall": 0.0,
+          "f1": 0.0,
+          "accuracy": 0.7267080745341615,
+          "abstention_rate": 0.0,
+          "base_rate": 0.2732919254658385
+        }
+      }
+    },
+    "lexical_without_a_threshold": {
+      "recall": 0.0,
+      "note": "grounding.best_matching_sentence always returns a sentence, so a pure nearest-neighbour attributor has zero recall on this class by construction. It is not a weak result; it is a capability the baseline does not have."
+    }
+  },
+  "empty_conformal_set_rate": 0.04982817869415808,
+  "note": "A thresholded abstention and an empty conformal set are two different routes to the same answer and they are different objects. Both rates are printed so a reader can see whether they agree."
+}

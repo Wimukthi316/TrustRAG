@@ -1,0 +1,336 @@
+{
+  "backend": "lexical",
+  "hypothesis": "sentence",
+  "coverage_table": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "empirical_coverage": 1.0,
+      "threshold": 1.0,
+      "n_calibration": 450,
+      "n_test": 582,
+      "band": 0.041043100302903854,
+      "inside_band": true,
+      "mean_set_size": 19.051546391752577,
+      "median_set_size": 17.0,
+      "singleton_rate": 0.0,
+      "empty_set_rate": 0.0,
+      "full_set_rate": 1.0,
+      "mean_pool_size": 19.051546391752577,
+      "compression": 1.0,
+      "coverage_ci": {
+        "ci_low": 1.0,
+        "ci_high": 1.0,
+        "sd": 0.0,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_ci": {
+        "ci_low": 17.944634035609063,
+        "ci_high": 20.23069685471174,
+        "sd": 0.5865186614221493,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "empirical_coverage": 0.9003436426116839,
+      "threshold": 0.96,
+      "n_calibration": 450,
+      "n_test": 582,
+      "band": 0.056495597857882586,
+      "inside_band": true,
+      "mean_set_size": 4.6116838487972505,
+      "median_set_size": 1.0,
+      "singleton_rate": 0.5034364261168385,
+      "empty_set_rate": 0.04982817869415808,
+      "full_set_rate": 0.20790378006872853,
+      "mean_pool_size": 19.051546391752577,
+      "compression": 0.2937308983993959,
+      "coverage_ci": {
+        "ci_low": 0.8640115747791653,
+        "ci_high": 0.9337979094076655,
+        "sd": 0.017967363326805375,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_ci": {
+        "ci_low": 4.042578186476853,
+        "ci_high": 5.214557244802979,
+        "sd": 0.2926010091280386,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "empirical_coverage": 0.8642611683848798,
+      "threshold": 0.95,
+      "n_calibration": 450,
+      "n_test": 582,
+      "band": 0.0672432114383012,
+      "inside_band": true,
+      "mean_set_size": 3.709621993127148,
+      "median_set_size": 1.0,
+      "singleton_rate": 0.5034364261168385,
+      "empty_set_rate": 0.0859106529209622,
+      "full_set_rate": 0.17010309278350516,
+      "mean_pool_size": 19.051546391752577,
+      "compression": 0.2552101552123478,
+      "coverage_ci": {
+        "ci_low": 0.8257863469891832,
+        "ci_high": 0.8993096891534391,
+        "sd": 0.019023256180335582,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_ci": {
+        "ci_low": 3.3072112859325755,
+        "ci_high": 4.14264440433213,
+        "sd": 0.21699210032458846,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "empirical_coverage": 0.8195876288659794,
+      "threshold": 0.9375,
+      "n_calibration": 450,
+      "n_test": 582,
+      "band": 0.07532746381051011,
+      "inside_band": true,
+      "mean_set_size": 2.8075601374570445,
+      "median_set_size": 1.0,
+      "singleton_rate": 0.5051546391752577,
+      "empty_set_rate": 0.12886597938144329,
+      "full_set_rate": 0.12714776632302405,
+      "mean_pool_size": 19.051546391752577,
+      "compression": 0.20865918790777388,
+      "coverage_ci": {
+        "ci_low": 0.7783323305339694,
+        "ci_high": 0.8571489936180657,
+        "sd": 0.019902717319749734,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_ci": {
+        "ci_low": 2.503348045674133,
+        "ci_high": 3.126728685780303,
+        "sd": 0.16251351908327355,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "empirical_coverage": 0.7164948453608248,
+      "threshold": 0.8888888888888888,
+      "n_calibration": 450,
+      "n_test": 582,
+      "band": 0.08629845120517732,
+      "inside_band": true,
+      "mean_set_size": 1.3780068728522337,
+      "median_set_size": 1.0,
+      "singleton_rate": 0.5189003436426117,
+      "empty_set_rate": 0.22508591065292097,
+      "full_set_rate": 0.03608247422680412,
+      "mean_pool_size": 19.051546391752577,
+      "compression": 0.1091141123735473,
+      "coverage_ci": {
+        "ci_low": 0.6738038544334585,
+        "ci_high": 0.7562647293802993,
+        "sd": 0.021090317185433447,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_ci": {
+        "ci_low": 1.240499345314437,
+        "ci_high": 1.5179082892255553,
+        "sd": 0.0691014308137522,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "empirical_coverage": 0.6305841924398625,
+      "threshold": 0.7000780279501062,
+      "n_calibration": 450,
+      "n_test": 582,
+      "band": 0.0922569249768578,
+      "inside_band": true,
+      "mean_set_size": 0.8144329896907216,
+      "median_set_size": 1.0,
+      "singleton_rate": 0.5876288659793815,
+      "empty_set_rate": 0.31099656357388317,
+      "full_set_rate": 0.0,
+      "mean_pool_size": 19.051546391752577,
+      "compression": 0.055958237509864235,
+      "coverage_ci": {
+        "ci_low": 0.5879337919252683,
+        "ci_high": 0.6724451917794498,
+        "sd": 0.021706738288322598,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_ci": {
+        "ci_low": 0.7556984928307341,
+        "ci_high": 0.8707565953210552,
+        "sd": 0.02974771539473663,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    }
+  ],
+  "per_task": {
+    "alpha": 0.1,
+    "global_threshold": 0.96,
+    "tasks": {
+      "data2text": {
+        "n_calibration": 386,
+        "n_test": 496,
+        "marginal_threshold_coverage": 0.8991935483870968,
+        "marginal_threshold_mean_set_size": 4.5,
+        "marginal_inside_band": true,
+        "band": 0.06108608771221116,
+        "band_is_uninformative": false,
+        "min_calibration_size_for_alpha": 9,
+        "group_conditional": {
+          "threshold": 0.96,
+          "empirical_coverage": 0.8991935483870968,
+          "mean_set_size": 4.5,
+          "singleton_rate": 0.5625,
+          "inside_band": true
+        }
+      },
+      "qa": {
+        "n_calibration": 14,
+        "n_test": 18,
+        "marginal_threshold_coverage": 1.0,
+        "marginal_threshold_mean_set_size": 4.277777777777778,
+        "marginal_inside_band": true,
+        "band": 0.32071349029490925,
+        "band_is_uninformative": true,
+        "min_calibration_size_for_alpha": 9,
+        "group_conditional": {
+          "threshold": 1.0,
+          "empirical_coverage": 1.0,
+          "mean_set_size": 13.222222222222221,
+          "singleton_rate": 0.0,
+          "inside_band": true
+        }
+      },
+      "summarization": {
+        "n_calibration": 50,
+        "n_test": 68,
+        "marginal_threshold_coverage": 0.8823529411764706,
+        "marginal_threshold_mean_set_size": 5.514705882352941,
+        "marginal_inside_band": true,
+        "band": 0.1676656336459036,
+        "band_is_uninformative": true,
+        "min_calibration_size_for_alpha": 9,
+        "group_conditional": {
+          "threshold": 0.9852941176470589,
+          "empirical_coverage": 0.9117647058823529,
+          "mean_set_size": 8.588235294117647,
+          "singleton_rate": 0.14705882352941177,
+          "inside_band": true
+        }
+      }
+    },
+    "prediction": "Written before running: summarization contexts hold a median of 23 sentences against QA's 14 on these splits, so one global threshold should not cover both tasks equally. Expect marginal coverage to hold and at least one task to fall below it.",
+    "tasks_under_covered_by_marginal": [],
+    "tasks_whose_band_is_uninformative": [
+      "qa",
+      "summarization"
+    ],
+    "verdict": "No task fell below its band under the single global threshold. The prediction written down before the run said at least one would, and the measurement did not support it. Reported as measured. Read ['qa', 'summarization'] with care: their calibration slices are small enough that the 3-sigma band is as wide as alpha itself, so 'inside the band' there is not evidence of coverage holding, only of there being too little data to say."
+  },
+  "risk_control": {
+    "alpha": 0.1,
+    "calibration": {
+      "alpha": 0.1,
+      "n_calibration_responses": 288,
+      "threshold": 0.04,
+      "feasible": true,
+      "calibration_risk": 0.09658564814814813,
+      "calibration_risk_corrected": 0.0997116493656286,
+      "correction_floor": 0.0034602076124567475,
+      "grid_index": 8,
+      "grid_size": 201,
+      "on_grid_edge": false,
+      "grid_edge_warning": ""
+    },
+    "test": {
+      "n_test": 582,
+      "empirical_coverage": 0.9003436426116839,
+      "mean_set_size": 4.6116838487972505,
+      "singleton_rate": 0.5034364261168385,
+      "empty_set_rate": 0.04982817869415808
+    }
+  },
+  "formalism_comparison": {
+    "lac_inclusion_cut": 0.040000000000000036,
+    "crc_inclusion_cut": 0.04,
+    "cuts_coincide": true,
+    "lac_coverage": 0.9003436426116839,
+    "crc_coverage": 0.9003436426116839,
+    "delta_coverage": 0.0,
+    "lac_mean_set_size": 4.6116838487972505,
+    "crc_mean_set_size": 4.6116838487972505,
+    "delta_mean_set_size": 0.0,
+    "agree": true,
+    "note": "Both formalisms return the same FAMILY of rule -- include every sentence whose normalised score clears a cut -- and differ only in how the cut is chosen: LAC takes the ceil((n+1)(1-alpha)) quantile of the gold sentence's non-conformity, conformal risk control takes the largest cut whose finite-sample risk bound still clears alpha. So this is a cross-check on the CALIBRATION step, not on the prediction rule, and it is worth stating that way rather than claiming more. What it establishes is that the coverage statement does not depend on which of the two the examiner prefers -- which matters here because no named theorem covers LAC over instance-dependent label spaces, while conformal risk control never assumes a shared label space at all. `cuts_coincide` says whether the two landed on the same cut to the grid resolution."
+  },
+  "set_shape": {
+    "alpha": 0.1,
+    "n_test": 582,
+    "n_size_two": 48,
+    "share_size_two": 0.08247422680412371,
+    "adjacent": 6,
+    "share_adjacent_of_pairs": 0.125,
+    "mean_index_distance": 8.3125,
+    "size_histogram": {
+      "0": 29,
+      "1": 293,
+      "2": 48,
+      "3": 35,
+      "4": 18,
+      "5": 10,
+      "6": 10,
+      "7": 7,
+      "8": 16,
+      "9": 7,
+      "10": 11,
+      "11": 10,
+      "12": 5,
+      "13": 11,
+      "14": 8,
+      "15": 8,
+      "16": 10,
+      "17": 13,
+      "18": 4,
+      "19": 4,
+      "20": 4,
+      "21": 1,
+      "22": 1,
+      "23": 2,
+      "24": 10,
+      "25": 7
+    }
+  },
+  "c3_comparison": {
+    "c3_mean_set_size": 1.9538,
+    "c3_singleton_rate": 0.2643,
+    "c3_n_classes": 4,
+    "c4_mean_pool_size": 19.051546391752577,
+    "note": "C3 hedged over four error types. C4 hedges over the sentences of one context, a median of sixteen on these splits. The comparison is the point: the same machinery, a much larger label space."
+  }
+}

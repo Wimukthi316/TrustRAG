@@ -1,0 +1,178 @@
+{
+  "lexical": {
+    "n_calibration": 450,
+    "n_test": 582,
+    "positive_rate_calibration": 0.8822222222222222,
+    "positive_rate_test": 0.8951890034364262,
+    "rows": [
+      {
+        "n": 582,
+        "positive_rate": 0.8951890034364262,
+        "mean_score": 0.4141955738831615,
+        "ece": 0.48918604467353943,
+        "ece_equal_count": 0.4809934295532645,
+        "mce": 0.9463077248322147,
+        "brier": 0.42288463326940545,
+        "nll": 3.872215827365071,
+        "method": "uncalibrated",
+        "auroc": 0.5644095528775054,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.8951890034364262,
+        "mean_score": 0.4811910810872018,
+        "ece": 0.41399792234922445,
+        "ece_equal_count": 0.41399792234922433,
+        "mce": 0.6124490950443361,
+        "brier": 0.27554148367971815,
+        "nll": 0.7466412502822559,
+        "method": "temperature",
+        "auroc": 0.5644095528775054,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.8951890034364262,
+        "mean_score": 0.8821572315694645,
+        "ece": 0.023110896686798263,
+        "ece_equal_count": 0.07657526605401263,
+        "mce": 0.1168612949904908,
+        "brier": 0.09426771834101223,
+        "nll": 0.3373083420397083,
+        "method": "platt",
+        "auroc": 0.43559044712249456,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.8951890034364262,
+        "mean_score": 0.8823614315573739,
+        "ece": 0.019397109275379795,
+        "ece_equal_count": 0.022408811484252427,
+        "mce": 0.03422402268591129,
+        "brier": 0.09243999334679202,
+        "nll": 0.3279405853097202,
+        "method": "isotonic",
+        "auroc": 0.6244296906956986,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.8951890034364262,
+        "mean_score": 0.8822222222222222,
+        "ece": 0.012966781214203915,
+        "ece_equal_count": 0.0,
+        "mce": 0.012966781214203915,
+        "brier": 0.0939937889779814,
+        "nll": 0.3363633749212286,
+        "method": "constant_base_rate",
+        "auroc": 0.5,
+        "is_floor": true,
+        "ignores_input": true,
+        "fitted_on": "calib"
+      }
+    ],
+    "best_ece_method": "constant_base_rate",
+    "best_auroc_method": "isotonic",
+    "floor_has_best_ece": true,
+    "unit_map_bounds_fitted_on_calibration": [
+      0.0,
+      1.0
+    ],
+    "prediction": "Written before running: the constant-base-rate floor will have the best ECE and an AUROC of 0.5. C2 and C3 both showed it. If it holds a third time on a third problem, ECE alone is not evidence of a useful model.",
+    "verdict": "The floor won on ECE, as predicted. ECE alone is not evidence of a useful model; AUROC is what separates them."
+  },
+  "embed": {
+    "n_calibration": 450,
+    "n_test": 582,
+    "positive_rate_calibration": 0.33555555555555555,
+    "positive_rate_test": 0.3006872852233677,
+    "rows": [
+      {
+        "n": 582,
+        "positive_rate": 0.3006872852233677,
+        "mean_score": 0.34920581945426105,
+        "ece": 0.27698089746559673,
+        "ece_equal_count": 0.29480523758693555,
+        "mce": 0.5404347146716332,
+        "brier": 0.2809885482363792,
+        "nll": 0.7901809286539461,
+        "method": "uncalibrated",
+        "auroc": 0.343966303966304,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.3006872852233677,
+        "mean_score": 0.4908386512295874,
+        "ece": 0.19129864992454593,
+        "ece_equal_count": 0.22007331201315833,
+        "mce": 0.5394860784975767,
+        "brier": 0.24781021216626356,
+        "nll": 0.6887289494299657,
+        "method": "temperature",
+        "auroc": 0.343966303966304,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.3006872852233677,
+        "mean_score": 0.32897028944513024,
+        "ece": 0.1429307290619259,
+        "ece_equal_count": 0.14293541359053552,
+        "mce": 0.9978247041375137,
+        "brier": 0.20829600078197294,
+        "nll": 0.6189144884592594,
+        "method": "platt",
+        "auroc": 0.6560336960336961,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.3006872852233677,
+        "mean_score": 0.3351172882393678,
+        "ece": 0.03849025791332041,
+        "ece_equal_count": 0.03443000301600012,
+        "mce": 0.5843607471514441,
+        "brier": 0.20790079801904157,
+        "nll": 0.6059245093268728,
+        "method": "isotonic",
+        "auroc": 0.5266549666549667,
+        "is_floor": false,
+        "fitted_on": "calib"
+      },
+      {
+        "n": 582,
+        "positive_rate": 0.3006872852233677,
+        "mean_score": 0.3355555555555556,
+        "ece": 0.03486827033218792,
+        "ece_equal_count": 0.0,
+        "mce": 0.03486827033218792,
+        "brier": 0.21149023800432734,
+        "nll": 0.6142226586876969,
+        "method": "constant_base_rate",
+        "auroc": 0.5,
+        "is_floor": true,
+        "ignores_input": true,
+        "fitted_on": "calib"
+      }
+    ],
+    "best_ece_method": "constant_base_rate",
+    "best_auroc_method": "platt",
+    "floor_has_best_ece": true,
+    "unit_map_bounds_fitted_on_calibration": [
+      0.120246,
+      0.967862
+    ],
+    "prediction": "Written before running: the constant-base-rate floor will have the best ECE and an AUROC of 0.5. C2 and C3 both showed it. If it holds a third time on a third problem, ECE alone is not evidence of a useful model.",
+    "verdict": "The floor won on ECE, as predicted. ECE alone is not evidence of a useful model; AUROC is what separates them."
+  }
+}
