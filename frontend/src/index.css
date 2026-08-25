@@ -96,6 +96,15 @@ body {
   font-weight: 600;
 }
 
+/* A page title. Smaller than the hero's display type, because a page that
+   opens on a heading has no art beside it to balance against. */
+.t-title {
+  font-size: clamp(1.625rem, 2.6vw, 2.25rem);
+  line-height: 1.14;
+  letter-spacing: -0.026em;
+  font-weight: 600;
+}
+
 .t-h2 {
   font-size: clamp(1.5rem, 2.4vw, 2rem);
   line-height: 1.18;
@@ -153,22 +162,62 @@ body {
   }
 }
 
-/* The hero's field of light. A single large radial wash rather than a gradient
-   stack: it stays clean when the window is wide and does not band on a laptop
-   panel. */
+/* ---------------------------------------------------------------------------
+   The hero.
+
+   Four layers, because one gradient reads as a coloured rectangle and four read
+   as depth: a deep base, two offset colour glows, a ruled grid masked to fade
+   out before it reaches an edge, and a fine grain so the large flat areas do not
+   band on an 8-bit panel. The nav sits on top of all of it with no seam, which
+   is the point -- a bar with its own background cuts the page in two.
+--------------------------------------------------------------------------- */
+
 .hero-wash {
+  position: relative;
+  isolation: isolate;
   background:
     radial-gradient(
-      ellipse 78% 62% at 50% -12%,
-      color-mix(in oklch, var(--color-brand-500) 46%, transparent),
-      transparent 70%
+      55rem 38rem at 74% 6%,
+      oklch(0.56 0.19 305 / 0.55),
+      transparent 62%
     ),
     radial-gradient(
-      ellipse 58% 48% at 88% 18%,
-      color-mix(in oklch, var(--color-brand-400) 24%, transparent),
-      transparent 65%
+      40rem 26rem at 4% 74%,
+      oklch(0.52 0.17 265 / 0.34),
+      transparent 66%
     ),
-    var(--color-brand-950);
+    radial-gradient(
+      75rem 46rem at 48% -14%,
+      oklch(0.47 0.17 288 / 0.85),
+      transparent 66%
+    ),
+    linear-gradient(180deg, oklch(0.17 0.06 288) 0%, oklch(0.125 0.045 288) 100%);
+}
+
+/* The ruled grid. Masked so it never meets an edge -- a grid that runs off the
+   side reads as a screenshot of a design tool. */
+.hero-wash::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right, rgb(255 255 255 / 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+  background-size: 68px 68px;
+  -webkit-mask-image: radial-gradient(72% 62% at 50% 34%, #000 30%, transparent 78%);
+  mask-image: radial-gradient(72% 62% at 50% 34%, #000 30%, transparent 78%);
+}
+
+/* Grain. Two per cent of an SVG turbulence, which is enough to stop the wide
+   gradients banding and not enough to read as texture. */
+.hero-wash::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.28;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.35'/%3E%3C/svg%3E");
 }
 
 /* A hairline that fades out at both ends, for section rules that should not
@@ -181,6 +230,75 @@ body {
     color-mix(in oklch, currentColor 18%, transparent),
     transparent
   );
+}
+
+/* ---------------------------------------------------------------------------
+   Glass and gloss.
+
+   Both are one rule each and both are used everywhere, so a surface cannot
+   drift out of the system by being restyled locally.
+--------------------------------------------------------------------------- */
+
+/* The floating nav, over the dark hero. */
+.glass-dark {
+  background: rgb(255 255 255 / 0.07);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  border: 1px solid rgb(255 255 255 / 0.12);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.14),
+    0 18px 40px -24px rgb(0 0 0 / 0.7);
+}
+
+/* The floating nav, over anything light. */
+.glass-light {
+  background: rgb(255 255 255 / 0.78);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid oklch(0.91 0.005 265);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 14px 34px -22px rgb(15 23 42 / 0.35);
+}
+
+/* Every card. A near-invisible vertical wash plus a one-pixel top highlight --
+   the two things that separate a surface that looks lit from a white rectangle
+   with a border. */
+.card-gloss {
+  background: linear-gradient(180deg, #fff 0%, oklch(0.988 0.003 265) 100%);
+  border: 1px solid oklch(0.925 0.006 265);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.9),
+    0 1px 2px rgb(15 23 42 / 0.04),
+    0 16px 38px -26px rgb(15 23 42 / 0.34);
+}
+
+.btn-gloss {
+  background: linear-gradient(180deg, oklch(0.585 0.2 288) 0%, oklch(0.475 0.2 288) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 1px 2px rgb(15 23 42 / 0.18),
+    0 12px 26px -14px oklch(0.52 0.2 288 / 0.8);
+}
+
+.btn-gloss:hover {
+  background: linear-gradient(180deg, oklch(0.62 0.2 288) 0%, oklch(0.5 0.2 288) 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.32),
+    0 1px 2px rgb(15 23 42 / 0.18),
+    0 16px 32px -14px oklch(0.52 0.2 288 / 0.9);
+}
+
+/* A band that is not flat. Two per cent of colour, top to bottom. */
+.band-tint {
+  background: linear-gradient(180deg, oklch(0.975 0.006 288) 0%, oklch(0.99 0.003 288) 100%);
+}
+
+.band-dark {
+  background:
+    radial-gradient(48rem 30rem at 18% 0%, oklch(0.5 0.19 300 / 0.4), transparent 62%),
+    radial-gradient(42rem 28rem at 88% 100%, oklch(0.46 0.2 262 / 0.4), transparent 64%),
+    linear-gradient(180deg, oklch(0.16 0.055 288), oklch(0.13 0.045 288));
 }
 
 /* Marked text sits inside a paragraph, so it may not change the line box.
@@ -209,19 +327,32 @@ body {
   scroll-margin-top: 4.5rem;
 }
 
-/* The hero's floating glyphs. A slow vertical drift, each one offset by its own
-   delay so the field never pulses in unison. Decoration: the reduced-motion
-   block above stops it, and the glyphs are aria-hidden either way. */
+/* The hero's floating glyphs.
+   
+   A drift with a sideways component and a little rotation, because a purely
+   vertical bob at 14px is small enough that people report the icons are not
+   moving at all. Each glyph carries its own delay so the field never pulses in
+   unison.
+
+   Decoration, and the reduced-motion block above stops it dead: on a machine
+   with system animations switched off these sit still, which is correct and is
+   also why they have to look finished standing still. */
 @keyframes drift {
-  0%,
-  100% {
-    transform: translateY(0) rotate(var(--tilt, 0deg));
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--tilt, 0deg));
   }
-  50% {
-    transform: translateY(-14px) rotate(var(--tilt, 0deg));
+  33% {
+    transform: translate3d(6px, -22px, 0) rotate(calc(var(--tilt, 0deg) + 4deg));
+  }
+  66% {
+    transform: translate3d(-7px, -10px, 0) rotate(calc(var(--tilt, 0deg) - 3deg));
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--tilt, 0deg));
   }
 }
 
 .glyph {
-  animation: drift 7s ease-in-out infinite;
+  animation: drift var(--dur, 11s) ease-in-out infinite;
+  will-change: transform;
 }

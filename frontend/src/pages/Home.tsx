@@ -75,16 +75,17 @@ const GLYPHS: {
   size: number;
   tilt: number;
   delay: number;
+  dur: number;
   opacity: number;
 }[] = [
-  { Icon: FileText, left: "62%", top: "15%", size: 52, tilt: -8, delay: 0, opacity: 0.9 },
-  { Icon: Highlighter, left: "72%", top: "31%", size: 64, tilt: 7, delay: 1.1, opacity: 1 },
-  { Icon: ShieldCheck, left: "88%", top: "13%", size: 44, tilt: 12, delay: 2.3, opacity: 0.75 },
-  { Icon: ScanText, left: "66%", top: "58%", size: 58, tilt: 5, delay: 0.6, opacity: 0.85 },
-  { Icon: Quote, left: "82%", top: "66%", size: 40, tilt: -11, delay: 3.1, opacity: 0.7 },
-  { Icon: SearchCheck, left: "92%", top: "44%", size: 46, tilt: -5, delay: 1.8, opacity: 0.8 },
-  { Icon: Scale, left: "75%", top: "84%", size: 38, tilt: 9, delay: 2.7, opacity: 0.6 },
-  { Icon: MessageSquareText, left: "60%", top: "83%", size: 34, tilt: -14, delay: 3.6, opacity: 0.55 },
+  { Icon: FileText, left: "62%", top: "14%", size: 56, tilt: -8, delay: 0, dur: 11, opacity: 0.95 },
+  { Icon: Highlighter, left: "73%", top: "30%", size: 68, tilt: 7, delay: 1.4, dur: 13, opacity: 1 },
+  { Icon: ShieldCheck, left: "89%", top: "12%", size: 46, tilt: 12, delay: 2.6, dur: 10, opacity: 0.8 },
+  { Icon: ScanText, left: "66%", top: "60%", size: 60, tilt: 5, delay: 0.7, dur: 12, opacity: 0.9 },
+  { Icon: Quote, left: "83%", top: "68%", size: 42, tilt: -11, delay: 3.4, dur: 14, opacity: 0.75 },
+  { Icon: SearchCheck, left: "92%", top: "45%", size: 48, tilt: -5, delay: 2.0, dur: 11.5, opacity: 0.85 },
+  { Icon: Scale, left: "76%", top: "85%", size: 40, tilt: 9, delay: 3.0, dur: 12.5, opacity: 0.7 },
+  { Icon: MessageSquareText, left: "60%", top: "84%", size: 38, tilt: -14, delay: 4.1, dur: 13.5, opacity: 0.65 },
 ];
 
 function GlyphField() {
@@ -93,10 +94,10 @@ function GlyphField() {
       aria-hidden
       className="pointer-events-none absolute inset-0 hidden select-none xl:block"
     >
-      {GLYPHS.map(({ Icon, left, top, size, tilt, delay, opacity }, i) => (
+      {GLYPHS.map(({ Icon, left, top, size, tilt, delay, dur, opacity }, i) => (
         <span
           key={i}
-          className="glyph absolute flex items-center justify-center rounded-2xl border border-white/20 bg-white/[0.09] text-white shadow-[0_10px_30px_-14px_rgba(0,0,0,0.65)] backdrop-blur-[2px]"
+          className="glyph glass-dark absolute flex items-center justify-center rounded-2xl text-white"
           style={
             {
               left,
@@ -105,6 +106,7 @@ function GlyphField() {
               height: size,
               opacity,
               animationDelay: `${delay}s`,
+              "--dur": `${dur}s`,
               "--tilt": `${tilt}deg`,
             } as CSSProperties
           }
@@ -145,9 +147,9 @@ export default function Home({
   return (
     <>
       {/* ---------------------------------------------------------------- */}
-      <section className="hero-wash relative -mt-[61px] overflow-hidden pt-[61px]">
+      <section className="hero-wash relative flex min-h-[92svh] items-center overflow-hidden">
         <GlyphField />
-        <div className="relative mx-auto max-w-[86rem] px-5 py-20 sm:px-8 sm:py-24 lg:px-12">
+        <div className="relative mx-auto w-full max-w-[86rem] px-5 pb-28 pt-36 sm:px-8 sm:pb-32 sm:pt-40 lg:px-12">
           <Reveal>
             <h1 className="t-display max-w-2xl text-white">
               AI writes things the document never said.
@@ -155,7 +157,7 @@ export default function Home({
           </Reveal>
 
           <Reveal delay={0.06}>
-            <p className="t-lead mt-6 max-w-xl text-brand-100/85">
+            <p className="t-lead mt-6 max-w-xl text-brand-100/80">
               Give an AI a document and ask it a question, and most of the answer
               will be right. The trouble is the part that isn't — it reads exactly
               like the part that is. TrustRAG reads the answer against the
@@ -165,7 +167,7 @@ export default function Home({
           </Reveal>
 
           <Reveal delay={0.12}>
-            <div className="mt-9 flex flex-wrap gap-3">
+            <div className="mt-10 flex flex-wrap gap-3">
               <Button onClick={onDemo}>
                 See it on a real example
                 <ArrowRight className="h-4 w-4" aria-hidden />

@@ -16,6 +16,10 @@ import { getRecordedRuns, type RecordedCase } from "./recorded";
  * They were one page with tabs before, and everything was on it at once. The
  * people this is shown to are not the people who built it; they get one idea
  * per screen, in the order the idea needs.
+ *
+ * There is no footer. The one that was here restated the project's name and
+ * three claims already made better further up, which is what a footer usually
+ * is. Each page now ends on the dark band that tells you where to go next.
  */
 
 export default function App() {
@@ -48,7 +52,10 @@ export default function App() {
     <div className="min-h-full">
       <Nav view={view} onView={setView} overDark={view === "home"} />
 
-      <main>
+      {/* The nav is fixed and floats clear of the top edge, so it takes no room
+          in the flow. The home page opens on a hero that is meant to run under
+          it; every other page has to start below it instead. */}
+      <main className={view === "home" ? undefined : "pt-24"}>
         <AnimatePresence mode="wait">
           <motion.div
             key={view}
@@ -71,18 +78,6 @@ export default function App() {
           </motion.div>
         </AnimatePresence>
       </main>
-
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-[86rem] px-5 py-8 sm:px-8 lg:px-12">
-          <p className="t-small max-w-3xl text-slate-500">
-            TrustRAG — span-level calibrated hallucination detection for
-            retrieval-augmented generation. Research prototype, SLIIT IT4010.
-            Every number shown here came from a run on data held back from
-            training; where a result is negative it is reported at the same size
-            as the positive ones.
-          </p>
-        </div>
-      </footer>
     </div>
   );
 }

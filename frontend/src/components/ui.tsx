@@ -27,7 +27,7 @@ export function Card({
 }) {
   return (
     <Tag
-      className={`rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-18px_rgba(15,23,42,0.18)] ${className}`}
+      className={`card-gloss rounded-2xl ${className}`}
     >
       {children}
     </Tag>
@@ -53,10 +53,10 @@ export function Band({
   className?: string;
 }) {
   const tones = {
-    plain: "bg-slate-50",
-    tint: "bg-brand-50/50",
+    plain: "band-tint",
+    tint: "band-tint",
     white: "bg-white",
-    dark: "bg-brand-950 text-brand-100",
+    dark: "band-dark text-brand-100",
   } as const;
   return (
     <section id={id} className={`${tones[tone]} ${className}`}>
@@ -101,7 +101,15 @@ export function BandHead({
             </span>
           )}
           {eyebrow && (
-            <p className={`t-eyebrow ${invert ? "text-brand-200" : "text-brand-600"}`}>
+            <p
+              className={`t-eyebrow flex items-center gap-2.5 ${
+                invert ? "text-brand-200" : "text-brand-600"
+              }`}
+            >
+              <span
+                className={`h-px w-6 ${invert ? "bg-brand-300/50" : "bg-brand-400/60"}`}
+                aria-hidden
+              />
               {eyebrow}
             </p>
           )}
@@ -135,14 +143,11 @@ export function Button({
   className?: string;
 }) {
   const variants = {
-    primary:
-      "bg-brand-600 text-white shadow-sm hover:bg-brand-700 focus-visible:outline-brand-600",
+    primary: "btn-gloss text-white focus-visible:outline-brand-600",
     secondary:
-      "bg-white text-slate-800 ring-1 ring-inset ring-slate-300 hover:bg-slate-50 focus-visible:outline-slate-600",
-    ghost:
-      "text-brand-700 hover:bg-brand-50 focus-visible:outline-brand-600",
-    onDark:
-      "bg-white/10 text-white ring-1 ring-inset ring-white/25 hover:bg-white/20 focus-visible:outline-white",
+      "card-gloss text-slate-800 hover:brightness-[0.985] focus-visible:outline-slate-600",
+    ghost: "text-brand-700 hover:bg-brand-500/10 focus-visible:outline-brand-600",
+    onDark: "glass-dark text-white hover:bg-white/15 focus-visible:outline-white",
   } as const;
   const sizes = {
     lg: "px-5 py-2.5 text-[0.9375rem]",
