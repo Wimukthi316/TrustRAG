@@ -19,11 +19,15 @@ const ITEMS: { id: View; label: string }[] = [
  * question anyone in the room was going to ask.
  *
  * It floats: a pill inset from all three edges rather than a strip pinned to
- * the top. Over the hero it has no background at all, so the page opens as one
- * image instead of as a header with a picture underneath it; the moment the
- * reader scrolls, it fades up a glass panel so the text passing beneath it
- * stays readable. Fixed rather than sticky, because a floating element that
- * leaves a gap above it has to sit over the page, not inside its flow.
+ * the top. Fixed rather than sticky, because a floating element that leaves a
+ * gap above it has to sit over the page, not inside its flow.
+ *
+ * It always has a surface under it. An earlier pass made it fully transparent
+ * over the hero on the theory that the page should open as one image; what that
+ * actually produced was a logo and three links floating loose on a gradient,
+ * with nothing to say they were one component. The surface over the hero is
+ * glass rather than the light panel used elsewhere -- it belongs to the hero
+ * without dissolving into it.
  */
 export default function Nav({
   view,
@@ -52,9 +56,10 @@ export default function Nav({
     onView(next);
   }
 
-  // On the home page the bar floats over the dark hero until the reader
-  // scrolls, so its ink has to invert with it. Anywhere else it is a normal
-  // light bar from the first pixel.
+  // On the home page the bar sits on the dark hero, so its ink inverts with it.
+  // Once the reader has scrolled past the hero -- or opened the mobile menu,
+  // which drops a light panel below it -- it becomes the light bar every other
+  // page gets from the first pixel.
   const dark = overDark && !scrolled && !open;
 
   return (
@@ -62,11 +67,7 @@ export default function Nav({
       <div className="mx-auto max-w-[86rem] px-4 pt-3 sm:px-6 sm:pt-4 lg:px-10">
         <div
           className={`flex items-center justify-between rounded-2xl px-3 py-2 transition-all duration-300 sm:px-4 ${
-            dark
-              ? "border border-transparent bg-transparent"
-              : open
-                ? "glass-light rounded-b-none"
-                : "glass-light"
+            dark ? "glass-dark" : open ? "glass-light rounded-b-none" : "glass-light"
           }`}
         >
           <button
