@@ -60,29 +60,29 @@ export default function Nav({
           : "border-b border-slate-200/80 bg-white/85 backdrop-blur-xl"
       }`}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 sm:px-10">
+      <div className="mx-auto flex max-w-[86rem] items-center justify-between px-5 py-3 sm:px-8 lg:px-12">
         <button
           type="button"
           onClick={() => go("home")}
           className="flex items-center gap-3 rounded-full pr-3 text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-600"
         >
           <span
-            className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+            className={`flex h-9 w-9 items-center justify-center rounded-lg ${
               dark ? "bg-white/15 text-white" : "bg-brand-600 text-white"
             }`}
           >
-            <ShieldCheck className="h-5 w-5" aria-hidden />
+            <ShieldCheck className="h-[1.125rem] w-[1.125rem]" aria-hidden />
           </span>
           <span>
             <span
-              className={`block text-[1.0625rem] font-semibold tracking-tight ${
+              className={`block text-[0.9375rem] font-semibold tracking-tight ${
                 dark ? "text-white" : "text-slate-900"
               }`}
             >
               TrustRAG
             </span>
             <span
-              className={`block text-[0.8125rem] leading-4 ${
+              className={`block text-[0.75rem] leading-4 ${
                 dark ? "text-brand-100/70" : "text-slate-500"
               }`}
             >
@@ -98,7 +98,7 @@ export default function Nav({
               type="button"
               onClick={() => go(item.id)}
               aria-current={view === item.id ? "page" : undefined}
-              className={`relative rounded-full px-4 py-2 text-[0.9375rem] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
+              className={`relative rounded-full px-3.5 py-1.5 text-[0.875rem] font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
                 dark
                   ? view === item.id
                     ? "text-white"
@@ -127,7 +127,7 @@ export default function Nav({
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-label={open ? "Close menu" : "Open menu"}
-          className={`flex h-11 w-11 items-center justify-center rounded-xl ring-1 ring-inset md:hidden ${
+          className={`flex h-10 w-10 items-center justify-center rounded-lg ring-1 ring-inset md:hidden ${
             dark ? "text-white ring-white/30" : "text-slate-700 ring-slate-300"
           }`}
         >
@@ -137,7 +137,7 @@ export default function Nav({
 
       {open && (
         <nav
-          className="border-t border-slate-200 bg-white px-6 py-3 md:hidden"
+          className="border-t border-slate-200 bg-white px-5 py-2 md:hidden"
           aria-label="Sections"
         >
           {ITEMS.map((item) => (
@@ -145,7 +145,7 @@ export default function Nav({
               key={item.id}
               type="button"
               onClick={() => go(item.id)}
-              className={`block w-full rounded-xl px-4 py-3.5 text-left text-[1.0625rem] font-medium ${
+              className={`block w-full rounded-lg px-4 py-3 text-left text-[0.9375rem] font-medium ${
                 view === item.id
                   ? "bg-brand-50 text-brand-700"
                   : "text-slate-700"

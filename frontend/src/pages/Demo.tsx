@@ -184,7 +184,7 @@ export default function Demo({
                 <button
                   type="button"
                   onClick={() => chooseRecorded(item.slug)}
-                  className={`h-full w-full rounded-3xl border p-7 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
+                  className={`h-full w-full rounded-2xl border p-5 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600 ${
                     selected
                       ? "border-brand-500 bg-brand-50/60 shadow-[0_0_0_1px_var(--color-brand-500)]"
                       : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
@@ -193,8 +193,8 @@ export default function Demo({
                   <span className="t-eyebrow text-brand-600">
                     {TASK_LABEL[item.result.task_type]}
                   </span>
-                  <span className="t-h3 mt-4 block text-slate-900">{item.title}</span>
-                  <span className="t-small mt-4 block text-slate-600">
+                  <span className="t-h3 mt-3 block text-slate-900">{item.title}</span>
+                  <span className="t-small mt-3 block text-slate-600">
                     {item.result.spans.length} passages marked ·{" "}
                     {item.result.context_sentences.length} sentences in the document
                   </span>
@@ -204,13 +204,9 @@ export default function Demo({
           })}
         </div>
 
-        <div className="mt-10">
-          <Button
-            variant="ghost"
-            size="md"
-            onClick={() => setOwn((v) => !v)}
-          >
-            <PenLine className="h-4.5 w-4.5" aria-hidden />
+        <div className="mt-7">
+          <Button variant="ghost" size="md" onClick={() => setOwn((v) => !v)}>
+            <PenLine className="h-4 w-4" aria-hidden />
             {own ? "Hide the paste-your-own box" : "Or paste your own document"}
           </Button>
         </div>
@@ -224,14 +220,14 @@ export default function Demo({
               transition={{ duration: 0.25 }}
               className="overflow-hidden"
             >
-              <Card className="mt-6 p-8 sm:p-10">
+              <Card className="mt-5 p-6 sm:p-8">
                 <p className="t-body max-w-2xl text-slate-600">
                   This one calls the live system, so it needs the local server to
                   be running. If it is not, the three examples above still work —
                   they were recorded from real runs.
                 </p>
 
-                <div className="mt-8 space-y-7">
+                <div className="mt-6 space-y-5">
                   <Field
                     label={FIELD.question.label}
                     plain={FIELD.question.plain}
@@ -254,7 +250,7 @@ export default function Demo({
                     rows={5}
                   />
 
-                  <div className="grid gap-7 sm:grid-cols-2">
+                  <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
                       <span className="t-body font-medium text-slate-800">
                         {FIELD.task.label}
@@ -262,7 +258,7 @@ export default function Demo({
                       <select
                         value={taskType}
                         onChange={(e) => setTaskType(e.target.value as TaskType)}
-                        className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-[1.0625rem] text-slate-800"
+                        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[0.9375rem] text-slate-800"
                       >
                         {(Object.keys(TASK_LABEL) as TaskType[]).map((t) => (
                           <option key={t} value={t}>
@@ -279,7 +275,7 @@ export default function Demo({
                       <select
                         value={alpha}
                         onChange={(e) => setAlpha(Number(e.target.value))}
-                        className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-[1.0625rem] text-slate-800"
+                        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[0.9375rem] text-slate-800"
                       >
                         {[0.1, 0.2, 0.3].map((a) => (
                           <option key={a} value={a}>
@@ -291,12 +287,12 @@ export default function Demo({
                   </div>
                 </div>
 
-                <div className="mt-9 flex flex-wrap items-center gap-5">
+                <div className="mt-7 flex flex-wrap items-center gap-4">
                   <Button onClick={runOwn} disabled={busy || !answer.trim()}>
                     {busy ? (
-                      <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+                      <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
                     ) : (
-                      <Sparkles className="h-5 w-5" aria-hidden />
+                      <Sparkles className="h-4 w-4" aria-hidden />
                     )}
                     {busy ? "Reading it…" : "Check this answer"}
                   </Button>
@@ -325,15 +321,15 @@ export default function Demo({
 
             <div className="grid gap-6 lg:grid-cols-5">
               <Reveal className="lg:col-span-2">
-                <Card className="flex h-full flex-col p-8">
-                  <p className="t-eyebrow flex items-center gap-2.5 text-slate-500">
-                    <MessageSquare className="h-4 w-4" aria-hidden />
+                <Card className="flex h-full flex-col p-6">
+                  <p className="t-eyebrow flex items-center gap-2 text-slate-500">
+                    <MessageSquare className="h-3.5 w-3.5" aria-hidden />
                     {FIELD.question.label}
                   </p>
-                  <p className="t-lead mt-5 text-slate-800">
+                  <p className="t-lead mt-3 text-slate-800">
                     {result.question.trim() || "Nobody asked anything — it was told to summarise."}
                   </p>
-                  <p className="t-small mt-auto pt-8 text-slate-500">
+                  <p className="t-small mt-auto pt-6 text-slate-500">
                     {TASK_LABEL[result.task_type]}
                     {chosen ? ` · ${chosen.source}` : " · your own text"}
                   </p>
@@ -341,12 +337,12 @@ export default function Demo({
               </Reveal>
 
               <Reveal delay={0.07} className="lg:col-span-3">
-                <Card className="h-full p-8">
-                  <p className="t-eyebrow flex items-center gap-2.5 text-slate-500">
-                    <FileText className="h-4 w-4" aria-hidden />
+                <Card className="h-full p-6">
+                  <p className="t-eyebrow flex items-center gap-2 text-slate-500">
+                    <FileText className="h-3.5 w-3.5" aria-hidden />
                     {FIELD.context.label} · {result.context_sentences.length} sentences
                   </p>
-                  <div className="mt-5 max-h-72 overflow-y-auto pr-3">
+                  <div className="mt-3 max-h-64 overflow-y-auto pr-3">
                     <p className="t-body whitespace-pre-wrap text-slate-700">
                       {result.context}
                     </p>
@@ -367,17 +363,17 @@ export default function Demo({
 
             <Reveal>
               <Card className="overflow-hidden">
-                <div className="border-b border-slate-100 px-8 py-6 sm:px-10">
+                <div className="border-b border-slate-100 px-6 py-4 sm:px-8">
                   <VerdictLegend />
                 </div>
-                <div className="px-8 py-10 sm:px-10">
+                <div className="px-6 py-7 sm:px-8">
                   <MarkedAnswer result={result} active={active} onSelect={setActive} />
                 </div>
               </Card>
             </Reveal>
 
             <Reveal delay={0.1}>
-              <div className="mt-8 grid gap-5 sm:grid-cols-3">
+              <div className="mt-6 grid gap-4 sm:grid-cols-3">
                 <Tally
                   tone="flag"
                   n={counts.flag}
@@ -410,7 +406,7 @@ export default function Demo({
                 lead="For every mark the system gives you two things: how likely it thinks the passage is made up, and the one sentence in the document you should read to settle it yourself."
               />
 
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {spans.map((span, i) => (
                   <Reveal key={`${span.start}-${span.end}`} delay={Math.min(i, 4) * 0.05}>
                     <SpanCard
@@ -444,15 +440,15 @@ export default function Demo({
           <Band id="band-next" tone="dark">
             <div className="max-w-3xl">
               <h2 className="t-h2 text-white">So why believe any of this?</h2>
-              <p className="t-lead mt-6 text-brand-100/85">
+              <p className="t-lead mt-4 text-brand-100/85">
                 Fair question. The next page answers it with three pictures: whether
                 the percentages mean what they say, whether the system kept the
                 promise it made, and how much reading it saves you.
               </p>
-              <div className="mt-10">
+              <div className="mt-7">
                 <Button variant="onDark" onClick={onProof}>
                   Show me the evidence
-                  <ArrowRight className="h-5 w-5" aria-hidden />
+                  <ArrowRight className="h-4 w-4" aria-hidden />
                 </Button>
               </div>
             </div>
@@ -489,10 +485,12 @@ function Tally({
   note: string;
 }) {
   return (
-    <div className={`rounded-2xl bg-white p-7 ring-1 ring-inset ${SKIN[tone].ring}`}>
-      <p className="tnum text-4xl font-semibold tracking-tight text-slate-900">{n}</p>
-      <p className="t-body mt-3 font-medium text-slate-800">{label}</p>
-      <p className="t-small mt-1.5 text-slate-500">{note}</p>
+    <div className={`rounded-xl bg-white p-5 ring-1 ring-inset ${SKIN[tone].ring}`}>
+      <p className="tnum text-[1.75rem] font-semibold leading-none tracking-tight text-slate-900">
+        {n}
+      </p>
+      <p className="t-body mt-2.5 font-medium text-slate-800">{label}</p>
+      <p className="t-small mt-1 text-slate-500">{note}</p>
     </div>
   );
 }
@@ -530,37 +528,37 @@ function SpanCard({
       <button
         type="button"
         onClick={onSelect}
-        className="block w-full px-8 pt-8 text-left sm:px-10"
+        className="block w-full px-6 pt-6 text-left sm:px-8"
       >
         <span className="t-eyebrow text-slate-400">
           Mark {index + 1} of {total}
         </span>
-        <span className="t-answer mt-5 block">
+        <span className="t-answer mt-3 block">
           <span className={`mark ${skin.mark}`}>{span.text}</span>
         </span>
       </button>
 
-      <div className="grid gap-8 px-8 py-8 sm:px-10 lg:grid-cols-5">
+      <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-5">
         <div className="lg:col-span-2">
           <span
-            className={`inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-[0.9375rem] font-semibold ${skin.chip}`}
+            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.8125rem] font-semibold ${skin.chip}`}
           >
-            <Icon className="h-4.5 w-4.5" aria-hidden />
+            <Icon className="h-4 w-4" aria-hidden />
             {verdict.label}
           </span>
-          <p className="t-body mt-5 text-slate-600">{verdict.lead}</p>
+          <p className="t-body mt-4 text-slate-600">{verdict.lead}</p>
 
           {score !== null && (
-            <div className="mt-8">
+            <div className="mt-6">
               <div className="flex items-baseline justify-between gap-4">
                 <p className="t-small font-medium text-slate-600">
                   Chance it is made up
                 </p>
-                <p className="tnum text-3xl font-semibold text-slate-900">
+                <p className="tnum text-[1.5rem] font-semibold text-slate-900">
                   {pct(score)}
                 </p>
               </div>
-              <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
                 <motion.div
                   initial={{ width: 0 }}
                   whileInView={{ width: `${Math.round(score * 100)}%` }}
@@ -569,7 +567,7 @@ function SpanCard({
                   className={`h-full rounded-full ${skin.bar}`}
                 />
               </div>
-              <p className="t-small mt-3 text-slate-500">
+              <p className="t-small mt-2.5 text-slate-500">
                 Not the model's raw opinion. It was corrected against thousands of
                 answers whose truth we already knew, so this reads as a real rate.
               </p>
@@ -578,13 +576,13 @@ function SpanCard({
         </div>
 
         <div className="lg:col-span-3">
-          <div className="h-full rounded-2xl bg-slate-50 p-7">
+          <div className="h-full rounded-xl bg-slate-50 p-5">
             {!checked ? (
               <>
                 <p className="t-body font-semibold text-slate-800">
                   {EVIDENCE.notRunTitle}
                 </p>
-                <p className="t-body mt-3 text-slate-600">{EVIDENCE.notRunBody}</p>
+                <p className="t-body mt-2 text-slate-600">{EVIDENCE.notRunBody}</p>
               </>
             ) : span.evidence_sentence ? (
               <>
@@ -593,14 +591,14 @@ function SpanCard({
                     ? EVIDENCE.foundTitle
                     : EVIDENCE.foundTitleNeutral}
                 </p>
-                <p className="t-lead mt-4 text-slate-700">
+                <p className="t-lead mt-3 text-slate-700">
                   <Quote
-                    className="mr-2 inline h-5 w-5 -translate-y-1 text-slate-400"
+                    className="mr-2 inline h-4 w-4 -translate-y-0.5 text-slate-400"
                     aria-hidden
                   />
                   {span.evidence_sentence}
                 </p>
-                <p className="t-small mt-5 text-slate-500">
+                <p className="t-small mt-4 text-slate-500">
                   Sentence {(span.evidence_index ?? 0) + 1} of the document. Read it
                   and judge for yourself — that is the point of showing it.
                 </p>
@@ -610,7 +608,7 @@ function SpanCard({
                 <p className="t-body font-semibold text-slate-800">
                   {EVIDENCE.noneTitle}
                 </p>
-                <p className="t-body mt-3 text-slate-600">{EVIDENCE.noneBody}</p>
+                <p className="t-body mt-2 text-slate-600">{EVIDENCE.noneBody}</p>
               </>
             )}
           </div>
@@ -631,27 +629,27 @@ function PromiseNotice({ result }: { result: AnalysisResult }) {
 
   return (
     <Card
-      className={`p-8 ring-1 ring-inset sm:p-10 ${
+      className={`p-6 ring-1 ring-inset sm:p-8 ${
         good ? "ring-pass-ring" : "ring-abstain-ring"
       }`}
     >
-      <div className="flex flex-col gap-7 sm:flex-row">
+      <div className="flex flex-col gap-5 sm:flex-row">
         <span
-          className={`flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl ${
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
             good ? "bg-pass-soft text-pass-ink" : "bg-abstain-soft text-abstain-ink"
           }`}
         >
           {good ? (
-            <ShieldCheck className="h-8 w-8" aria-hidden />
+            <ShieldCheck className="h-6 w-6" aria-hidden />
           ) : (
-            <TriangleAlert className="h-8 w-8" aria-hidden />
+            <TriangleAlert className="h-6 w-6" aria-hidden />
           )}
         </span>
         <div className="min-w-0">
           <h3 className="t-h3 text-slate-900">{state.title}</h3>
-          <p className="t-lead mt-4 max-w-2xl text-slate-600">{state.body}</p>
+          <p className="t-lead mt-3 max-w-2xl text-slate-600">{state.body}</p>
           {!good && (
-            <p className="t-body mt-6 max-w-2xl text-slate-500">
+            <p className="t-body mt-4 max-w-2xl text-slate-500">
               Most tools would have shown you the same percentages here without
               mentioning it. Saying so costs us a clean demo and is the more
               useful thing to do.
@@ -684,7 +682,7 @@ function Field({
         value={value}
         rows={rows}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-3 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-[1.0625rem] leading-7 text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+        className="mt-2 w-full resize-y rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-[0.9375rem] leading-6 text-slate-800 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
       />
     </label>
   );

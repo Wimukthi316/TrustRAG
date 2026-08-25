@@ -11,8 +11,9 @@ import { Info } from "lucide-react";
  * which ignores its input entirely can beat a real model, so a headline number
  * shown alone is close to meaningless.
  *
- * Everything here is sized for a projector. The smallest text this file will
- * produce is 15px.
+ * Sizing is ordinary web sizing, with a 14px floor. The earlier pass ran a
+ * projector-sized scale and turned three pages into fifteen screens of
+ * scrolling; the fix for small text was never enormous text.
  */
 
 export function Card({
@@ -26,7 +27,7 @@ export function Card({
 }) {
   return (
     <Tag
-      className={`rounded-3xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_12px_32px_-16px_rgba(15,23,42,0.16)] ${className}`}
+      className={`rounded-2xl border border-slate-200/80 bg-white shadow-[0_1px_2px_rgba(15,23,42,0.04),0_10px_28px_-18px_rgba(15,23,42,0.18)] ${className}`}
     >
       {children}
     </Tag>
@@ -59,7 +60,9 @@ export function Band({
   } as const;
   return (
     <section id={id} className={`${tones[tone]} ${className}`}>
-      <div className="mx-auto max-w-6xl px-6 py-20 sm:px-10 sm:py-28">{children}</div>
+      <div className="mx-auto max-w-[86rem] px-5 py-14 sm:px-8 sm:py-16 lg:px-12">
+        {children}
+      </div>
     </section>
   );
 }
@@ -85,12 +88,12 @@ export function BandHead({
   invert?: boolean;
 }) {
   return (
-    <header className="mb-12 max-w-3xl">
+    <header className="mb-8 max-w-3xl">
       {(step !== undefined || eyebrow) && (
-        <div className="mb-5 flex items-center gap-4">
+        <div className="mb-4 flex items-center gap-3">
           {step !== undefined && (
             <span
-              className={`tnum flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg font-semibold ${
+              className={`tnum flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[0.875rem] font-semibold ${
                 invert ? "bg-white/10 text-white" : "bg-brand-600 text-white"
               }`}
             >
@@ -106,7 +109,7 @@ export function BandHead({
       )}
       <h2 className={`t-h2 ${invert ? "text-white" : "text-slate-900"}`}>{title}</h2>
       {lead && (
-        <p className={`t-lead mt-5 ${invert ? "text-brand-100/85" : "text-slate-600"}`}>
+        <p className={`t-lead mt-4 ${invert ? "text-brand-100/85" : "text-slate-600"}`}>
           {lead}
         </p>
       )}
@@ -142,15 +145,15 @@ export function Button({
       "bg-white/10 text-white ring-1 ring-inset ring-white/25 hover:bg-white/20 focus-visible:outline-white",
   } as const;
   const sizes = {
-    lg: "px-7 py-3.5 text-[1.0625rem]",
-    md: "px-5 py-2.5 text-[0.9375rem]",
+    lg: "px-5 py-2.5 text-[0.9375rem]",
+    md: "px-4 py-2 text-[0.875rem]",
   } as const;
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
-      className={`inline-flex items-center justify-center gap-2.5 rounded-full font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-full font-medium transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {children}
     </button>
@@ -183,17 +186,17 @@ export function Stat({
   } as const;
   return (
     <div className="min-w-0">
-      <p className={`tnum text-5xl font-semibold tracking-tight ${tones[tone]}`}>
+      <p className={`tnum text-[2rem] font-semibold tracking-tight ${tones[tone]}`}>
         {value}
         {unit && (
-          <span className="ml-1.5 text-xl font-medium text-slate-400">{unit}</span>
+          <span className="ml-1.5 text-base font-medium text-slate-400">{unit}</span>
         )}
       </p>
-      <div className="mt-3 flex items-start gap-1.5">
+      <div className="mt-2 flex items-start gap-1.5">
         <p className="t-body font-medium text-slate-800">{label}</p>
         {hint && <Hint text={hint} />}
       </div>
-      {floor && <p className="t-small mt-1.5 text-slate-500">{floor}</p>}
+      {floor && <p className="t-small mt-1 text-slate-500">{floor}</p>}
     </div>
   );
 }
@@ -235,7 +238,7 @@ export function Pill({
   return (
     <span
       title={title}
-      className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.9375rem] font-medium ring-1 ring-inset ${tones[tone]} ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.8125rem] font-medium ring-1 ring-inset ${tones[tone]} ${className}`}
     >
       {children}
     </span>
@@ -248,7 +251,7 @@ export function Dot({ tone, size = "md" }: { tone: "flag" | "abstain" | "pass"; 
     abstain: "bg-abstain",
     pass: "bg-pass",
   } as const;
-  const sizes = { md: "h-2.5 w-2.5", lg: "h-3.5 w-3.5" } as const;
+  const sizes = { md: "h-2 w-2", lg: "h-3 w-3" } as const;
   return <span className={`shrink-0 rounded-full ${tones[tone]} ${sizes[size]}`} />;
 }
 
@@ -256,7 +259,7 @@ export function Dot({ tone, size = "md" }: { tone: "flag" | "abstain" | "pass"; 
 export function Bar({
   value,
   tone = "brand",
-  height = "h-2.5",
+  height = "h-2",
 }: {
   value: number;
   tone?: "brand" | "flag" | "abstain" | "pass";
@@ -324,8 +327,8 @@ export function EmptyState({
   body: string;
 }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-300 px-8 py-16 text-center">
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 text-slate-400">
+    <div className="flex flex-col items-center rounded-2xl border border-dashed border-slate-300 px-6 py-12 text-center">
+      <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400">
         {icon}
       </div>
       <p className="t-h3 text-slate-800">{title}</p>

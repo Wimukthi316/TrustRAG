@@ -45,7 +45,7 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
     return (
       <Band tone="white">
         <div className="flex items-center gap-4 text-slate-500">
-          <Loader2 className="h-6 w-6 animate-spin" aria-hidden />
+          <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
           <p className="t-lead">Loading the measurements…</p>
         </div>
       </Band>
@@ -64,10 +64,10 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
       <Band tone="white">
         <div className="max-w-3xl">
           <p className="t-eyebrow text-brand-600">The evidence</p>
-          <h1 className="t-display mt-6 text-slate-900">
+          <h1 className="t-display mt-4 text-slate-900">
             Three questions worth asking.
           </h1>
-          <p className="t-lead mt-8 text-slate-600">
+          <p className="t-lead mt-5 text-slate-600">
             Any system can print a percentage. These three pictures are the
             answers to the only questions that decide whether the percentage was
             worth printing — and each one was measured on data the system never
@@ -86,7 +86,7 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
         />
 
         <Reveal>
-          <Card className="p-8 sm:p-12">
+          <Card className="p-5 sm:p-8">
             <ReliabilityFigure data={reliability} />
           </Card>
         </Reveal>
@@ -120,7 +120,7 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
         />
 
         <Reveal>
-          <Card className="p-8 sm:p-12">
+          <Card className="p-5 sm:p-8">
             <CoverageFigure data={coverage} />
           </Card>
         </Reveal>
@@ -158,7 +158,7 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
         />
 
         <Reveal>
-          <Card className="p-8 sm:p-12">
+          <Card className="p-5 sm:p-8">
             <EvidenceFigure data={evidence} />
           </Card>
         </Reveal>
@@ -184,15 +184,15 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
           lead="These are ours to report, and none of them were found by a reviewer. A results page that only contains wins is not a results page."
         />
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {FAULTS.map((fault, i) => (
             <Reveal key={fault.title} delay={Math.min(i, 4) * 0.05}>
-              <Card className="h-full p-8">
-                <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-abstain-soft text-abstain-ink">
-                  <TriangleAlert className="h-5 w-5" aria-hidden />
+              <Card className="h-full p-6">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-abstain-soft text-abstain-ink">
+                  <TriangleAlert className="h-4 w-4" aria-hidden />
                 </span>
-                <h3 className="t-h3 mt-6 text-slate-900">{fault.title}</h3>
-                <p className="t-body mt-4 text-slate-600">{fault.body}</p>
+                <h3 className="t-h3 mt-4 text-slate-900">{fault.title}</h3>
+                <p className="t-body mt-2.5 text-slate-600">{fault.body}</p>
               </Card>
             </Reveal>
           ))}
@@ -203,19 +203,16 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
       <Band tone="dark">
         <div className="max-w-3xl">
           <h2 className="t-h2 text-white">Now go and try to break it.</h2>
-          <p className="t-lead mt-6 text-brand-100/85">
+          <p className="t-lead mt-4 text-brand-100/85">
             Paste in a document of your own and see whether it marks the right
             things. If it marks the wrong ones, that is worth knowing too.
           </p>
-          <div className="mt-10">
+          <div className="mt-7">
             <Button variant="onDark" onClick={onDemo}>
               Back to the examples
-              <ArrowRight className="h-5 w-5" aria-hidden />
+              <ArrowRight className="h-4 w-4" aria-hidden />
             </Button>
           </div>
-          <p className="t-small mt-14 text-brand-200/60">
-            Measurements generated {data.generated} from {data.source}.
-          </p>
         </div>
       </Band>
     </>
@@ -224,9 +221,9 @@ export default function Proof({ onDemo }: { onDemo: () => void }) {
 
 function Callout({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="mt-10 rounded-3xl border-l-4 border-brand-500 bg-white px-8 py-8 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-10">
+    <div className="mt-6 rounded-2xl border-l-4 border-brand-500 bg-white px-6 py-6 shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-8">
       <p className="t-eyebrow text-brand-600">{title}</p>
-      <p className="t-lead mt-5 max-w-3xl text-slate-700">{children}</p>
+      <p className="t-lead mt-3 max-w-3xl text-slate-700">{children}</p>
     </div>
   );
 }

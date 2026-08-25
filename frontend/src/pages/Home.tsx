@@ -1,11 +1,16 @@
+import type { CSSProperties } from "react";
 import {
   ArrowRight,
   CircleHelp,
   FileText,
+  Highlighter,
+  MessageSquareText,
   Quote,
+  ScanText,
+  Scale,
+  SearchCheck,
   ShieldAlert,
   ShieldCheck,
-  Sparkles,
 } from "lucide-react";
 import { SCORECARD, STEPS, VERDICT_CARDS } from "../copy";
 import type { RecordedCase } from "../recorded";
@@ -51,6 +56,66 @@ const VERDICT_SKIN = {
   },
 } as const;
 
+/**
+ * The hero's floating glyphs.
+ *
+ * Decoration, and it says so: `aria-hidden`, `pointer-events-none`, and gone
+ * below `xl`. Every icon is one the rest of the interface actually uses -- a
+ * document, a mark, a scale, a shield -- so the field reads as this product
+ * rather than as generic startup confetti.
+ *
+ * Every position is right of 60%. The headline caps at 42rem, so below a 1280px
+ * viewport the two would start to collide and the whole field is dropped
+ * instead of being allowed to drift across the text.
+ */
+const GLYPHS: {
+  Icon: typeof FileText;
+  left: string;
+  top: string;
+  size: number;
+  tilt: number;
+  delay: number;
+  opacity: number;
+}[] = [
+  { Icon: FileText, left: "62%", top: "15%", size: 52, tilt: -8, delay: 0, opacity: 0.9 },
+  { Icon: Highlighter, left: "72%", top: "31%", size: 64, tilt: 7, delay: 1.1, opacity: 1 },
+  { Icon: ShieldCheck, left: "88%", top: "13%", size: 44, tilt: 12, delay: 2.3, opacity: 0.75 },
+  { Icon: ScanText, left: "66%", top: "58%", size: 58, tilt: 5, delay: 0.6, opacity: 0.85 },
+  { Icon: Quote, left: "82%", top: "66%", size: 40, tilt: -11, delay: 3.1, opacity: 0.7 },
+  { Icon: SearchCheck, left: "92%", top: "44%", size: 46, tilt: -5, delay: 1.8, opacity: 0.8 },
+  { Icon: Scale, left: "75%", top: "84%", size: 38, tilt: 9, delay: 2.7, opacity: 0.6 },
+  { Icon: MessageSquareText, left: "60%", top: "83%", size: 34, tilt: -14, delay: 3.6, opacity: 0.55 },
+];
+
+function GlyphField() {
+  return (
+    <div
+      aria-hidden
+      className="pointer-events-none absolute inset-0 hidden select-none xl:block"
+    >
+      {GLYPHS.map(({ Icon, left, top, size, tilt, delay, opacity }, i) => (
+        <span
+          key={i}
+          className="glyph absolute flex items-center justify-center rounded-2xl border border-white/20 bg-white/[0.09] text-white shadow-[0_10px_30px_-14px_rgba(0,0,0,0.65)] backdrop-blur-[2px]"
+          style={
+            {
+              left,
+              top,
+              width: size,
+              height: size,
+              opacity,
+              animationDelay: `${delay}s`,
+              "--tilt": `${tilt}deg`,
+            } as CSSProperties
+          }
+        >
+          <Icon style={{ width: size * 0.42, height: size * 0.42 }} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
 /** The shortest honest specimen available: one flagged passage and its source. */
 function pickSpecimen(
   recorded: RecordedCase[],
@@ -80,23 +145,17 @@ export default function Home({
   return (
     <>
       {/* ---------------------------------------------------------------- */}
-      <section className="hero-wash relative -mt-[73px] overflow-hidden pt-[73px]">
-        <div className="mx-auto max-w-6xl px-6 py-24 sm:px-10 sm:py-32">
+      <section className="hero-wash relative -mt-[61px] overflow-hidden pt-[61px]">
+        <GlyphField />
+        <div className="relative mx-auto max-w-[86rem] px-5 py-20 sm:px-8 sm:py-24 lg:px-12">
           <Reveal>
-            <span className="inline-flex items-center gap-2.5 rounded-full bg-white/10 px-4 py-2 text-[0.875rem] font-medium text-brand-100 ring-1 ring-inset ring-white/20">
-              <Sparkles className="h-4 w-4" aria-hidden />
-              Final-year research project · SLIIT
-            </span>
-          </Reveal>
-
-          <Reveal delay={0.05}>
-            <h1 className="t-display mt-8 max-w-4xl text-white">
+            <h1 className="t-display max-w-2xl text-white">
               AI writes things the document never said.
             </h1>
           </Reveal>
 
-          <Reveal delay={0.1}>
-            <p className="t-lead mt-8 max-w-2xl text-brand-100/85">
+          <Reveal delay={0.06}>
+            <p className="t-lead mt-6 max-w-xl text-brand-100/85">
               Give an AI a document and ask it a question, and most of the answer
               will be right. The trouble is the part that isn't — it reads exactly
               like the part that is. TrustRAG reads the answer against the
@@ -105,11 +164,11 @@ export default function Home({
             </p>
           </Reveal>
 
-          <Reveal delay={0.15}>
-            <div className="mt-11 flex flex-wrap gap-4">
+          <Reveal delay={0.12}>
+            <div className="mt-9 flex flex-wrap gap-3">
               <Button onClick={onDemo}>
                 See it on a real example
-                <ArrowRight className="h-5 w-5" aria-hidden />
+                <ArrowRight className="h-4 w-4" aria-hidden />
               </Button>
               <Button variant="onDark" onClick={onProof}>
                 Why believe it
@@ -134,38 +193,38 @@ export default function Home({
         {specimen ? (
           <Reveal>
             <div className="grid gap-6 lg:grid-cols-2">
-              <Card className="p-8 sm:p-10">
+              <Card className="p-6 sm:p-8">
                 <p className="t-eyebrow text-slate-500">What the AI wrote</p>
-                <p className="t-answer mt-6 text-slate-800">
+                <p className="t-answer mt-4 text-slate-800">
                   <span className={`mark ${VERDICT_SKIN.flag.mark}`}>
                     {specimen.span.text}
                   </span>
                 </p>
                 <div
-                  className={`mt-8 inline-flex items-center gap-2.5 rounded-full px-4 py-2 text-[0.9375rem] font-semibold ${VERDICT_SKIN.flag.chip}`}
+                  className={`mt-6 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.8125rem] font-semibold ${VERDICT_SKIN.flag.chip}`}
                 >
-                  <ShieldAlert className="h-4.5 w-4.5" aria-hidden />
+                  <ShieldAlert className="h-4 w-4" aria-hidden />
                   Not in the document
                 </div>
               </Card>
 
-              <Card className="bg-slate-50 p-8 sm:p-10">
+              <Card className="bg-slate-50 p-6 sm:p-8">
                 <p className="t-eyebrow text-slate-500">
                   {specimen.span.evidence_sentence
                     ? "What the document actually says"
                     : "What the document says about it"}
                 </p>
-                <p className="t-lead mt-6 text-slate-700">
+                <p className="t-lead mt-4 text-slate-700">
                   {specimen.span.evidence_sentence ? (
                     <>
-                      <Quote className="mr-2 inline h-5 w-5 -translate-y-1 text-slate-400" aria-hidden />
+                      <Quote className="mr-2 inline h-4 w-4 -translate-y-0.5 text-slate-400" aria-hidden />
                       {specimen.span.evidence_sentence}
                     </>
                   ) : (
                     "Nothing. We read it one sentence at a time and not one of them backs this up."
                   )}
                 </p>
-                <p className="t-body mt-8 text-slate-500">
+                <p className="t-body mt-6 text-slate-500">
                   A person who had not read the article would never have caught
                   it. That is the whole difficulty — a made-up detail is written
                   in the same confident voice as a true one.
@@ -175,7 +234,7 @@ export default function Home({
           </Reveal>
         ) : (
           <Reveal>
-            <Card className="p-10">
+            <Card className="p-8">
               <p className="t-lead text-slate-600">
                 The recorded examples are still loading. Open “See it work” for
                 the full version.
@@ -199,14 +258,14 @@ export default function Home({
             const skin = VERDICT_SKIN[v.tone];
             return (
               <Reveal key={v.tone} delay={i * 0.07}>
-                <Card className={`h-full p-8 ring-1 ring-inset ${skin.ring}`}>
+                <Card className={`h-full p-6 ring-1 ring-inset ${skin.ring}`}>
                   <span
-                    className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${skin.chip}`}
+                    className={`inline-flex h-11 w-11 items-center justify-center rounded-xl ${skin.chip}`}
                   >
-                    <Icon className="h-7 w-7" aria-hidden />
+                    <Icon className="h-5 w-5" aria-hidden />
                   </span>
-                  <h3 className="t-h3 mt-7 text-slate-900">{v.title}</h3>
-                  <p className="t-body mt-4 text-slate-600">{v.body}</p>
+                  <h3 className="t-h3 mt-5 text-slate-900">{v.title}</h3>
+                  <p className="t-body mt-3 text-slate-600">{v.body}</p>
                 </Card>
               </Reveal>
             );
@@ -214,11 +273,11 @@ export default function Home({
         </div>
 
         <Reveal delay={0.2}>
-          <div className="mt-12 rounded-2xl border border-slate-200 bg-white px-8 py-7">
+          <div className="mt-8 rounded-2xl border border-slate-200 bg-white px-6 py-5">
             <p className="t-small font-medium text-slate-500">
               This is the key to every colour you will see on the next page.
             </p>
-            <VerdictLegend className="mt-5" />
+            <VerdictLegend className="mt-4" />
           </div>
         </Reveal>
       </Band>
@@ -231,17 +290,18 @@ export default function Home({
           lead="Nothing here needs the internet, another AI, or a person who knows what they are looking for. It only ever compares the answer to the document it was given."
         />
 
-        <ol className="space-y-2">
+        {/* A grid rather than a stack. Five stacked rows leave two thirds of a
+            wide screen empty and push the next band a screen further down; the
+            steps are short enough to read three across. */}
+        <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {STEPS.map((step, i) => (
             <Reveal key={step.title} delay={i * 0.05}>
-              <li className="flex gap-7 rounded-2xl px-3 py-7 transition hover:bg-slate-50 sm:px-6">
-                <span className="tnum flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-brand-50 text-2xl font-semibold text-brand-700">
+              <li className="h-full rounded-2xl border border-slate-200 bg-white p-5">
+                <span className="tnum flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-[0.875rem] font-semibold text-brand-700">
                   {i + 1}
                 </span>
-                <div className="min-w-0 pt-1.5">
-                  <h3 className="t-h3 text-slate-900">{step.title}</h3>
-                  <p className="t-body mt-3 max-w-2xl text-slate-600">{step.plain}</p>
-                </div>
+                <h3 className="t-h3 mt-4 text-slate-900">{step.title}</h3>
+                <p className="t-body mt-2 text-slate-600">{step.plain}</p>
               </li>
             </Reveal>
           ))}
@@ -259,24 +319,24 @@ export default function Home({
         <div className="grid gap-6 md:grid-cols-3">
           {SCORECARD.map((item, i) => (
             <Reveal key={item.title} delay={i * 0.07}>
-              <Card className="h-full p-8">
-                <p className="tnum text-6xl font-semibold tracking-tight text-slate-900">
+              <Card className="h-full p-6">
+                <p className="tnum text-[2.5rem] font-semibold leading-none tracking-tight text-slate-900">
                   {item.value}
-                  <span className="ml-2 text-2xl font-medium text-slate-400">
+                  <span className="ml-1.5 text-lg font-medium text-slate-400">
                     {item.unit}
                   </span>
                 </p>
-                <h3 className="t-h3 mt-6 text-slate-900">{item.title}</h3>
-                <p className="t-small mt-4 text-slate-600">{item.floor}</p>
+                <h3 className="t-h3 mt-4 text-slate-900">{item.title}</h3>
+                <p className="t-small mt-2.5 text-slate-600">{item.floor}</p>
               </Card>
             </Reveal>
           ))}
         </div>
 
         <Reveal delay={0.2}>
-          <div className="mt-12">
+          <div className="mt-8">
             <Button variant="secondary" onClick={onProof}>
-              <FileText className="h-5 w-5" aria-hidden />
+              <FileText className="h-4 w-4" aria-hidden />
               See the evidence behind these
             </Button>
           </div>
@@ -287,14 +347,14 @@ export default function Home({
       <Band tone="dark">
         <div className="max-w-3xl">
           <h2 className="t-h2 text-white">Watch it read one.</h2>
-          <p className="t-lead mt-6 text-brand-100/85">
+          <p className="t-lead mt-4 text-brand-100/85">
             Pick one of three real answers, or paste your own document and see
             what comes back. The next page walks through it a step at a time.
           </p>
-          <div className="mt-10">
+          <div className="mt-7">
             <Button variant="onDark" onClick={onDemo}>
               See it work
-              <ArrowRight className="h-5 w-5" aria-hidden />
+              <ArrowRight className="h-4 w-4" aria-hidden />
             </Button>
           </div>
         </div>

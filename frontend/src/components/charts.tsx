@@ -99,14 +99,14 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
               stroke="var(--chart-grid)"
               strokeWidth={1}
             />
-            <text x={R_PAD.left - 14} y={ry(t) + 6} textAnchor="end" fontSize={16} fill="#64748b">
+            <text x={R_PAD.left - 14} y={ry(t) + 6} textAnchor="end" fontSize={13} fill="#64748b">
               {Math.round(t * 100)}%
             </text>
             <text
               x={rx(t)}
               y={R_H - R_PAD.bottom + 28}
               textAnchor="middle"
-              fontSize={16}
+              fontSize={13}
               fill="#64748b"
             >
               {Math.round(t * 100)}%
@@ -127,7 +127,7 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
         <text
           x={rx(0.86)}
           y={ry(0.86) - 20}
-          fontSize={16}
+          fontSize={13}
           fill="#64748b"
           textAnchor="end"
         >
@@ -148,7 +148,7 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
                 key={i}
                 cx={rx(r.confidence)}
                 cy={ry(r.actual)}
-                r={7}
+                r={6}
                 fill={s.colour}
                 stroke="var(--chart-surface)"
                 strokeWidth={2}
@@ -169,7 +169,7 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
             <text
               x={rx(s.rows[s.rows.length - 1].confidence) + 14}
               y={ry(s.rows[s.rows.length - 1].actual) + 6}
-              fontSize={16}
+              fontSize={13}
               fontWeight={600}
               fill={s.colour}
             >
@@ -182,7 +182,7 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
           x={R_PAD.left + (R_W - R_PAD.left - R_PAD.right) / 2}
           y={R_H - 22}
           textAnchor="middle"
-          fontSize={17}
+          fontSize={14}
           fontWeight={600}
           fill="#334155"
         >
@@ -192,7 +192,7 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
           x={24}
           y={R_PAD.top + (R_H - R_PAD.top - R_PAD.bottom) / 2}
           textAnchor="middle"
-          fontSize={17}
+          fontSize={14}
           fontWeight={600}
           fill="#334155"
           transform={`rotate(-90 24 ${R_PAD.top + (R_H - R_PAD.top - R_PAD.bottom) / 2})`}
@@ -204,11 +204,11 @@ export function ReliabilityFigure({ data }: { data: ReliabilityChart }) {
 
       <Tooltip tip={tip} />
 
-      <figcaption className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+      <figcaption className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2.5">
         {series.map((s) => (
           <span key={s.key} className="inline-flex items-center gap-2.5">
             <span
-              className="h-3.5 w-3.5 rounded-full"
+              className="h-3 w-3 rounded-full"
               style={{ backgroundColor: s.colour }}
               aria-hidden
             />
@@ -261,7 +261,7 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
               stroke="var(--chart-grid)"
               strokeWidth={1}
             />
-            <text x={cx(t)} y={rows.length * C_ROW + 70} textAnchor="middle" fontSize={16} fill="#64748b">
+            <text x={cx(t)} y={rows.length * C_ROW + 70} textAnchor="middle" fontSize={13} fill="#64748b">
               {Math.round(t * 100)}
             </text>
           </g>
@@ -273,7 +273,7 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
           const bandRight = cx(row.promised);
           return (
             <g key={row.promised}>
-              <text x={C_LEFT - 24} y={y + 6} textAnchor="end" fontSize={17} fill="#334155">
+              <text x={C_LEFT - 24} y={y + 6} textAnchor="end" fontSize={14} fill="#334155">
                 Promised {Math.round(row.promised * 100)} in 100
               </text>
 
@@ -300,7 +300,7 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
               <circle
                 cx={cx(row.delivered)}
                 cy={y}
-                r={9}
+                r={7.5}
                 fill="var(--series-1)"
                 stroke="var(--chart-surface)"
                 strokeWidth={2.5}
@@ -319,7 +319,7 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
               <text
                 x={C_RIGHT + 22}
                 y={y + 6}
-                fontSize={17}
+                fontSize={14}
                 fontWeight={600}
                 fill="#334155"
                 className="tnum"
@@ -334,7 +334,7 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
           x={C_LEFT + (C_RIGHT - C_LEFT) / 2}
           y={height - 14}
           textAnchor="middle"
-          fontSize={17}
+          fontSize={14}
           fontWeight={600}
           fill="#334155"
         >
@@ -345,14 +345,14 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
 
       <Tooltip tip={tip} />
 
-      <figcaption className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-3">
+      <figcaption className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2.5">
         <span className="inline-flex items-center gap-2.5">
-          <span className="h-5 w-1 rounded bg-slate-600" aria-hidden />
+          <span className="h-4 w-1 rounded bg-slate-600" aria-hidden />
           <span className="t-small font-medium text-slate-700">What it promised</span>
         </span>
         <span className="inline-flex items-center gap-2.5">
           <span
-            className="h-3.5 w-3.5 rounded-full"
+            className="h-3 w-3 rounded-full"
             style={{ backgroundColor: S1 }}
             aria-hidden
           />
@@ -360,7 +360,7 @@ export function CoverageFigure({ data }: { data: CoverageLevel[] }) {
         </span>
         <span className="inline-flex items-center gap-2.5">
           <span
-            className="h-5 w-8 rounded"
+            className="h-4 w-7 rounded"
             style={{ backgroundColor: S1, opacity: 0.14 }}
             aria-hidden
           />
@@ -402,15 +402,15 @@ export function EvidenceFigure({ data }: { data: EvidenceChart }) {
         ))}
       </div>
 
-      <figcaption className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-3">
+      <figcaption className="mt-5 flex flex-wrap items-center gap-x-6 gap-y-2.5">
         <span className="inline-flex items-center gap-2.5">
-          <span className="h-4 w-4 rounded" style={{ backgroundColor: S1 }} aria-hidden />
+          <span className="h-3.5 w-3.5 rounded" style={{ backgroundColor: S1 }} aria-hidden />
           <span className="t-small font-medium text-slate-700">
             Sentences it hands you — about {data.returned.toFixed(1)}
           </span>
         </span>
         <span className="inline-flex items-center gap-2.5">
-          <span className="h-4 w-4 rounded bg-slate-200" aria-hidden />
+          <span className="h-3.5 w-3.5 rounded bg-slate-200" aria-hidden />
           <span className="t-small font-medium text-slate-700">
             Sentences you can skip — about {(data.pool - data.returned).toFixed(1)}
           </span>

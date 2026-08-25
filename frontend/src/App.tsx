@@ -73,7 +73,7 @@ export default function App() {
       </main>
 
       <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6 py-12 sm:px-10">
+        <div className="mx-auto max-w-[86rem] px-5 py-8 sm:px-8 lg:px-12">
           <p className="t-small max-w-3xl text-slate-500">
             TrustRAG — span-level calibrated hallucination detection for
             retrieval-augmented generation. Research prototype, SLIIT IT4010.
