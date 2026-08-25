@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Check,
   CircleHelp,
   Cloud,
+  Copy,
   Download,
   Loader2,
   Monitor,
@@ -78,6 +80,8 @@ export default function History({
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [exportText, setExportText] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const [search, setSearch] = useState("");
   const [task, setTask] = useState<TaskType | "all">("all");
@@ -139,11 +143,25 @@ export default function History({
     await refresh();
   }
 
-  async function download() {
+  /**
+   * Export, in two ways, because one of them does not always work.
+   *
+   * A browser-initiated download is inert inside a sandboxed viewer -- an
+   * `<a download>` with a blob href silently does nothing there. Rather than
+   * detect the situation, which cannot be done reliably, the panel offers both:
+   * the file, which works when the page is served normally, and the text
+   * itself, which works everywhere. Copying is the one that always succeeds, so
+   * it is the one on the left.
+   */
+  async function prepareExport() {
     const payload = await exportHistory();
-    const blob = new Blob([JSON.stringify(payload, null, 2)], {
-      type: "application/json",
-    });
+    setExportText(JSON.stringify(payload, null, 2));
+    setCopied(false);
+  }
+
+  function downloadExport() {
+    if (!exportText) return;
+    const blob = new Blob([exportText], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
@@ -152,6 +170,18 @@ export default function History({
     link.click();
     link.remove();
     URL.revokeObjectURL(url);
+  }
+
+  async function copyExport() {
+    if (!exportText) return;
+    try {
+      await navigator.clipboard.writeText(exportText);
+      setCopied(true);
+    } catch {
+      // Clipboard permission refused, or an insecure origin. The text is on
+      // screen and selectable, which is the fallback.
+      setCopied(false);
+    }
   }
 
   const pages = Math.max(1, Math.ceil(total / PAGE_SIZE));
@@ -239,7 +269,12 @@ export default function History({
           </button>
 
           <div className="ml-auto flex items-center gap-2">
-            <Button variant="ghost" size="md" onClick={() => void download()}>
+            <Button
+              variant="ghost"
+              size="md"
+              onClick={() => void prepareExport()}
+              disabled={total === 0}
+            >
               <Download className="h-4 w-4" aria-hidden />
               Export
             </Button>
@@ -255,6 +290,44 @@ export default function History({
           </div>
         </div>
       </Reveal>
+
+      {exportText !== null && (
+        <div className="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-5">
+          <div className="flex flex-wrap items-center gap-3">
+            <p className="t-body font-medium text-slate-800">
+              Your history, as JSON
+            </p>
+            <div className="ml-auto flex flex-wrap gap-2">
+              <Button size="md" onClick={() => void copyExport()}>
+                {copied ? (
+                  <Check className="h-4 w-4" aria-hidden />
+                ) : (
+                  <Copy className="h-4 w-4" aria-hidden />
+                )}
+                {copied ? "Copied" : "Copy"}
+              </Button>
+              <Button variant="secondary" size="md" onClick={downloadExport}>
+                <Download className="h-4 w-4" aria-hidden />
+                Download file
+              </Button>
+              <Button variant="ghost" size="md" onClick={() => setExportText(null)}>
+                Close
+              </Button>
+            </div>
+          </div>
+          <p className="t-small mt-2 text-slate-500">
+            Copying always works. Downloading a file does not when this page is
+            embedded somewhere that blocks it, which is why both are here.
+          </p>
+          <textarea
+            readOnly
+            value={exportText}
+            rows={8}
+            onFocus={(e) => e.currentTarget.select()}
+            className="tnum mt-3 w-full resize-y rounded-xl border border-slate-300 bg-white p-3 font-mono text-[0.8125rem] leading-5 text-slate-700"
+          />
+        </div>
+      )}
 
       {confirmClear && (
         <div className="mt-5 flex flex-wrap items-center gap-4 rounded-2xl bg-flag-soft px-5 py-4 ring-1 ring-inset ring-flag-ring">

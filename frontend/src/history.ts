@@ -166,6 +166,21 @@ const browserStore = {
 
 let serverBacked: boolean | null = null;
 
+/**
+ * Is there any point asking?
+ *
+ * The packaged single-file copy carries its artefacts inline and has no server
+ * behind it, and a page opened from a `file://` URL cannot fetch at all. In both
+ * cases the probe is guaranteed to fail, and the only thing it achieves is a red
+ * line in the console of whoever opens devtools during a demo.
+ */
+function serverIsReachableInPrinciple(): boolean {
+  if (typeof window === "undefined") return false;
+  if (window.location.protocol === "file:") return false;
+  if (document.getElementById("trustrag-offline")) return false;
+  return true;
+}
+
 async function askTheServer(): Promise<HistoryPage | null> {
   try {
     const res = await fetch(`${API_ROOT}/history?limit=1`, {
@@ -181,6 +196,10 @@ async function askTheServer(): Promise<HistoryPage | null> {
 /** Which store this page is talking to. Decided once, then cached. */
 export async function resolveBackend(): Promise<HistoryBackend> {
   if (serverBacked !== null) return serverBacked ? "mongodb" : "browser";
+  if (!serverIsReachableInPrinciple()) {
+    serverBacked = false;
+    return "browser";
+  }
   const page = await askTheServer();
   serverBacked = page !== null && page.available;
   return serverBacked ? "mongodb" : "browser";
