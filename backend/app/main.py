@@ -17,6 +17,16 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from dotenv import load_dotenv  # noqa: E402
+
+# Read .env from the repo root rather than the process working directory. The
+# server is launched from several places -- scripts\run_demo.ps1, uvicorn by
+# hand, the test client -- and services/history.py reads os.environ and nothing
+# else, so without this MONGODB_URI is silently invisible and the history store
+# reports itself unconfigured while a perfectly good cluster sits behind it.
+# override=False so a variable already set in the shell still wins.
+load_dotenv(REPO_ROOT / ".env", override=False)
+
 from contextlib import asynccontextmanager  # noqa: E402
 from datetime import datetime, timezone  # noqa: E402
 from typing import Optional  # noqa: E402
