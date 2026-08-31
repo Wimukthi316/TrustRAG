@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
+import type { ReactNode } from "react";
 import {
   ArrowRight,
   CircleHelp,
@@ -460,7 +461,7 @@ export default function Demo({
                 step={4}
                 eyebrow="One at a time"
                 title="What it found, and where to check it."
-                lead="For every mark the system gives you two things: how likely it thinks the passage is made up, and the one sentence in the document you should read to settle it yourself."
+                lead="For every mark: how likely the passage is to be made up, what kind of mistake it is, and the one sentence in the document you should read to settle it yourself. The percentages are not the model's raw opinion — they were corrected against thousands of answers whose truth we already knew, so they read as real rates."
               />
 
               <div className="space-y-4">
@@ -471,6 +472,7 @@ export default function Demo({
                       index={i}
                       total={spans.length}
                       attributed={attributed}
+                      sentenceCount={result.context_sentences.length}
                       isActive={active === i}
                       onSelect={() => setActive(i)}
                     />
@@ -552,11 +554,48 @@ function Tally({
   );
 }
 
+/**
+ * One marked passage, and everything the system knows about it.
+ *
+ * The layout is answering a complaint, and the complaint was right: the first
+ * version put the verdict, the type and the score in a narrow left column and
+ * gave the evidence panel three fifths of the width with `h-full`, so whenever
+ * the document check abstained -- which is half the time by design, measured --
+ * the card was two thirds empty grey. Two columns only work when both sides
+ * carry comparable weight, and these two do not: the evidence is one sentence
+ * or none.
+ *
+ * The deeper fault was repetition. On a flagged, unsupported passage the old
+ * card said the same thing six times: a chip reading "Not in the document", a
+ * line reading "The document does not say this", a heading reading "The
+ * document never mentions this", a paragraph reading "Nothing in the document
+ * is about this at all", a panel titled "Nothing in the document says this" and
+ * a body repeating it once more. Six sentences, one fact, and the reader has to
+ * check each one in case it is different.
+ *
+ * So the card is now three bands that each answer a different question, in the
+ * order a person asks them:
+ *
+ *   1. WHAT was marked            -- the passage, large, in its own colour
+ *   2. HOW BAD is it              -- the verdict and the number, on one row
+ *   3. WHY                        -- the kind of mistake, and what to go read
+ *
+ * The number moves to the top row beside the verdict because it is the single
+ * most important quantity on the card and it was previously last. The two "why"
+ * panels sit in an equal two-column grid with `items-start`, so a short one
+ * stops at its own last line instead of stretching to match its neighbour.
+ *
+ * `verdict.lead` now prints only for ABSTAIN. On flag and pass it restates the
+ * chip; on abstain it says something the chip cannot ("we could not tell either
+ * way, a person should look at this one"), which is the whole point of the
+ * class.
+ */
 function SpanCard({
   span,
   index,
   total,
   attributed,
+  sentenceCount,
   isActive,
   onSelect,
 }: {
@@ -565,6 +604,8 @@ function SpanCard({
   total: number;
   /** Did the document check run on this result at all? See `attributed`. */
   attributed: boolean;
+  /** How many sentences the document was split into, for the empty state. */
+  sentenceCount: number;
   isActive: boolean;
   onSelect: () => void;
 }) {
@@ -573,8 +614,8 @@ function SpanCard({
   const verdict = VERDICT[decision];
   const Icon = VERDICT_ICON[decision];
   const score = span.calibrated_score;
-
   const checked = attributed;
+  const typed = span.error_type && span.error_type !== "unknown";
 
   return (
     <Card
@@ -582,6 +623,7 @@ function SpanCard({
         isActive ? "ring-2 ring-brand-400" : "ring-1 ring-transparent"
       }`}
     >
+      {/* 1. what was marked */}
       <button
         type="button"
         onClick={onSelect}
@@ -595,31 +637,33 @@ function SpanCard({
         </span>
       </button>
 
-      <div className="grid gap-6 px-6 py-6 sm:px-8 lg:grid-cols-5">
-        <div className="lg:col-span-2">
+      {/* 2. the verdict and the number, on one row. The number is the reason
+          anyone is reading this card, so it sits where the eye lands rather
+          than at the bottom of a column. */}
+      <div className="mt-5 border-b border-slate-200/80 px-6 pb-5 sm:px-8">
+        <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
           <span
-            className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.8125rem] font-semibold ${skin.chip}`}
+            className={`inline-flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-[0.8125rem] font-semibold ${skin.chip}`}
           >
             <Icon className="h-4 w-4" aria-hidden />
             {verdict.label}
           </span>
-          <p className="t-body mt-4 text-slate-600">{verdict.lead}</p>
 
-          {span.error_type && span.error_type !== "unknown" && (
-            <MistakeKind type={span.error_type} explanation={span.explanation} />
-          )}
-
+          {/* Capped, not `flex-1`. Stretched across a 1,180px card the label
+              ended up a hand's width from its own number and the pairing broke.
+              A measure this narrow keeps "Chance it is made up" and "39%" on
+              one visual unit at every width the card is used at. */}
           {score !== null && (
-            <div className="mt-6">
+            <div className="w-full sm:w-72">
               <div className="flex items-baseline justify-between gap-4">
                 <p className="t-small font-medium text-slate-600">
                   Chance it is made up
                 </p>
-                <p className="tnum text-[1.5rem] font-semibold text-slate-900">
+                <p className="tnum text-[1.625rem] font-semibold leading-none tracking-tight text-slate-900">
                   {pct(score)}
                 </p>
               </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-100">
+              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200/70">
                 <motion.div
                   initial={{ width: 0 }}
                   whileInView={{ width: `${Math.round(score * 100)}%` }}
@@ -628,54 +672,120 @@ function SpanCard({
                   className={`h-full rounded-full ${skin.bar}`}
                 />
               </div>
-              <p className="t-small mt-2.5 text-slate-500">
-                Not the model's raw opinion. It was corrected against thousands of
-                answers whose truth we already knew, so this reads as a real rate.
-              </p>
             </div>
           )}
         </div>
 
-        <div className="lg:col-span-3">
-          <div className="h-full rounded-xl bg-slate-50 p-5">
-            {!checked ? (
-              <>
-                <p className="t-body font-semibold text-slate-800">
-                  {EVIDENCE.notRunTitle}
-                </p>
-                <p className="t-body mt-2 text-slate-600">{EVIDENCE.notRunBody}</p>
-              </>
-            ) : span.evidence_sentence ? (
-              <>
-                <p className="t-body font-semibold text-slate-800">
-                  {decision === "flag"
-                    ? EVIDENCE.foundTitle
-                    : EVIDENCE.foundTitleNeutral}
-                </p>
-                <p className="t-lead mt-3 text-slate-700">
-                  <Quote
-                    className="mr-2 inline h-4 w-4 -translate-y-0.5 text-slate-400"
-                    aria-hidden
-                  />
-                  {span.evidence_sentence}
-                </p>
-                <p className="t-small mt-4 text-slate-500">
-                  Sentence {(span.evidence_index ?? 0) + 1} of the document. Read it
-                  and judge for yourself — that is the point of showing it.
-                </p>
-              </>
-            ) : (
-              <>
-                <p className="t-body font-semibold text-slate-800">
-                  {EVIDENCE.noneTitle}
-                </p>
-                <p className="t-body mt-2 text-slate-600">{EVIDENCE.noneBody}</p>
-              </>
-            )}
-          </div>
-        </div>
+        {/* Only ABSTAIN gets a line here. On flag and pass the sentence
+            restated the chip directly above it; on abstain it says the one
+            thing the chip cannot -- that nobody is guessing and this one is
+            for a person. The "corrected against thousands of answers"
+            explanation used to print on every card, four times a page; it is
+            said once now, in this band's own introduction. */}
+        {decision === "abstain" && (
+          <p className="t-small mt-4 text-slate-600">{verdict.lead}</p>
+        )}
+      </div>
+
+      {/* 3. why -- two panels of equal weight, neither stretched to the other.
+          The band is tinted and the panels are white, rather than the other way
+          round: three shades of the same grey stacked down a card gave the eye
+          nothing to separate, and inverting it makes each panel read as an
+          object you can look at one at a time. */}
+      <div className="grid items-start gap-5 bg-slate-50/70 px-6 py-6 sm:px-8 md:grid-cols-2">
+        {typed ? (
+          <MistakeKind
+            type={span.error_type as ErrorType}
+            explanation={span.explanation}
+          />
+        ) : (
+          <div />
+        )}
+        <EvidencePanel
+          checked={checked}
+          decision={decision}
+          sentence={span.evidence_sentence}
+          index={span.evidence_index}
+          sentenceCount={sentenceCount}
+        />
       </div>
     </Card>
+  );
+}
+
+/**
+ * What to go and read in the document.
+ *
+ * Three states, and the empty one is the one that used to look broken. It is
+ * not an error and it is not rare: the shipped attributor abstains on 50.4% of
+ * spans at its calibrated threshold, because most flagged passages are things
+ * the document never mentions and there is genuinely no sentence to cite. So
+ * the empty state has to read as a finding rather than as a hole -- which is
+ * why it now names how many sentences were actually read. "We read all twelve
+ * and none of them backs this up" is a result; a grey rectangle is not.
+ */
+function EvidencePanel({
+  checked,
+  decision,
+  sentence,
+  index,
+  sentenceCount,
+}: {
+  checked: boolean;
+  decision: ConformalDecision;
+  sentence: string | null;
+  index: number | null;
+  sentenceCount: number;
+}) {
+  const body = (title: string, children: ReactNode) => (
+    <div className="rounded-xl border border-slate-200 border-l-4 border-l-slate-300 bg-white p-4">
+      <p className="t-eyebrow text-slate-400">What to check in the document</p>
+      <p className="t-body mt-2.5 font-semibold text-slate-900">{title}</p>
+      {children}
+    </div>
+  );
+
+  if (!checked) {
+    return body(
+      EVIDENCE.notRunTitle,
+      <p className="t-small mt-1.5 leading-relaxed text-slate-600">
+        {EVIDENCE.notRunBody}
+      </p>,
+    );
+  }
+
+  if (sentence) {
+    return (
+      <div className="rounded-xl border border-slate-200 border-l-4 border-l-brand-400 bg-white p-4">
+        <p className="t-eyebrow text-slate-400">What to check in the document</p>
+        <p className="t-body mt-2.5 font-semibold text-slate-900">
+          {decision === "flag"
+            ? EVIDENCE.foundTitle
+            : EVIDENCE.foundTitleNeutral}
+        </p>
+        <p className="t-body mt-3 leading-relaxed text-slate-700">
+          <Quote
+            className="mr-1.5 inline h-4 w-4 -translate-y-0.5 text-slate-400"
+            aria-hidden
+          />
+          {sentence}
+        </p>
+        <p className="t-small mt-3.5 border-t border-slate-200/80 pt-3 text-slate-500">
+          Sentence {(index ?? 0) + 1}
+          {sentenceCount ? ` of ${sentenceCount}` : ""}. Read it and judge for
+          yourself — that is the point of showing it.
+        </p>
+      </div>
+    );
+  }
+
+  return body(
+    EVIDENCE.noneTitle,
+    <p className="t-small mt-1.5 leading-relaxed text-slate-600">
+      {sentenceCount
+        ? `We read all ${sentenceCount} sentences in the document and not one of them backs this up.`
+        : EVIDENCE.noneBody}
+    </p>,
   );
 }
 
@@ -716,7 +826,7 @@ function MistakeKind({
 
   return (
     <div
-      className={`mt-6 rounded-xl border-l-4 bg-slate-50/80 p-4 ${
+      className={`rounded-xl border border-slate-200 border-l-4 bg-white p-4 ${
         conflict ? "border-l-amber-400" : "border-l-violet-400"
       }`}
     >
