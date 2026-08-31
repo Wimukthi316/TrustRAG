@@ -41,9 +41,9 @@
             "nonconformity": 0.6087,
             "conformal_decision": "abstain",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
-            "escalated": false,
+            "error_type": "evident_baseless_info",
+            "explanation": "The source does not back up \u201cdriving\u201d. It is not decidable here whether the source contradicts it or simply does not mention it; the nearest sentence is \u201cYour car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance.\u201d.",
+            "escalated": true,
             "evidence_sentence": "Your car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance.",
             "evidence_index": 15,
             "entailment_score": 1.0
@@ -58,8 +58,8 @@
             "nonconformity": 0.2193,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "subtle_baseless_info",
+            "explanation": "No sentence in the source supports \u201cusing energy-efficient appliances,\u201d. How severe it is was not decidable at this confidence level.",
             "escalated": false,
             "evidence_sentence": null,
             "evidence_index": null,
@@ -75,9 +75,9 @@
             "nonconformity": 0.566,
             "conformal_decision": "abstain",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
-            "escalated": false,
+            "error_type": "evident_baseless_info",
+            "explanation": "No sentence in the source supports \u201cmeat consumption\u201d. The closest the source comes is \u201cYour car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance.\u201d. How severe it is was not decidable at this confidence level.",
+            "escalated": true,
             "evidence_sentence": "Your car has a carbon footprint, dependent on the vehicle\u2019s fuel consumption and driving distance.",
             "evidence_index": 15,
             "entailment_score": 0.5
@@ -92,8 +92,8 @@
             "nonconformity": 0.2495,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "No sentence in the source supports \u201csuch as rising sea levels, more frequent natural disasters, and air pollution.\u201d. How severe it is was not decidable at this confidence level.",
             "escalated": false,
             "evidence_sentence": null,
             "evidence_index": null,
@@ -172,8 +172,9 @@
           "message": "Nothing about this input looks unlike the data the guarantee was calibrated on. That is not proof it is in distribution -- the check sees a handful of features, and a shift can be real and invisible to all of them."
         },
         "guarantee_applies": true,
+        "attribution_checked": true,
         "latency_ms": null,
-        "timestamp": "2026-08-25T02:26:45.623140Z"
+        "timestamp": "2026-08-31T16:27:22.900159Z"
       }
     },
     {
@@ -217,8 +218,8 @@
             "nonconformity": 0.2327,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "The source does not back up \u201cFirst Set of Female Quintuplets Born in Almost 50 Years Delivers Four Girls.\u201d. It is not decidable here whether the source contradicts it or simply does not mention it; the nearest sentence is \u201cThe first set of female quintuplets in the world since 1969 was born in Houston on April 8, and the parents are blogging about their unique experience.\u201d.",
             "escalated": false,
             "evidence_sentence": "The first set of female quintuplets in the world since 1969 was born in Houston on April 8, and the parents are blogging about their unique experience.",
             "evidence_index": 1,
@@ -234,8 +235,8 @@
             "nonconformity": 0.4758,
             "conformal_decision": "abstain",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "No sentence in the source supports \u201cdelivers her fifth daughter\u201d.",
             "escalated": false,
             "evidence_sentence": null,
             "evidence_index": null,
@@ -251,8 +252,8 @@
             "nonconformity": 0.1324,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "The source does not back up \u201cDanielle and husband Adam have four other children\u201d. It is not decidable here whether the source contradicts it or simply does not mention it; the nearest sentence is \u201cParents Danielle and Adam and big sister Blayke are now a family of eight.\u201d.",
             "escalated": false,
             "evidence_sentence": "Parents Danielle and Adam and big sister Blayke are now a family of eight.",
             "evidence_index": 3,
@@ -331,8 +332,9 @@
           "message": "Nothing about this input looks unlike the data the guarantee was calibrated on. That is not proof it is in distribution -- the check sees a handful of features, and a shift can be real and invisible to all of them."
         },
         "guarantee_applies": true,
+        "attribution_checked": true,
         "latency_ms": null,
-        "timestamp": "2026-08-25T02:26:45.626325Z"
+        "timestamp": "2026-08-31T16:27:22.908798Z"
       }
     },
     {
@@ -368,9 +370,9 @@
             "nonconformity": 0.6048,
             "conformal_decision": "abstain",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
-            "escalated": false,
+            "error_type": "subtle_baseless_info",
+            "explanation": "No sentence in the source supports \u201con\u201d. How severe it is was not decidable at this confidence level.",
+            "escalated": true,
             "evidence_sentence": null,
             "evidence_index": null,
             "entailment_score": null
@@ -385,8 +387,8 @@
             "nonconformity": 0.0909,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "No sentence in the source supports \u201c, 1099-PATR goes on Line 21 of the 1040 tax return as follows:\u201d. The closest the source comes is \u201cForm 1099-PATR (Taxable Distributions Received From Cooperatives).\u201d. How severe it is was not decidable at this confidence level.",
             "escalated": false,
             "evidence_sentence": null,
             "evidence_index": null,
@@ -402,8 +404,8 @@
             "nonconformity": 0.0393,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "No sentence in the source supports \u201cSchedule F (Farmer's Taxable Income) is used to report income from farming, including patronage dividends and other dis\u2026\u201d. The closest the source comes is \u201cForm 1099-PATR (Taxable Distributions Received From Cooperatives).\u201d.",
             "escalated": false,
             "evidence_sentence": null,
             "evidence_index": null,
@@ -419,8 +421,8 @@
             "nonconformity": 0.143,
             "conformal_decision": "flag",
             "alpha": 0.1,
-            "error_type": null,
-            "explanation": null,
+            "error_type": "evident_baseless_info",
+            "explanation": "No sentence in the source supports \u201cPassage 2 also mentions that 1099-PATR is used to report taxable distributions received from cooperatives, and Line 21\u2026\u201d. The closest the source comes is \u201cForm 1099-PATR (Taxable Distributions Received From Cooperatives).\u201d.",
             "escalated": false,
             "evidence_sentence": null,
             "evidence_index": null,
@@ -499,8 +501,9 @@
           "message": "This input is unlike the data the guarantee was calibrated on -- most obviously its peak suspicion. The highlighting below is still the detector's, but the coverage promise does not apply to it. Recalibrate on your own data before trusting the dial."
         },
         "guarantee_applies": false,
+        "attribution_checked": true,
         "latency_ms": null,
-        "timestamp": "2026-08-25T02:26:45.628355Z"
+        "timestamp": "2026-08-31T16:27:22.914609Z"
       }
     }
   ]

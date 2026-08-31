@@ -123,6 +123,8 @@ class StubDetector:
             # the same discipline as `detector_loaded: false` on /api/health --
             # the placeholder must never look like the real thing.
             guarantee_applies=False,
+            # The stub has no attributor, so it never checked the document.
+            attribution_checked=False,
             latency_ms=round((time.perf_counter() - t0) * 1000, 2),
         )
 

@@ -69,7 +69,11 @@ import time
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from backend.app.services.c3_typer import C3Typer
+from backend.app.services.c3_typer import (
+    DEFAULT_CONFORMAL_PATH as C3_CONFORMAL,
+    DEFAULT_MODEL_PATH as C3_MODEL,
+    C3Typer,
+)
 from backend.app.services.detector import split_sentences
 from src.c2_calibration.exchangeability import (
     ExchangeabilityReference,
@@ -86,6 +90,24 @@ from src.common.schema import (
     Span,
     TaskType,
 )
+
+# C3's and C4's default artefact paths are written relative to the repository
+# root ("results/c3/..."). A relative path is resolved against the *working
+# directory*, so starting uvicorn from backend/ silently pointed both layers at
+# backend/results/, found nothing, and served spans with no type and no evidence
+# while C2 kept working -- because C2's path arrives as an absolute string in
+# TRUSTRAG_C2_ARTIFACT. The layers are meant to degrade quietly when an artefact
+# has genuinely not been generated; they are not meant to degrade because of
+# where the server was launched from. Anchoring to the file's own location makes
+# the two cases distinguishable again.
+REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def _under_root(path: Path | str) -> Path:
+    """Absolute already, or relative to the repository root -- never to cwd."""
+    candidate = Path(path)
+    return candidate if candidate.is_absolute() else (REPO_ROOT / candidate)
+
 
 DEFAULT_MODEL_ID = "KRLabsOrg/lettucedect-large-modernbert-en-v1"
 HALLUCINATED_INDEX = 1
@@ -508,6 +530,9 @@ class LettuceDetectDetector:
             alpha=req.alpha,
             distribution_check=check,
             guarantee_applies=guarantee_applies,
+            # A span with no evidence means something different depending on
+            # whether the check ran at all, and only this object knows which.
+            attribution_checked=self.c4 is not None and self.c4.available,
             latency_ms=round((time.perf_counter() - started) * 1000, 2),
         )
 
@@ -723,9 +748,29 @@ def build_from_env() -> Optional[LettuceDetectDetector]:
             "checkpoint, e.g. results\\c1\\modernbert-base\\best"
         )
 
+    # Same treatment as TRUSTRAG_C2_ARTIFACT, so all three downstream layers are
+    # configured the same way and a missing one is a missing artefact rather than
+    # a missing working directory.
+    c3_model = _under_root(os.environ.get("TRUSTRAG_C3_MODEL") or C3_MODEL)
+    c3_conformal = _under_root(
+        os.environ.get("TRUSTRAG_C3_CONFORMAL") or C3_CONFORMAL
+    )
+    c4_path = _under_root(os.environ.get("TRUSTRAG_C4_ARTIFACT") or C4_ARTIFACT)
+
+    # Printed rather than swallowed. A layer that is absent because it was never
+    # generated and a layer that is absent because the path was wrong look
+    # identical on screen -- three empty fields -- and this is the only place
+    # that can still tell them apart.
+    for name, path in (("C3 type model", c3_model), ("C4 attributor", c4_path)):
+        if not path.exists():
+            print(f"{name} not found at {path}; that layer will be unavailable")
+
     return LettuceDetectDetector(
         model_id=model_id,
         artifact_path=artifact,
+        c3_model_path=c3_model,
+        c3_conformal_path=c3_conformal,
+        c4_artifact_path=c4_path,
         device=os.environ.get("TRUSTRAG_DEVICE") or None,
         candidate_threshold=float(
             os.environ.get("TRUSTRAG_CANDIDATE_THRESHOLD", "0.5")

@@ -1,0 +1,203 @@
+{
+  "systems": {
+    "constant_floor": {
+      "n_spans": 1517,
+      "snippet": {
+        "n_with_reference": 1034,
+        "reference_rate": 0.6816084377059987,
+        "mean_containment": 0.0,
+        "rate_at_threshold": {
+          "0.5": 0.0,
+          "0.8": 0.0,
+          "1.0": 0.0
+        }
+      },
+      "self_faithfulness": {
+        "n_quoting_a_sentence": 0,
+        "quote_rate": 0.0,
+        "verbatim_rate": NaN
+      },
+      "rouge_l_vs_meta": {
+        "n": 1512,
+        "mean_f1": 0.08511928628967821,
+        "caption": "single reference, written by an annotator as a shorthand note rather than as a user-facing sentence. A higher value here is phrasing overlap, not correctness."
+      },
+      "by_task": {
+        "data2text": {
+          "n": 1042,
+          "n_with_reference": 744,
+          "mean_containment": 0.0
+        },
+        "qa": {
+          "n": 231,
+          "n_with_reference": 129,
+          "mean_containment": 0.0
+        },
+        "summarization": {
+          "n": 244,
+          "n_with_reference": 161,
+          "mean_containment": 0.0
+        }
+      },
+      "by_error_type": {
+        "evident_baseless_info": {
+          "n": 737,
+          "n_with_reference": 417,
+          "mean_containment": 0.0
+        },
+        "evident_conflict": {
+          "n": 611,
+          "n_with_reference": 574,
+          "mean_containment": 0.0
+        },
+        "subtle_baseless_info": {
+          "n": 153,
+          "n_with_reference": 29,
+          "mean_containment": 0.0
+        },
+        "subtle_conflict": {
+          "n": 16,
+          "n_with_reference": 14,
+          "mean_containment": 0.0
+        }
+      }
+    },
+    "template_gold_type": {
+      "n_spans": 1517,
+      "snippet": {
+        "n_with_reference": 1034,
+        "reference_rate": 0.6816084377059987,
+        "mean_containment": 0.5924337827967822,
+        "rate_at_threshold": {
+          "0.5": 0.5947775628626693,
+          "0.8": 0.5058027079303675,
+          "1.0": 0.4941972920696325
+        }
+      },
+      "self_faithfulness": {
+        "n_quoting_a_sentence": 1517,
+        "quote_rate": 1.0,
+        "verbatim_rate": 1.0
+      },
+      "rouge_l_vs_meta": {
+        "n": 1512,
+        "mean_f1": 0.2566045856880673,
+        "caption": "single reference, written by an annotator as a shorthand note rather than as a user-facing sentence. A higher value here is phrasing overlap, not correctness."
+      },
+      "by_task": {
+        "data2text": {
+          "n": 1042,
+          "n_with_reference": 744,
+          "mean_containment": 0.7087072570587748
+        },
+        "qa": {
+          "n": 231,
+          "n_with_reference": 129,
+          "mean_containment": 0.18013160396881325
+        },
+        "summarization": {
+          "n": 244,
+          "n_with_reference": 161,
+          "mean_containment": 0.3854742561997974
+        }
+      },
+      "by_error_type": {
+        "evident_baseless_info": {
+          "n": 737,
+          "n_with_reference": 417,
+          "mean_containment": 0.4353306099708976
+        },
+        "evident_conflict": {
+          "n": 611,
+          "n_with_reference": 574,
+          "mean_containment": 0.7336330232851863
+        },
+        "subtle_baseless_info": {
+          "n": 153,
+          "n_with_reference": 29,
+          "mean_containment": 0.07812360053739364
+        },
+        "subtle_conflict": {
+          "n": 16,
+          "n_with_reference": 14,
+          "mean_containment": 0.548051948051948
+        }
+      }
+    },
+    "template_predicted_type": {
+      "n_spans": 1517,
+      "snippet": {
+        "n_with_reference": 1034,
+        "reference_rate": 0.6816084377059987,
+        "mean_containment": 0.5924337827967822,
+        "rate_at_threshold": {
+          "0.5": 0.5947775628626693,
+          "0.8": 0.5058027079303675,
+          "1.0": 0.4941972920696325
+        }
+      },
+      "self_faithfulness": {
+        "n_quoting_a_sentence": 1517,
+        "quote_rate": 1.0,
+        "verbatim_rate": 1.0
+      },
+      "rouge_l_vs_meta": {
+        "n": 1512,
+        "mean_f1": 0.2622927996490778,
+        "caption": "single reference, written by an annotator as a shorthand note rather than as a user-facing sentence. A higher value here is phrasing overlap, not correctness."
+      },
+      "by_task": {
+        "data2text": {
+          "n": 1042,
+          "n_with_reference": 744,
+          "mean_containment": 0.7087072570587748
+        },
+        "qa": {
+          "n": 231,
+          "n_with_reference": 129,
+          "mean_containment": 0.18013160396881325
+        },
+        "summarization": {
+          "n": 244,
+          "n_with_reference": 161,
+          "mean_containment": 0.3854742561997974
+        }
+      },
+      "by_error_type": {
+        "evident_baseless_info": {
+          "n": 737,
+          "n_with_reference": 417,
+          "mean_containment": 0.4353306099708976
+        },
+        "evident_conflict": {
+          "n": 611,
+          "n_with_reference": 574,
+          "mean_containment": 0.7336330232851863
+        },
+        "subtle_baseless_info": {
+          "n": 153,
+          "n_with_reference": 29,
+          "mean_containment": 0.07812360053739364
+        },
+        "subtle_conflict": {
+          "n": 16,
+          "n_with_reference": 14,
+          "mean_containment": 0.548051948051948
+        }
+      }
+    }
+  },
+  "constant_explanation": "This span is not supported by the source.",
+  "llm_comparison": {
+    "n": 0,
+    "status": "not run. The free-tier quota measured in the D3 runbook is about twenty judgements per model per day and the two exposed API keys are still outstanding. The standing rule is to report the n obtained and stop, so this row is n = 0 rather than an estimate."
+  },
+  "join": {
+    "n": 1517,
+    "exact": 1516,
+    "overlap": 1,
+    "none": 0,
+    "note": "preprocessing merged some overlapping raw annotations, so a gold span does not always carry an annotator's exact offsets; those fall back to the annotation sharing the most characters"
+  },
+  "snippet_metric_note": "The quoted sentence is chosen by grounding, not by predicted type, so snippet containment is identical for the gold-type and predicted-type rows by construction. What a type error changes is the WORDING, which is why ROUGE-L moves between those two rows and containment does not. Reported this way rather than dropped, because the invariance is a property of the design worth stating."
+}

@@ -1,0 +1,355 @@
+{
+  "classes": [
+    "evident_conflict",
+    "subtle_conflict",
+    "evident_baseless_info",
+    "subtle_baseless_info"
+  ],
+  "probs_key": "probs_axis_product",
+  "n_calibration": 944,
+  "n_test": 1256,
+  "n_test_responses": 658,
+  "temperature": 0.7824626962401184,
+  "calibration": [
+    {
+      "method": "identity",
+      "selected": false,
+      "is_floor": false,
+      "ece": 0.09219809955408778,
+      "mce": 0.5202986657662204,
+      "brier": 0.49768498489451524,
+      "nll": 0.8733724885497226,
+      "accuracy": 0.6496815286624203,
+      "n": 1256
+    },
+    {
+      "method": "temperature (T = 0.7825)",
+      "selected": true,
+      "is_floor": false,
+      "ece": 0.0520892687014521,
+      "mce": 0.1688990800817483,
+      "brier": 0.4903567283277734,
+      "nll": 0.8516053907402601,
+      "accuracy": 0.6496815286624203,
+      "n": 1256
+    },
+    {
+      "method": "constant base rate",
+      "selected": false,
+      "is_floor": true,
+      "ece": 0.05459894202742105,
+      "mce": 0.05459894202742105,
+      "brier": 0.5799501805296083,
+      "nll": 0.9891327060740798,
+      "accuracy": 0.5207006369426752,
+      "n": 1256,
+      "ignores_the_input": true,
+      "base_rates": [
+        0.3845338983050847,
+        0.0,
+        0.4661016949152542,
+        0.149364406779661
+      ]
+    }
+  ],
+  "coverage": [
+    {
+      "alpha": 0.05,
+      "target_coverage": 0.95,
+      "threshold": 0.8759245795257713,
+      "empirical_coverage": 0.9530254777070064,
+      "band": 0.028164275448336003,
+      "inside_band": true,
+      "average_set_size": 2.210191082802548,
+      "singleton_rate": 0.07006369426751592,
+      "empty_set_rate": 0.0,
+      "full_set_rate": 0.0,
+      "set_shapes": {
+        "other": 352,
+        "pair_mechanism_undecided": 589,
+        "pair_severity_undecided": 227,
+        "singleton": 88
+      },
+      "set_shape_rates": {
+        "other": 0.2802547770700637,
+        "pair_mechanism_undecided": 0.46894904458598724,
+        "pair_severity_undecided": 0.1807324840764331,
+        "singleton": 0.07006369426751592
+      },
+      "n_calibration": 944,
+      "n_test": 1256,
+      "coverage_interval": {
+        "ci_low": 0.939890599406054,
+        "ci_high": 0.9654154346540509,
+        "sd": 0.006634168409429521,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_interval": {
+        "ci_low": 2.174322725044369,
+        "ci_high": 2.247727604471469,
+        "sd": 0.018982738913342675,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "threshold": 0.8424363073148535,
+      "empirical_coverage": 0.9092356687898089,
+      "band": 0.03876796752547589,
+      "inside_band": true,
+      "average_set_size": 1.927547770700637,
+      "singleton_rate": 0.1624203821656051,
+      "empty_set_rate": 0.0,
+      "full_set_rate": 0.0,
+      "set_shapes": {
+        "other": 113,
+        "pair_mechanism_undecided": 697,
+        "pair_severity_undecided": 242,
+        "singleton": 204
+      },
+      "set_shape_rates": {
+        "other": 0.08996815286624203,
+        "pair_mechanism_undecided": 0.5549363057324841,
+        "pair_severity_undecided": 0.1926751592356688,
+        "singleton": 0.1624203821656051
+      },
+      "n_calibration": 944,
+      "n_test": 1256,
+      "coverage_interval": {
+        "ci_low": 0.8912497465249386,
+        "ci_high": 0.928064001216175,
+        "sd": 0.009484202074372386,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_interval": {
+        "ci_low": 1.8941544197305054,
+        "ci_high": 1.9612919761880532,
+        "sd": 0.017086153398101423,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.15,
+      "target_coverage": 0.85,
+      "threshold": 0.8133436777977621,
+      "empirical_coverage": 0.8694267515923567,
+      "band": 0.04614311090054325,
+      "inside_band": true,
+      "average_set_size": 1.7173566878980893,
+      "singleton_rate": 0.2906050955414013,
+      "empty_set_rate": 0.0,
+      "full_set_rate": 0.0,
+      "set_shapes": {
+        "other": 10,
+        "pair_mechanism_undecided": 671,
+        "pair_severity_undecided": 210,
+        "singleton": 365
+      },
+      "set_shape_rates": {
+        "other": 0.007961783439490446,
+        "pair_mechanism_undecided": 0.5342356687898089,
+        "pair_severity_undecided": 0.16719745222929935,
+        "singleton": 0.2906050955414013
+      },
+      "n_calibration": 944,
+      "n_test": 1256,
+      "coverage_interval": {
+        "ci_low": 0.8479136351777339,
+        "ci_high": 0.8904458943118737,
+        "sd": 0.010983148734942508,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_interval": {
+        "ci_low": 1.6877452681874543,
+        "ci_high": 1.747541779404743,
+        "sd": 0.015571340800883458,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.2,
+      "target_coverage": 0.8,
+      "threshold": 0.7754535581866941,
+      "empirical_coverage": 0.8176751592356688,
+      "band": 0.051690623367301194,
+      "inside_band": true,
+      "average_set_size": 1.519904458598726,
+      "singleton_rate": 0.48009554140127386,
+      "empty_set_rate": 0.0,
+      "full_set_rate": 0.0,
+      "set_shapes": {
+        "pair_mechanism_undecided": 499,
+        "pair_severity_undecided": 154,
+        "singleton": 603
+      },
+      "set_shape_rates": {
+        "pair_mechanism_undecided": 0.39729299363057324,
+        "pair_severity_undecided": 0.12261146496815287,
+        "singleton": 0.48009554140127386
+      },
+      "n_calibration": 944,
+      "n_test": 1256,
+      "coverage_interval": {
+        "ci_low": 0.7934078618692036,
+        "ci_high": 0.842186304735149,
+        "sd": 0.012574215308653257,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_interval": {
+        "ci_low": 1.488500198255353,
+        "ci_high": 1.5525077481750378,
+        "sd": 0.0165678485716806,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.3,
+      "target_coverage": 0.7,
+      "threshold": 0.6301568604784902,
+      "empirical_coverage": 0.7300955414012739,
+      "band": 0.0592190485750277,
+      "inside_band": true,
+      "average_set_size": 1.2197452229299364,
+      "singleton_rate": 0.7802547770700637,
+      "empty_set_rate": 0.0,
+      "full_set_rate": 0.0,
+      "set_shapes": {
+        "pair_mechanism_undecided": 202,
+        "pair_severity_undecided": 74,
+        "singleton": 980
+      },
+      "set_shape_rates": {
+        "pair_mechanism_undecided": 0.160828025477707,
+        "pair_severity_undecided": 0.0589171974522293,
+        "singleton": 0.7802547770700637
+      },
+      "n_calibration": 944,
+      "n_test": 1256,
+      "coverage_interval": {
+        "ci_low": 0.702720743104121,
+        "ci_high": 0.7577198115211555,
+        "sd": 0.014094971218517436,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_interval": {
+        "ci_low": 1.1948819107304218,
+        "ci_high": 1.2446562136756456,
+        "sd": 0.012800244388758606,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    },
+    {
+      "alpha": 0.4,
+      "target_coverage": 0.6,
+      "threshold": 0.5541785452791923,
+      "empirical_coverage": 0.6536624203821656,
+      "band": 0.06330782586813635,
+      "inside_band": true,
+      "average_set_size": 1.019108280254777,
+      "singleton_rate": 0.9426751592356688,
+      "empty_set_rate": 0.01910828025477707,
+      "full_set_rate": 0.0,
+      "set_shapes": {
+        "empty": 24,
+        "pair_mechanism_undecided": 28,
+        "pair_severity_undecided": 20,
+        "singleton": 1184
+      },
+      "set_shape_rates": {
+        "empty": 0.01910828025477707,
+        "pair_mechanism_undecided": 0.022292993630573247,
+        "pair_severity_undecided": 0.01592356687898089,
+        "singleton": 0.9426751592356688
+      },
+      "n_calibration": 944,
+      "n_test": 1256,
+      "coverage_interval": {
+        "ci_low": 0.6259812248693534,
+        "ci_high": 0.683724933580813,
+        "sd": 0.014723641584451533,
+        "n_finite": 2000,
+        "n_infinite": 0
+      },
+      "set_size_interval": {
+        "ci_low": 1.0047390563902614,
+        "ci_high": 1.0352030455259025,
+        "sd": 0.007539752850237241,
+        "n_finite": 2000,
+        "n_infinite": 0
+      }
+    }
+  ],
+  "per_class_coverage": {
+    "evident_conflict": {
+      "n_test": 479,
+      "n_calibration": 363,
+      "empirical_coverage": 0.9519832985386222,
+      "average_set_size": 1.8517745302713988,
+      "measurable": true
+    },
+    "subtle_conflict": {
+      "n_test": 2,
+      "n_calibration": 0,
+      "empirical_coverage": 0.0,
+      "average_set_size": 2.0,
+      "measurable": false
+    },
+    "evident_baseless_info": {
+      "n_test": 654,
+      "n_calibration": 440,
+      "empirical_coverage": 0.9587155963302753,
+      "average_set_size": 1.9510703363914372,
+      "measurable": true
+    },
+    "subtle_baseless_info": {
+      "n_test": 121,
+      "n_calibration": 141,
+      "empirical_coverage": 0.48760330578512395,
+      "average_set_size": 2.0991735537190084,
+      "measurable": true
+    }
+  },
+  "per_task_coverage": {
+    "data2text": {
+      "n_test": 921,
+      "empirical_coverage": 0.9153094462540716,
+      "average_set_size": 1.9685124864277959
+    },
+    "qa": {
+      "n_test": 224,
+      "empirical_coverage": 0.9241071428571429,
+      "average_set_size": 1.8928571428571428
+    },
+    "summarization": {
+      "n_test": 111,
+      "empirical_coverage": 0.8288288288288288,
+      "average_set_size": 1.6576576576576576
+    }
+  },
+  "calibration_class_counts": {
+    "evident_conflict": 363,
+    "subtle_conflict": 0,
+    "evident_baseless_info": 440,
+    "subtle_baseless_info": 141
+  },
+  "test_class_counts": {
+    "evident_conflict": 479,
+    "subtle_conflict": 2,
+    "evident_baseless_info": 654,
+    "subtle_baseless_info": 121
+  },
+  "headline_alpha": 0.1,
+  "guarantee_note": "These coverage numbers describe inputs exchangeable with the calibration split. When AnalysisResult.guarantee_applies is False the serving path still shows the type and the explanation and prints no coverage number beside them.",
+  "ood_note": "There is no out-of-domain coverage number for the type label and that absence is a finding: RAGBench carries no error-type annotation, so a typed detector is structurally un-evaluable outside RAGTruth. What can be reported out of domain is the shift in the PREDICTED type mix and the exchangeability gate's trip rate."
+}

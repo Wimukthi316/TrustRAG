@@ -100,6 +100,12 @@ class RecordedRuns:
         self.c4 = (
             C4Attributor.load(c4_artifact) if c4_artifact else C4Attributor.load()
         )
+        # C3 is loaded the same way the serving path loads it, and it returns
+        # None rather than raising when results/c3 has not been generated. The
+        # offline copy then shows exactly what the live endpoint would show.
+        from backend.app.services.c3_typer import C3Typer
+
+        self.c3 = C3Typer.load()
 
         # Answers are stored in the dump; the context is not, so it is rebuilt
         # with C1's own rule. Re-implementing that rule would change the
@@ -146,6 +152,9 @@ class RecordedRuns:
             if decision is ConformalDecision.PASS:
                 continue
             evidence = self._attribute(answer[start:end], sentences, alpha)
+            typing = self._type(
+                answer, start, end, sentences, task, alpha, decision
+            )
             spans.append(
                 Span(
                     start=start,
@@ -156,6 +165,9 @@ class RecordedRuns:
                     nonconformity=round(1.0 - float(cal), 4),
                     conformal_decision=decision,
                     alpha=alpha,
+                    error_type=typing.get("error_type"),
+                    explanation=typing.get("explanation"),
+                    escalated=typing.get("escalated"),
                     evidence_sentence=evidence.get("evidence_sentence"),
                     evidence_index=evidence.get("evidence_index"),
                     entailment_score=evidence.get("entailment_score"),
@@ -175,8 +187,41 @@ class RecordedRuns:
             alpha=alpha,
             distribution_check=check,
             guarantee_applies=guarantee,
+            attribution_checked=self.c4 is not None and self.c4.available,
             latency_ms=None,
         )
+
+    def _type(
+        self,
+        answer: str,
+        start: int,
+        end: int,
+        sentences: Sequence[str],
+        task: Any,
+        alpha: float,
+        decision: Optional[ConformalDecision],
+    ) -> Dict[str, Any]:
+        """C3's three fields, rebuilt through C3's own classes.
+
+        Mirrors `lettucedetect_detector._type_span` step for step, including the
+        broad except: a typing failure must never take a recorded case down with
+        it, because the span and its decision are the product and the type is an
+        addition to it.
+        """
+        if self.c3 is None or not self.c3.available:
+            return {}
+        try:
+            from src.c3_explanation.grounding import span_features
+
+            task_value = task.value if isinstance(task, TaskType) else "other"
+            features = span_features(
+                answer[start:end], answer, start, list(sentences), task_value
+            )
+            return self.c3.annotate(
+                features, answer[start:end], list(sentences), alpha, decision
+            )
+        except Exception:  # pragma: no cover - defensive, as in serving
+            return {}
 
     def _attribute(
         self, span_text: str, sentences: Sequence[str], alpha: float

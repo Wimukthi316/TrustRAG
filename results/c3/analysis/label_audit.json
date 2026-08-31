@@ -1,0 +1,1045 @@
+{
+  "n_responses": 17790,
+  "n_responses_with_spans": 7664,
+  "n_spans": 14289,
+  "used_frozen_split_ids": true,
+  "l1_1_label_coverage": {
+    "distinct_raw_label_types": {
+      "Evident Baseless Info": 6237,
+      "Evident Conflict": 5324,
+      "Subtle Baseless Info": 2527,
+      "Subtle Conflict": 201
+    },
+    "n_distinct": 4,
+    "normalised_forms": [
+      "evident baseless info",
+      "evident conflict",
+      "subtle baseless info",
+      "subtle conflict"
+    ],
+    "assert_label_coverage_passed": true,
+    "unmapped_raw_strings": [],
+    "error": null
+  },
+  "l1_2_meta_agreement": {
+    "n_spans": 14289,
+    "n_with_meta": 14200,
+    "n_blank_meta": 89,
+    "n_distinct_prefixes": 317,
+    "top_prefixes": [
+      {
+        "prefix": "EVIDENT CONFLICT",
+        "n": 5013
+      },
+      {
+        "prefix": "HIGH INTRO OF NEW INFO",
+        "n": 3580
+      },
+      {
+        "prefix": "HIGH INTRODUCTION OF NEW INFORMATION",
+        "n": 2074
+      },
+      {
+        "prefix": "LOW INTRODUCTION OF NEW INFORMATION",
+        "n": 1267
+      },
+      {
+        "prefix": "LOW INTRO OF NEW INFO",
+        "n": 1033
+      },
+      {
+        "prefix": "Original",
+        "n": 268
+      },
+      {
+        "prefix": "SUBTLE CONFLICT",
+        "n": 172
+      },
+      {
+        "prefix": "It is unknown if the rating is only based off of the three reviews showcased in the source information, or more than those three reviews",
+        "n": 104
+      },
+      {
+        "prefix": "",
+        "n": 89
+      },
+      {
+        "prefix": "HIGH INTRODUCTION OF INFORMATION",
+        "n": 75
+      },
+      {
+        "prefix": "HIGH INTRO OF NEW INFORMATION",
+        "n": 73
+      },
+      {
+        "prefix": "Introduction of new information",
+        "n": 58
+      },
+      {
+        "prefix": "Conflict",
+        "n": 24
+      },
+      {
+        "prefix": "AIGC",
+        "n": 23
+      },
+      {
+        "prefix": "CONFLICT",
+        "n": 16
+      },
+      {
+        "prefix": "Introduction of New Information.",
+        "n": 13
+      },
+      {
+        "prefix": "Conflict.",
+        "n": 10
+      },
+      {
+        "prefix": "While it is very likely from the context that the scale used is Fahrenheit, it is not specifically mentioned in the original passages",
+        "n": 9
+      },
+      {
+        "prefix": "\"OutdoorSeating\"",
+        "n": 8
+      },
+      {
+        "prefix": "This was not mentioned in Source Content.",
+        "n": 7
+      },
+      {
+        "prefix": "Evident Conflict",
+        "n": 7
+      },
+      {
+        "prefix": "This was not mentioned in the business info",
+        "n": 6
+      },
+      {
+        "prefix": "INTRODUCTION OF NEW INFORMATION",
+        "n": 6
+      },
+      {
+        "prefix": "HIGH INTRODUCTION OF NEW INFORMATIO",
+        "n": 5
+      },
+      {
+        "prefix": "Introduction of New Information",
+        "n": 5
+      }
+    ],
+    "n_prefix_mapped": 13447,
+    "n_prefix_unmapped": 842,
+    "prefix_mapped_rate": 0.941073553082791,
+    "top_unmapped_prefixes": [
+      {
+        "prefix": "Original",
+        "n": 268
+      },
+      {
+        "prefix": "It is unknown if the rating is only based off of the three reviews showcased in the source information, or more than those three reviews",
+        "n": 104
+      },
+      {
+        "prefix": "",
+        "n": 89
+      },
+      {
+        "prefix": "AIGC",
+        "n": 23
+      },
+      {
+        "prefix": "While it is very likely from the context that the scale used is Fahrenheit, it is not specifically mentioned in the original passages",
+        "n": 9
+      },
+      {
+        "prefix": "\"OutdoorSeating\"",
+        "n": 8
+      },
+      {
+        "prefix": "This was not mentioned in Source Content.",
+        "n": 7
+      },
+      {
+        "prefix": "This was not mentioned in the business info",
+        "n": 6
+      },
+      {
+        "prefix": "HIGH INTRODUCTION OF NEW INFORMATIO",
+        "n": 5
+      },
+      {
+        "prefix": "HIGH INTRODUCITON OF NEW INFORMATION",
+        "n": 5
+      },
+      {
+        "prefix": "HIGH INTORDUCTION OF NEW INFORMATION",
+        "n": 4
+      },
+      {
+        "prefix": "No mention of the atmosphere being cozy.",
+        "n": 4
+      },
+      {
+        "prefix": "Business Info",
+        "n": 4
+      },
+      {
+        "prefix": "4PM would more likely to be written as 16",
+        "n": 4
+      },
+      {
+        "prefix": "LOW INTRODUCTION OF NEW INFORMATI",
+        "n": 4
+      },
+      {
+        "prefix": "This was not mentioned in the source content",
+        "n": 3
+      },
+      {
+        "prefix": "\"Music\"",
+        "n": 3
+      },
+      {
+        "prefix": "HIGHJNTRO OF NEW INFO",
+        "n": 3
+      },
+      {
+        "prefix": "\"WiFi\"",
+        "n": 3
+      },
+      {
+        "prefix": "\"RestaurantsTakeOut\"",
+        "n": 3
+      },
+      {
+        "prefix": "\"Restaurant\" is supposed to be the type of the business, and not the type of cuisine this business/restaurant offers. This resulted in no sense of the sentence in the context.",
+        "n": 3
+      },
+      {
+        "prefix": "Not found in the original source",
+        "n": 3
+      },
+      {
+        "prefix": "\"Israel deaths\" and the deaths of \"people in Israel\" are not the same, as there were non-Israelis who died in Israel.",
+        "n": 2
+      },
+      {
+        "prefix": "This is not mentioned in Source Content.",
+        "n": 2
+      },
+      {
+        "prefix": "This is not specifically mentioned in the Business Info nor the Review.",
+        "n": 2
+      }
+    ],
+    "mechanism": {
+      "n_comparable": 13447,
+      "n_agree": 13393,
+      "agreement": 0.9959842344017253,
+      "table": {
+        "conflict": {
+          "conflict": 5216,
+          "baseless": 36
+        },
+        "baseless": {
+          "baseless": 8177,
+          "conflict": 18
+        }
+      }
+    },
+    "severity": {
+      "n_comparable": 13308,
+      "n_agree": 13267,
+      "agreement": 0.9969191463781184,
+      "table": {
+        "evident": {
+          "evident": 10809,
+          "subtle": 20
+        },
+        "subtle": {
+          "subtle": 2458,
+          "evident": 21
+        }
+      }
+    },
+    "severity_by_annotator_word": {
+      "table": {
+        "evident": {
+          "evident": 5020,
+          "subtle": 4
+        },
+        "high": {
+          "evident": 5789,
+          "subtle": 16
+        },
+        "low": {
+          "subtle": 2289,
+          "evident": 16
+        },
+        "subtle": {
+          "subtle": 169,
+          "evident": 5
+        }
+      },
+      "independent_words": [
+        "high",
+        "low"
+      ],
+      "independent": {
+        "n_comparable": 8110,
+        "n_agree": 8078,
+        "agreement": 0.9960542540073982
+      },
+      "shares_label_vocabulary": {
+        "n_comparable": 5198,
+        "n_agree": 5189,
+        "agreement": 0.9982685648326279,
+        "note": "the annotator wrote the same word the published label uses, so this row is not independent evidence about the label"
+      }
+    },
+    "joint": {
+      "n_comparable": 13308,
+      "n_agree": 13215,
+      "agreement": 0.9930117222723174,
+      "table": {
+        "evident_conflict": {
+          "evident_conflict": 4985,
+          "subtle_conflict": 4,
+          "evident_baseless_info": 35
+        },
+        "evident_baseless": {
+          "evident_baseless_info": 5772,
+          "evident_conflict": 17,
+          "subtle_baseless_info": 16
+        },
+        "subtle_baseless": {
+          "subtle_baseless_info": 2289,
+          "evident_baseless_info": 16
+        },
+        "subtle_conflict": {
+          "subtle_conflict": 169,
+          "evident_conflict": 5
+        }
+      }
+    },
+    "structure": {
+      "counts": {
+        "original": 9105,
+        "generated": 2094,
+        "aigc": 2495
+      },
+      "rates": {
+        "original": 0.6372034432080621,
+        "generated": 0.14654629435229896,
+        "aigc": 0.17460983973686053
+      },
+      "by_error_type": {
+        "evident_baseless_info": {
+          "n": 6237,
+          "original": 3499,
+          "original_rate": 0.5610068943402277
+        },
+        "evident_conflict": {
+          "n": 5324,
+          "original": 5066,
+          "original_rate": 0.9515401953418482
+        },
+        "subtle_baseless_info": {
+          "n": 2527,
+          "original": 375,
+          "original_rate": 0.148397309062129
+        },
+        "subtle_conflict": {
+          "n": 201,
+          "original": 165,
+          "original_rate": 0.8208955223880597
+        }
+      },
+      "by_task": {
+        "data2text": {
+          "n": 9290,
+          "original": 6420,
+          "original_rate": 0.6910656620021528
+        },
+        "qa": {
+          "n": 2927,
+          "original": 1372,
+          "original_rate": 0.4687393235394602
+        },
+        "summarization": {
+          "n": 2072,
+          "original": 1313,
+          "original_rate": 0.6336872586872587
+        }
+      }
+    }
+  },
+  "l1_3_census": {
+    "implicit_true": {
+      "n": 1928,
+      "rate": 0.13492896633774232,
+      "by_error_type": {
+        "evident_baseless_info": {
+          "n": 60,
+          "share_of_type": 0.00962000962000962
+        },
+        "evident_conflict": {
+          "n": 6,
+          "share_of_type": 0.0011269722013523666
+        },
+        "subtle_baseless_info": {
+          "n": 1861,
+          "share_of_type": 0.7364463791056589
+        },
+        "subtle_conflict": {
+          "n": 1,
+          "share_of_type": 0.004975124378109453
+        }
+      },
+      "by_task": {
+        "data2text": {
+          "n": 907,
+          "share_of_task": 0.09763186221743811
+        },
+        "qa": {
+          "n": 846,
+          "share_of_task": 0.2890331397335155
+        },
+        "summarization": {
+          "n": 175,
+          "share_of_task": 0.08445945945945946
+        }
+      },
+      "by_split": {
+        "train": 1570,
+        "test": 101,
+        "calib": 177,
+        "val": 80
+      }
+    },
+    "due_to_null": {
+      "n": 1642,
+      "rate": 0.11491356987892784,
+      "by_error_type": {
+        "evident_baseless_info": {
+          "n": 1614,
+          "share_of_type": 0.2587782587782588
+        },
+        "evident_conflict": {
+          "n": 20,
+          "share_of_type": 0.003756574004507889
+        },
+        "subtle_baseless_info": {
+          "n": 8,
+          "share_of_type": 0.0031658092599920855
+        },
+        "subtle_conflict": {
+          "n": 0,
+          "share_of_type": 0.0
+        }
+      },
+      "by_task": {
+        "data2text": {
+          "n": 1642,
+          "share_of_task": 0.1767491926803014
+        },
+        "qa": {
+          "n": 0,
+          "share_of_task": 0.0
+        },
+        "summarization": {
+          "n": 0,
+          "share_of_task": 0.0
+        }
+      },
+      "by_split": {
+        "calib": 145,
+        "train": 1229,
+        "val": 67,
+        "test": 201
+      }
+    },
+    "quality": {
+      "responses": {
+        "n": 17790,
+        "counts": {
+          "good": 17617,
+          "incorrect_refusal": 144,
+          "truncated": 29
+        },
+        "rates": {
+          "good": 0.9902754356379989,
+          "incorrect_refusal": 0.008094435075885328,
+          "truncated": 0.0016301292861157955
+        }
+      },
+      "by_corpus_split": {
+        "train": {
+          "good": 14942,
+          "truncated": 28,
+          "incorrect_refusal": 120
+        },
+        "test": {
+          "good": 2675,
+          "incorrect_refusal": 24,
+          "truncated": 1
+        }
+      }
+    },
+    "generator_model": {
+      "responses": {
+        "n": 17790,
+        "counts": {
+          "gpt-3.5-turbo-0613": 2965,
+          "gpt-4-0613": 2965,
+          "llama-2-13b-chat": 2965,
+          "llama-2-70b-chat": 2965,
+          "llama-2-7b-chat": 2965,
+          "mistral-7B-instruct": 2965
+        },
+        "rates": {
+          "gpt-3.5-turbo-0613": 0.16666666666666666,
+          "gpt-4-0613": 0.16666666666666666,
+          "llama-2-13b-chat": 0.16666666666666666,
+          "llama-2-70b-chat": 0.16666666666666666,
+          "llama-2-7b-chat": 0.16666666666666666,
+          "mistral-7B-instruct": 0.16666666666666666
+        }
+      },
+      "spans_by_model_and_type": {
+        "gpt-3.5-turbo-0613": {
+          "subtle_conflict": 19,
+          "subtle_baseless_info": 115,
+          "evident_conflict": 243,
+          "evident_baseless_info": 156
+        },
+        "gpt-4-0613": {
+          "subtle_conflict": 26,
+          "evident_conflict": 130,
+          "subtle_baseless_info": 57,
+          "evident_baseless_info": 272
+        },
+        "llama-2-13b-chat": {
+          "evident_conflict": 1448,
+          "evident_baseless_info": 1557,
+          "subtle_baseless_info": 752,
+          "subtle_conflict": 42
+        },
+        "llama-2-70b-chat": {
+          "evident_conflict": 745,
+          "subtle_baseless_info": 556,
+          "evident_baseless_info": 1276,
+          "subtle_conflict": 31
+        },
+        "llama-2-7b-chat": {
+          "subtle_baseless_info": 572,
+          "evident_baseless_info": 1455,
+          "evident_conflict": 1227,
+          "subtle_conflict": 48
+        },
+        "mistral-7B-instruct": {
+          "evident_conflict": 1531,
+          "evident_baseless_info": 1521,
+          "subtle_baseless_info": 475,
+          "subtle_conflict": 35
+        }
+      }
+    }
+  },
+  "l1_4_floors": {
+    "base_rates": {
+      "calib": {
+        "error_type": {
+          "n": 1214,
+          "counts": {
+            "evident_baseless_info": 494,
+            "evident_conflict": 490,
+            "subtle_baseless_info": 222,
+            "subtle_conflict": 8
+          },
+          "rates": {
+            "evident_baseless_info": 0.40691927512355847,
+            "evident_conflict": 0.40362438220757824,
+            "subtle_baseless_info": 0.1828665568369028,
+            "subtle_conflict": 0.006589785831960461
+          }
+        },
+        "mechanism": {
+          "n": 1214,
+          "counts": {
+            "baseless": 716,
+            "conflict": 498
+          },
+          "rates": {
+            "baseless": 0.5897858319604613,
+            "conflict": 0.4102141680395387
+          }
+        },
+        "severity": {
+          "n": 1214,
+          "counts": {
+            "evident": 984,
+            "subtle": 230
+          },
+          "rates": {
+            "evident": 0.8105436573311368,
+            "subtle": 0.18945634266886327
+          }
+        },
+        "task_type": {
+          "n": 1214,
+          "counts": {
+            "data2text": 811,
+            "qa": 225,
+            "summarization": 178
+          },
+          "rates": {
+            "data2text": 0.6680395387149918,
+            "qa": 0.18533772652388797,
+            "summarization": 0.14662273476112025
+          }
+        }
+      },
+      "test": {
+        "error_type": {
+          "n": 1533,
+          "counts": {
+            "evident_baseless_info": 738,
+            "evident_conflict": 619,
+            "subtle_baseless_info": 160,
+            "subtle_conflict": 16
+          },
+          "rates": {
+            "evident_baseless_info": 0.48140900195694714,
+            "evident_conflict": 0.40378343118069143,
+            "subtle_baseless_info": 0.10437051532941943,
+            "subtle_conflict": 0.010437051532941943
+          }
+        },
+        "mechanism": {
+          "n": 1533,
+          "counts": {
+            "baseless": 898,
+            "conflict": 635
+          },
+          "rates": {
+            "baseless": 0.5857795172863666,
+            "conflict": 0.4142204827136334
+          }
+        },
+        "severity": {
+          "n": 1533,
+          "counts": {
+            "evident": 1357,
+            "subtle": 176
+          },
+          "rates": {
+            "evident": 0.8851924331376386,
+            "subtle": 0.11480756686236138
+          }
+        },
+        "task_type": {
+          "n": 1533,
+          "counts": {
+            "data2text": 1054,
+            "qa": 235,
+            "summarization": 244
+          },
+          "rates": {
+            "data2text": 0.6875407697325505,
+            "qa": 0.1532941943900848,
+            "summarization": 0.15916503587736464
+          }
+        }
+      },
+      "train": {
+        "error_type": {
+          "n": 10912,
+          "counts": {
+            "evident_baseless_info": 4721,
+            "evident_conflict": 3982,
+            "subtle_baseless_info": 2045,
+            "subtle_conflict": 164
+          },
+          "rates": {
+            "evident_baseless_info": 0.4326429618768328,
+            "evident_conflict": 0.3649193548387097,
+            "subtle_baseless_info": 0.187408357771261,
+            "subtle_conflict": 0.015029325513196481
+          }
+        },
+        "mechanism": {
+          "n": 10912,
+          "counts": {
+            "baseless": 6766,
+            "conflict": 4146
+          },
+          "rates": {
+            "baseless": 0.6200513196480938,
+            "conflict": 0.37994868035190615
+          }
+        },
+        "severity": {
+          "n": 10912,
+          "counts": {
+            "evident": 8703,
+            "subtle": 2209
+          },
+          "rates": {
+            "evident": 0.7975623167155426,
+            "subtle": 0.20243768328445746
+          }
+        },
+        "task_type": {
+          "n": 10912,
+          "counts": {
+            "data2text": 7048,
+            "qa": 2307,
+            "summarization": 1557
+          },
+          "rates": {
+            "data2text": 0.6458944281524927,
+            "qa": 0.21141862170087977,
+            "summarization": 0.14268695014662758
+          }
+        }
+      },
+      "val": {
+        "error_type": {
+          "n": 630,
+          "counts": {
+            "evident_baseless_info": 284,
+            "evident_conflict": 233,
+            "subtle_baseless_info": 100,
+            "subtle_conflict": 13
+          },
+          "rates": {
+            "evident_baseless_info": 0.4507936507936508,
+            "evident_conflict": 0.36984126984126986,
+            "subtle_baseless_info": 0.15873015873015872,
+            "subtle_conflict": 0.020634920634920634
+          }
+        },
+        "mechanism": {
+          "n": 630,
+          "counts": {
+            "baseless": 384,
+            "conflict": 246
+          },
+          "rates": {
+            "baseless": 0.6095238095238096,
+            "conflict": 0.3904761904761905
+          }
+        },
+        "severity": {
+          "n": 630,
+          "counts": {
+            "evident": 517,
+            "subtle": 113
+          },
+          "rates": {
+            "evident": 0.8206349206349206,
+            "subtle": 0.17936507936507937
+          }
+        },
+        "task_type": {
+          "n": 630,
+          "counts": {
+            "data2text": 377,
+            "qa": 160,
+            "summarization": 93
+          },
+          "rates": {
+            "data2text": 0.5984126984126984,
+            "qa": 0.25396825396825395,
+            "summarization": 0.14761904761904762
+          }
+        }
+      }
+    },
+    "majority_class_fitted_on_train": {
+      "error_type": "evident_baseless_info",
+      "mechanism": "baseless",
+      "severity": "evident"
+    },
+    "majority_class_floor": {
+      "calib": {
+        "error_type": {
+          "predicted_class": "evident_baseless_info",
+          "n": 1214,
+          "accuracy": 0.40691927512355847,
+          "macro_f1": 0.1446135831381733,
+          "per_class": {
+            "evident_baseless_info": {
+              "precision": 0.40691927512355847,
+              "recall": 1.0,
+              "f1": 0.5784543325526932
+            },
+            "evident_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_baseless_info": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "mechanism": {
+          "predicted_class": "baseless",
+          "n": 1214,
+          "accuracy": 0.5897858319604613,
+          "macro_f1": 0.37098445595854923,
+          "per_class": {
+            "baseless": {
+              "precision": 0.5897858319604613,
+              "recall": 1.0,
+              "f1": 0.7419689119170985
+            },
+            "conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "severity": {
+          "predicted_class": "evident",
+          "n": 1214,
+          "accuracy": 0.8105436573311368,
+          "macro_f1": 0.44767970882620567,
+          "per_class": {
+            "evident": {
+              "precision": 0.8105436573311368,
+              "recall": 1.0,
+              "f1": 0.8953594176524113
+            },
+            "subtle": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        }
+      },
+      "test": {
+        "error_type": {
+          "predicted_class": "evident_baseless_info",
+          "n": 1533,
+          "accuracy": 0.48140900195694714,
+          "macro_f1": 0.16248348745046234,
+          "per_class": {
+            "evident_baseless_info": {
+              "precision": 0.48140900195694714,
+              "recall": 1.0,
+              "f1": 0.6499339498018494
+            },
+            "evident_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_baseless_info": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "mechanism": {
+          "predicted_class": "baseless",
+          "n": 1533,
+          "accuracy": 0.5857795172863666,
+          "macro_f1": 0.3693953105717811,
+          "per_class": {
+            "baseless": {
+              "precision": 0.5857795172863666,
+              "recall": 1.0,
+              "f1": 0.7387906211435622
+            },
+            "conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "severity": {
+          "predicted_class": "evident",
+          "n": 1533,
+          "accuracy": 0.8851924331376386,
+          "macro_f1": 0.4695501730103806,
+          "per_class": {
+            "evident": {
+              "precision": 0.8851924331376386,
+              "recall": 1.0,
+              "f1": 0.9391003460207612
+            },
+            "subtle": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        }
+      },
+      "train": {
+        "error_type": {
+          "predicted_class": "evident_baseless_info",
+          "n": 10912,
+          "accuracy": 0.4326429618768328,
+          "macro_f1": 0.1509946907183522,
+          "per_class": {
+            "evident_baseless_info": {
+              "precision": 0.4326429618768328,
+              "recall": 1.0,
+              "f1": 0.6039787628734088
+            },
+            "evident_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_baseless_info": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "mechanism": {
+          "predicted_class": "baseless",
+          "n": 10912,
+          "accuracy": 0.6200513196480938,
+          "macro_f1": 0.38273560357506503,
+          "per_class": {
+            "baseless": {
+              "precision": 0.6200513196480938,
+              "recall": 1.0,
+              "f1": 0.7654712071501301
+            },
+            "conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "severity": {
+          "predicted_class": "evident",
+          "n": 10912,
+          "accuracy": 0.7975623167155426,
+          "macro_f1": 0.4436910527657405,
+          "per_class": {
+            "evident": {
+              "precision": 0.7975623167155426,
+              "recall": 1.0,
+              "f1": 0.887382105531481
+            },
+            "subtle": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        }
+      },
+      "val": {
+        "error_type": {
+          "predicted_class": "evident_baseless_info",
+          "n": 630,
+          "accuracy": 0.4507936507936508,
+          "macro_f1": 0.15536105032822758,
+          "per_class": {
+            "evident_baseless_info": {
+              "precision": 0.4507936507936508,
+              "recall": 1.0,
+              "f1": 0.6214442013129103
+            },
+            "evident_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_baseless_info": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            },
+            "subtle_conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "mechanism": {
+          "predicted_class": "baseless",
+          "n": 630,
+          "accuracy": 0.6095238095238096,
+          "macro_f1": 0.37869822485207105,
+          "per_class": {
+            "baseless": {
+              "precision": 0.6095238095238096,
+              "recall": 1.0,
+              "f1": 0.7573964497041421
+            },
+            "conflict": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        },
+        "severity": {
+          "predicted_class": "evident",
+          "n": 630,
+          "accuracy": 0.8206349206349206,
+          "macro_f1": 0.45074106364428945,
+          "per_class": {
+            "evident": {
+              "precision": 0.8206349206349206,
+              "recall": 1.0,
+              "f1": 0.9014821272885789
+            },
+            "subtle": {
+              "precision": 0.0,
+              "recall": 0.0,
+              "f1": 0.0
+            }
+          },
+          "ignores_the_input": true
+        }
+      }
+    }
+  }
+}

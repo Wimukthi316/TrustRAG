@@ -17,6 +17,7 @@ import {
 import { analyze } from "../api";
 import { saveCheck } from "../history";
 import {
+  ERROR_TYPE_LABEL,
   EVIDENCE,
   FIELD,
   PROMISE,
@@ -179,17 +180,20 @@ export default function Demo({
   const counts = result ? countByVerdict(result) : { flag: 0, abstain: 0, pass: 0 };
 
   // "The document check read every sentence and would cite none of them" and
-  // "no document check was attached" arrive as the same three empty fields, and
-  // only one of them is a claim worth making. If nothing in the whole result
-  // carries evidence, assume the layer is absent and say the weaker thing.
+  // "no document check was attached" used to arrive as the same three empty
+  // fields, so this had to guess from whether ANY span carried evidence -- and
+  // a run that legitimately found nothing for every mark then read as "not
+  // checked". The contract now carries the answer, so the guess is gone.
   //
-  // The cost is a run where it legitimately found nothing for every single
-  // mark, which then reads as "not checked". That errs towards claiming less
-  // than happened, which is the right direction to err in.
+  // The fallback survives for one reason: a result stored in history before the
+  // field existed has no `attribution_checked`, and for those the old heuristic
+  // is still the most honest thing available.
   const attributed =
+    result?.attribution_checked ??
     result?.spans.some(
       (s) => s.evidence_sentence !== null || s.entailment_score !== null,
-    ) ?? false;
+    ) ??
+    false;
 
   // Share of the answer that carries no mark at all. A count of words would be
   // a different unit from the two counts beside it; a share is the same unit.
@@ -594,6 +598,29 @@ function SpanCard({
             {verdict.label}
           </span>
           <p className="t-body mt-4 text-slate-600">{verdict.lead}</p>
+
+          {/* C3. The backend has been returning a type and a written reason for
+              every span since the type layer shipped, and until now nothing on
+              this page read either field -- so a person watching the demo saw
+              only "how likely" and never "what kind". The chip is the sorted
+              category; the sentence under it is the layer's own wording, which
+              says out loud when the severity was not decidable rather than
+              guessing a label. */}
+          {span.error_type && span.error_type !== "unknown" && (
+            <div className="mt-6">
+              <p className="t-small font-medium text-slate-600">
+                What kind of mistake
+              </p>
+              <p className="t-body mt-1.5 font-semibold text-slate-900">
+                {ERROR_TYPE_LABEL[span.error_type]}
+              </p>
+              {span.explanation && (
+                <p className="t-small mt-2 leading-relaxed text-slate-500">
+                  {span.explanation}
+                </p>
+              )}
+            </div>
+          )}
 
           {score !== null && (
             <div className="mt-6">

@@ -71,6 +71,12 @@ export interface AnalysisResult {
   // False when no conformal layer is attached, or when the input is unlike the
   // calibration split. The spans still render; only the promise is withdrawn.
   guarantee_applies: boolean;
+  // True when C4's document check actually ran. Without this flag, "the check
+  // read every sentence and would cite none of them" and "no check was
+  // attached" are the same three empty fields, and the interface has to assume
+  // the weaker of the two. With it, a span carrying no evidence on a checked
+  // result is a finding rather than a silence.
+  attribution_checked: boolean;
   latency_ms: number | null;
   timestamp: string;
 }

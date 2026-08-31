@@ -200,6 +200,17 @@ class AnalysisResult(BaseModel):
             "the promise, not the detection."
         ),
     )
+    attribution_checked: bool = Field(
+        default=False,
+        description=(
+            "Whether C4's document check ran on this result at all. Without it, "
+            "'the check read every sentence and would cite none of them' and 'no "
+            "check was attached' arrive as the same three empty fields on every "
+            "span, and a reader cannot tell a finding from an absence. True "
+            "means the spans without evidence are a result; False means they "
+            "are silence."
+        ),
+    )
     latency_ms: Optional[float] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 

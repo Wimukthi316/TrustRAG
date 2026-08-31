@@ -1,0 +1,80 @@
+{
+  "n_records_with_spans": 755,
+  "n_gold_spans": 1207,
+  "n_predicted_spans": 1612,
+  "unmatched_gold_spans": 0,
+  "predicted_by_bucket": {
+    "boundary": 419,
+    "exact": 202,
+    "merge": 24,
+    "split": 297,
+    "spurious": 668,
+    "tangled": 2
+  },
+  "gold_by_bucket": {
+    "boundary": 419,
+    "exact": 202,
+    "merge": 54,
+    "missed": 409,
+    "split": 121,
+    "tangled": 2
+  },
+  "typeable": {
+    "n": 944,
+    "rate_of_predicted": 0.5856079404466501,
+    "n_excluded_spurious": 668,
+    "excluded_rate": 0.4143920595533499
+  },
+  "footnote_6": {
+    "n_merge_like_components": 25,
+    "n_merge_like_crossing_a_type_boundary": 9,
+    "crossing_rate_of_merge_like": 0.36,
+    "n_multi_gold_components": 25,
+    "n_multi_gold_crossing": 9,
+    "crossing_rate_of_multi_gold": 0.36,
+    "n_typeable_predictions_affected": 9,
+    "affected_rate_of_typeable": 0.009533898305084746
+  },
+  "gold_multi_type": {
+    "n": 2,
+    "rate_of_gold": 0.0016570008285004142,
+    "note": "created by preprocessing merging overlapping annotations of different types, not by the detector"
+  },
+  "type_mix": {
+    "majority_by_characters": {
+      "evident_baseless_info": 440,
+      "evident_conflict": 363,
+      "subtle_baseless_info": 141
+    },
+    "typed_merge_failure": {
+      "evident_baseless_info": 437,
+      "evident_conflict": 359,
+      "subtle_baseless_info": 139,
+      "unassigned": 9
+    }
+  },
+  "conventions_disagree_on": 9,
+  "per_task": {
+    "data2text": {
+      "n_predicted": 1009,
+      "n_typeable": 648,
+      "typeable_rate": 0.6422200198216056,
+      "n_crossing": 7,
+      "crossing_rate_of_typeable": 0.010802469135802469
+    },
+    "qa": {
+      "n_predicted": 414,
+      "n_typeable": 226,
+      "typeable_rate": 0.5458937198067633,
+      "n_crossing": 1,
+      "crossing_rate_of_typeable": 0.004424778761061947
+    },
+    "summarization": {
+      "n_predicted": 189,
+      "n_typeable": 70,
+      "typeable_rate": 0.37037037037037035,
+      "n_crossing": 1,
+      "crossing_rate_of_typeable": 0.014285714285714285
+    }
+  }
+}
