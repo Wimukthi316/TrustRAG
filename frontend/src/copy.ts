@@ -67,6 +67,64 @@ export const ERROR_TYPE_LABEL: Record<ErrorType, string> = {
   unknown: "Not sorted",
 };
 
+// The four categories are not four unrelated labels. They are two questions
+// asked separately, and the system is much better at one of them than the
+// other, so a reader is told them separately rather than being handed one
+// compound phrase like "Extra detail nobody gave it" and left to unpack it.
+//
+//   mechanism -- does it contradict the document, or is the document simply
+//                silent about it? This is the reliable axis.
+//   severity  -- would a person notice on one read, or does it slip past?
+//                This is the weak axis, and the system frequently declines to
+//                decide it. When it does, the sentence underneath says so.
+//
+// `family` only drives colour: the two mechanisms are different problems and a
+// reader should be able to tell them apart across four cards without reading.
+export const ERROR_TYPE_DETAIL: Record<
+  ErrorType,
+  {
+    family: "conflict" | "baseless" | "unknown";
+    mechanism: string;
+    severity: string;
+    meaning: string;
+  }
+> = {
+  evident_conflict: {
+    family: "conflict",
+    mechanism: "The document says otherwise",
+    severity: "Obvious once you look",
+    meaning:
+      "There is a sentence in the document that this directly contradicts. The answer did not invent the subject — it got it wrong.",
+  },
+  subtle_conflict: {
+    family: "conflict",
+    mechanism: "The document says otherwise",
+    severity: "Quiet — easy to miss on one read",
+    meaning:
+      "The wording follows the document closely and one detail has been changed. This is the kind that survives proofreading.",
+  },
+  evident_baseless_info: {
+    family: "baseless",
+    mechanism: "The document never mentions this",
+    severity: "Obvious once you look",
+    meaning:
+      "Nothing in the document is about this at all. It did not come from the source the answer was supposed to use.",
+  },
+  subtle_baseless_info: {
+    family: "baseless",
+    mechanism: "The document never mentions this",
+    severity: "Quiet — easy to miss on one read",
+    meaning:
+      "An extra detail that reads as though it belongs, and the document does not support it. It may even be true — it is just not in the source.",
+  },
+  unknown: {
+    family: "unknown",
+    mechanism: "Not sorted",
+    severity: "Not sorted",
+    meaning: "",
+  },
+};
+
 export const FIELD = {
   question: {
     label: "What someone asked",

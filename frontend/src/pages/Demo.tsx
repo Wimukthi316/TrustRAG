@@ -17,7 +17,7 @@ import {
 import { analyze } from "../api";
 import { saveCheck } from "../history";
 import {
-  ERROR_TYPE_LABEL,
+  ERROR_TYPE_DETAIL,
   EVIDENCE,
   FIELD,
   PROMISE,
@@ -26,7 +26,13 @@ import {
   careLabel,
 } from "../copy";
 import type { RecordedCase } from "../recorded";
-import type { AnalysisResult, ConformalDecision, Span, TaskType } from "../types";
+import type {
+  AnalysisResult,
+  ConformalDecision,
+  ErrorType,
+  Span,
+  TaskType,
+} from "../types";
 import {
   MarkedAnswer,
   VerdictLegend,
@@ -599,27 +605,8 @@ function SpanCard({
           </span>
           <p className="t-body mt-4 text-slate-600">{verdict.lead}</p>
 
-          {/* C3. The backend has been returning a type and a written reason for
-              every span since the type layer shipped, and until now nothing on
-              this page read either field -- so a person watching the demo saw
-              only "how likely" and never "what kind". The chip is the sorted
-              category; the sentence under it is the layer's own wording, which
-              says out loud when the severity was not decidable rather than
-              guessing a label. */}
           {span.error_type && span.error_type !== "unknown" && (
-            <div className="mt-6">
-              <p className="t-small font-medium text-slate-600">
-                What kind of mistake
-              </p>
-              <p className="t-body mt-1.5 font-semibold text-slate-900">
-                {ERROR_TYPE_LABEL[span.error_type]}
-              </p>
-              {span.explanation && (
-                <p className="t-small mt-2 leading-relaxed text-slate-500">
-                  {span.explanation}
-                </p>
-              )}
-            </div>
+            <MistakeKind type={span.error_type} explanation={span.explanation} />
           )}
 
           {score !== null && (
@@ -689,6 +676,72 @@ function SpanCard({
         </div>
       </div>
     </Card>
+  );
+}
+
+/**
+ * C3, made legible.
+ *
+ * The type layer has always returned a category and a written reason on every
+ * span, and for six days nothing on this page read either field -- so the demo
+ * showed how likely a passage was made up and never what kind of mistake it
+ * was, which is the first thing anyone asks.
+ *
+ * The first version of this fix printed the raw category name. That is worse
+ * than it sounds: "Extra detail nobody gave it" is a compound of two separate
+ * judgements and a reader has to unpack it in their head while someone is
+ * talking to them. So the two axes are shown as two rows, which is also what
+ * the model actually is -- it predicts mechanism and severity on separate
+ * heads, and it is far better at the first than the second.
+ *
+ * The colour carries the mechanism and nothing else. Across four stacked cards
+ * a reader can see "these two contradict the document, those two are absent
+ * from it" without reading a word, and that distinction is the one the model
+ * gets right 75% of the time. Severity is deliberately plain grey; it is the
+ * weak axis and it should not look as confident as the row above it.
+ *
+ * `explanation` is printed verbatim underneath, because it is the only part of
+ * this block that is about THIS passage rather than about the category, and
+ * because it is where the system says it could not decide.
+ */
+function MistakeKind({
+  type,
+  explanation,
+}: {
+  type: ErrorType;
+  explanation: string | null;
+}) {
+  const detail = ERROR_TYPE_DETAIL[type];
+  const conflict = detail.family === "conflict";
+
+  return (
+    <div
+      className={`mt-6 rounded-xl border-l-4 bg-slate-50/80 p-4 ${
+        conflict ? "border-l-amber-400" : "border-l-violet-400"
+      }`}
+    >
+      <p className="t-eyebrow text-slate-400">What kind of mistake</p>
+
+      <p className="t-body mt-2.5 font-semibold text-slate-900">
+        {detail.mechanism}
+      </p>
+      <p className="t-small mt-1.5 leading-relaxed text-slate-600">
+        {detail.meaning}
+      </p>
+
+      <div className="mt-3.5 border-t border-slate-200/80 pt-3">
+        <p className="t-small text-slate-500">
+          <span className="font-medium text-slate-600">How easy to spot:</span>{" "}
+          {detail.severity}
+        </p>
+      </div>
+
+      {explanation && (
+        <p className="t-small mt-3.5 leading-relaxed text-slate-500">
+          {explanation}
+        </p>
+      )}
+    </div>
   );
 }
 
