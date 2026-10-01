@@ -97,3 +97,25 @@ export async function analyze(req: AnalyzeRequest): Promise<AnalysisResult> {
     }),
   );
 }
+
+// --- file upload -----------------------------------------------------------
+// A PDF, Word .docx or text file, turned into plain text on the server so it
+// can drop into the document box. The model is only ever sent that text, never
+// the file, and nothing is stored -- the bytes live for one request.
+
+export interface ExtractResult {
+  filename: string;
+  chars: number;
+  pages?: number | null;
+  text: string;
+  note?: string | null;
+}
+
+export async function extractFile(file: File): Promise<ExtractResult> {
+  const form = new FormData();
+  form.append("file", file);
+  // No Content-Type header -- the browser sets it with the multipart boundary.
+  return json<ExtractResult>(
+    await fetch(`${BASE}/extract`, { method: "POST", body: form }),
+  );
+}

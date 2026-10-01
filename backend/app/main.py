@@ -31,12 +31,17 @@ from contextlib import asynccontextmanager  # noqa: E402
 from datetime import datetime, timezone  # noqa: E402
 from typing import Optional  # noqa: E402
 
-from fastapi import FastAPI, HTTPException  # noqa: E402
+from fastapi import FastAPI, File, HTTPException, UploadFile  # noqa: E402
 from fastapi.middleware.cors import CORSMiddleware  # noqa: E402
 
 from fastapi.responses import FileResponse  # noqa: E402
+from pydantic import BaseModel  # noqa: E402
 
 from backend.app.services.detector import get_detector  # noqa: E402
+from backend.app.services.extract import (  # noqa: E402
+    ExtractError,
+    extract_text,
+)
 from backend.app.services.history import get_store  # noqa: E402
 from backend.app.services.metrics import (  # noqa: E402
     FIGURE_DIR,
@@ -179,6 +184,44 @@ def analyze(req: AnalyzeRequest) -> AnalysisResult:
     except ValueError as exc:
         # Contract violations (bad offsets, text mismatch) surface here.
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+
+class ExtractResponse(BaseModel):
+    """Plain text pulled from an uploaded file.
+
+    Kept local to the backend rather than in schema.py: it is not part of the
+    analysis contract the four components speak, only the plumbing behind the
+    "attach a file" button, so it stays out of the parity check.
+    """
+
+    filename: str
+    chars: int
+    pages: Optional[int] = None
+    text: str
+    note: Optional[str] = None
+
+
+@app.post("/api/extract", response_model=ExtractResponse)
+async def extract(file: UploadFile = File(...)) -> ExtractResponse:
+    """Turn an attached PDF, Word .docx or text file into plain text.
+
+    The interface drops the result into the document box; the model never sees
+    the file, only the text a person can read and edit first. Nothing is written
+    to disk -- the bytes live only for the length of this request. This runs no
+    model and makes no claim about the text.
+    """
+    data = await file.read()
+    try:
+        result = extract_text(file.filename or "", data)
+    except ExtractError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    return ExtractResponse(
+        filename=file.filename or "file",
+        chars=len(result.text),
+        pages=result.pages,
+        text=result.text,
+        note=result.note,
+    )
 
 
 # --- history ----------------------------------------------------------------

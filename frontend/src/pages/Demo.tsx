@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent, ReactNode } from "react";
 import {
   ArrowRight,
   CircleHelp,
@@ -9,13 +9,15 @@ import {
   Loader2,
   MessageSquare,
   PenLine,
+  Paperclip,
   Quote,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
-import { analyze, getMetrics } from "../api";
+import { analyze, extractFile, getMetrics } from "../api";
+import type { ExtractResult } from "../api";
 import { saveCheck } from "../history";
 import {
   CORRECTION,
@@ -363,6 +365,7 @@ export default function Demo({
                     onChange={setContext}
                     rows={7}
                   />
+                  <ContextAttach onText={setContext} />
                   <Field
                     label={FIELD.answer.label}
                     plain={FIELD.answer.plain}
@@ -1450,6 +1453,82 @@ function PromiseNotice({
       {check?.checked && <FitStrip check={check} />}
       {metrics && <TaskPromise result={result} metrics={metrics} />}
     </>
+  );
+}
+
+/**
+ * Attach a PDF, Word .docx or text file and drop its text into the document
+ * box. The file goes to /api/extract, which returns plain text; the model only
+ * ever sees text, and nothing is stored. A person can read and edit what came
+ * out before running the check -- the whole point of the tool is showing what
+ * it is working from.
+ */
+function ContextAttach({ onText }: { onText: (text: string) => void }) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<ExtractResult | null>(null);
+
+  async function onPick(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    // Reset so the same file can be picked again after an edit.
+    e.target.value = "";
+    if (!file) return;
+    setBusy(true);
+    setError(null);
+    setInfo(null);
+    try {
+      const res = await extractFile(file);
+      onText(res.text);
+      setInfo(res);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept=".pdf,.docx,.txt,.md"
+        onChange={onPick}
+        className="sr-only"
+      />
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        disabled={busy}
+        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-1.5 text-[0.8125rem] font-medium text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60"
+      >
+        {busy ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />
+        ) : (
+          <Paperclip className="h-3.5 w-3.5" aria-hidden />
+        )}
+        {busy ? "Reading the file…" : "Attach a PDF, Word or text file"}
+      </button>
+      {info && (
+        <p className="t-small mt-1.5 text-slate-500">
+          Loaded{" "}
+          <span className="font-medium text-slate-700">{info.filename}</span>
+          {typeof info.pages === "number"
+            ? ` · ${info.pages} page${info.pages === 1 ? "" : "s"}`
+            : ""}{" "}
+          · {info.chars.toLocaleString()} characters into the document box.
+          {info.note && (
+            <span className="mt-1 block text-abstain-ink">{info.note}</span>
+          )}
+        </p>
+      )}
+      {error && (
+        <p className="t-small mt-1.5 text-flag-ink">
+          Could not read the file: {error}
+        </p>
+      )}
+    </div>
   );
 }
 
