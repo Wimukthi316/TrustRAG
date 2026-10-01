@@ -52,6 +52,77 @@ export const SURE = {
   hint: "Checked against thousands of answers we already knew the truth about. When it says 80, it really is wrong about 80 times in 100.",
 } as const;
 
+// What the system would and would not rule out, for one passage.
+//
+// The decision is a **set**, not a label. The machinery keeps every answer it
+// cannot rule out at the chosen level of care, and the three verdicts on
+// screen are only the three shapes that set can take: one answer left, the
+// other answer left, or both. Showing the set is the one place a reader can
+// see that "not sure" is a decision taken deliberately rather than a number
+// that happened to land in the middle -- which is the single most common
+// misreading of this system.
+export const RULED = {
+  // The plain sentence is the heading and the chips are the evidence under
+  // it, not the other way round. "What it would not rule out" is accurate and
+  // it is also a double negative, which is not a thing to lead with.
+  both: "It could go either way, and it will not guess. Read this one yourself.",
+  none: "At this setting it will not stand behind either answer for this passage.",
+  title: "What it could not rule out",
+  hint: "The system keeps every answer it cannot rule out at the current setting. When both survive it stops and says so, rather than reporting whichever number happened to be larger.",
+  yes: "In the document",
+  no: "Not in the document",
+} as const;
+
+// C2's correction, shown on the passage it was applied to.
+//
+// The reliability diagram on the proof page argues this in aggregate, over
+// 2,390 held-out passages, which is the right way to argue it and the wrong
+// way to show it to somebody watching a demo. Here it is one number moving:
+// what the detector said, and what it is worth once the correction is applied.
+// Without this the calibration layer is invisible on the screen where the
+// system is actually being judged.
+export const CORRECTION = {
+  label: "Before correcting",
+  moved:
+    "The detector's own score is the first number. The second is what that score is worth once it has been corrected against thousands of answers whose truth we already knew.",
+  same:
+    "The correction left this one where it was. It does not move every score -- it moves the ones the detector was over-confident about.",
+} as const;
+
+// The distribution check, opened up.
+//
+// It shipped as a single green or amber card, which asks the reader to take
+// the verdict on trust -- from the one component whose entire purpose is not
+// asking anyone to take things on trust. The per-feature numbers were already
+// being computed and sent on every response and nothing read them.
+export const FIT = {
+  title: "Is this the kind of text it was tested on?",
+  lead: "Eight things it measured about this text, each shown against the range it saw while being tested. None of them is about whether the answer is true — only about whether the odds above were worked out on material like this.",
+  typical: "Ordinary",
+  unusual: "Unlike the test material",
+  low: "smaller than almost all of them",
+  high: "larger than almost all of them",
+  middle: "in the ordinary range",
+  onesided:
+    "This can only ever find a difference, never rule one out. It looks at a handful of quantities, and a text can differ in a way none of them measures.",
+} as const;
+
+// The guarantee for one kind of text, rather than the pooled one.
+//
+// Coverage is reported per task in the results and only the pooled figure ever
+// reached the screen. Pooled is the weaker claim: a system can hold 88% overall
+// while missing badly on one of three tasks, and a reader looking at a
+// summarisation result deserves the summarisation number.
+export const TASK_PROMISE = {
+  title: "And for this kind of text on its own",
+  lead: "The promise above is the figure across everything it was tested on. Broken out, this is how it did on texts like the one on screen.",
+  asked: "Asked to catch",
+  caught: "Caught",
+  inside: "Inside the range a fair run is allowed to land in.",
+  outside: "Outside that range. This one did not hold, and it is here rather than hidden.",
+  none: "This kind of text was not broken out separately, so only the overall figure applies.",
+} as const;
+
 export const TASK_LABEL: Record<TaskType, string> = {
   qa: "Answering a question",
   summarization: "Shortening a long document",
@@ -152,6 +223,87 @@ export function careLabel(alpha: number): { name: string; line: string } {
     line: `Catches ${catches} out of every 100. Almost always gives an answer.`,
   };
 }
+
+// The dial.
+//
+// It is the only control on the page that changes an answer, and the reason it
+// is worth having is not that a reader wants to fiddle with it. It is that the
+// trade it makes -- catch more, refuse more -- is the entire argument of this
+// component, and an argument you can move with your hand is one you remember.
+//
+// Every position on it was measured. The figures printed beside it are what
+// happened on the held-out split at that exact setting, not a projection from
+// the one setting everything else is reported at.
+// The plain-language summary, and the reason it exists.
+//
+// Everything else on this page answers a question somebody who built it would
+// ask. This answers the four a person who did not build it actually asks, in
+// this order: what do I do now, how much work did that save me, can I trust
+// the number, and does any of it apply to what I just pasted in.
+//
+// It is C2's output and nothing else -- the counts are the conformal
+// decisions, the trust line is the calibration, the last line is the
+// exchangeability check. No number in it is computed here; they are all
+// already on the page in a form only an author could read.
+//
+// It replaced three stat boxes that printed the same three counts with no
+// sentence attached. A count is not an answer to "what do I do now".
+export const PLAIN = {
+  title: "What this means for you",
+
+  // The row headings are the same three words used in the legend, on the
+  // chips and on every card. A summary that invents its own vocabulary makes
+  // the reader learn the page twice.
+  flagBody:
+    "Read these ones. It is confident enough about them to stand behind them.",
+  unsureBody:
+    "It could not tell either way, so it is handing these to you rather than picking the likelier answer. Most tools of this kind will not do this.",
+  cleanTitle: "Left unmarked",
+  cleanBody: "Backed by the document. You do not need to read it again.",
+
+  nothing: "It went through the whole answer and found nothing the document does not support.",
+
+  // The counterweight is not optional. A percentage with nothing to read it
+  // against is the habit this project exists to complain about.
+  trustWith: (n: number) =>
+    `The percentages here are not the model's opinion of itself. They were corrected against ${n.toLocaleString()} answers whose truth was already known, so a passage marked 80 in 100 really is made up about 80 times in 100.`,
+  trustWithout:
+    "The percentages here are not the model's opinion of itself. They were corrected against thousands of answers whose truth was already known, so a passage marked 80 in 100 really is made up about 80 times in 100.",
+
+  appliesYes: "This text is the kind it was tested on, so those odds apply here.",
+  appliesNo:
+    "This text is not like anything it was tested on. The marks stand — the odds do not apply here.",
+  appliesNone: "No accuracy promise is attached to this one.",
+
+  effort: (sentences: number, marks: number) =>
+    `Checking this by hand means reading all ${sentences} sentences of the document. It has narrowed that down to ${marks} ${
+      marks === 1 ? "passage" : "passages"
+    }.`,
+  effortNothing: (sentences: number) =>
+    `It read all ${sentences} sentences of the document and found nothing it needed to hand you.`,
+} as const;
+
+export const DIAL = {
+  title: "How careful should it be?",
+  lead: "Turn it up and the system refuses more often and misses less. Turn it down and it commits to an answer almost every time. Watch the marks above change as you move it.",
+  // "in 100" rather than "%": a percentage is a unit somebody has to convert
+  // before it means anything, and this row is read by people who will not.
+  asked: "Set to catch",
+  caught: "Actually caught",
+  unsure: 'Says "not sure"',
+  stands: "Will stand behind",
+  perHundred: "in 100",
+  // The same four numbers as a sentence, above the four numbers. Somebody who
+  // reads only the sentence has still been told the trade.
+  summary: (asked: number, caught: number, unsure: number) =>
+    `Set to catch ${asked} out of every 100 made-up passages. When that was tested it caught ${caught}. The price is that it says "not sure" about ${unsure} out of every 100 passages it looks at.`,
+  inside: "That is inside the range a fair test is allowed to land in.",
+  outside: "That is below the range a fair test is allowed to land in, and it says so rather than rounding up.",
+  measured: "Measured at this exact setting, not carried over from another one.",
+  frozen: "This check was reopened from your history, so the dial shows the setting it was run at. Start a new check to move it.",
+  rerunning: "Checking again at the new setting…",
+  live: "Moving this re-runs the check, because the setting changes what the system will stand behind.",
+} as const;
 
 export const PROMISE = {
   holds: {

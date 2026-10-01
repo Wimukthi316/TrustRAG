@@ -24,6 +24,11 @@ export interface Span {
   nonconformity: number | null;
   conformal_decision: ConformalDecision | null;
   alpha: number | null;
+  // The labels the threshold could not rule out: [], [0], [1] or [0, 1].
+  // conformal_decision folds the empty set and the two-label set both onto
+  // "abstain", so the set is carried as well -- "borderline" and "will not
+  // stand behind either answer" are different things to tell a reader.
+  prediction_set: number[] | null;
   // C3 (not in PP2 scope -- render only if present)
   error_type: ErrorType | null;
   explanation: string | null;

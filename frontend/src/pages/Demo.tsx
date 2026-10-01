@@ -15,22 +15,33 @@ import {
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
-import { analyze } from "../api";
+import { analyze, getMetrics } from "../api";
 import { saveCheck } from "../history";
 import {
+  CORRECTION,
+  DIAL,
   ERROR_TYPE_DETAIL,
+  PLAIN,
   EVIDENCE,
   FIELD,
+  FIT,
   PROMISE,
+  RULED,
   TASK_LABEL,
+  TASK_PROMISE,
   VERDICT,
   careLabel,
 } from "../copy";
-import type { RecordedCase } from "../recorded";
+import { resultAt, type RecordedCase } from "../recorded";
 import type {
   AnalysisResult,
+  AnalyzeRequest,
   ConformalDecision,
+  CoverageRow,
+  DistributionCheck,
   ErrorType,
+  FeatureCheck,
+  MetricsResponse,
   Span,
   TaskType,
 } from "../types";
@@ -40,7 +51,7 @@ import {
   countByVerdict,
   sortedSpans,
 } from "../components/Marked";
-import { Band, BandHead, Button, Card, Reveal } from "../components/ui";
+import { Band, BandHead, Button, Card, Hint, Reveal } from "../components/ui";
 
 /**
  * The working page, read by scrolling.
@@ -89,16 +100,22 @@ const pct = (x: number | null) => (x === null ? "—" : `${Math.round(x * 100)}%
 
 export default function Demo({
   recorded,
+  alphas,
   opened = null,
   onProof,
 }: {
   recorded: RecordedCase[];
+  /** The settings the dial may offer. Empty means no dial. */
+  alphas: number[];
   /** A check reopened from the history page, if the reader came that way. */
   opened?: AnalysisResult | null;
   onProof: () => void;
 }) {
   const [slug, setSlug] = useState<string | null>(null);
-  const [result, setResult] = useState<AnalysisResult | null>(null);
+  // The result of a live check or a reopened one. A recorded case does not go
+  // through here: it is looked up from the file at the dial's current setting,
+  // so that turning the dial cannot leave the two out of step.
+  const [ownResult, setOwnResult] = useState<AnalysisResult | null>(null);
   const [active, setActive] = useState<number>(0);
 
   // Own-text mode. Kept collapsed: it needs the backend running, and the point
@@ -113,6 +130,23 @@ export default function Demo({
   const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState<"saved" | "failed" | null>(null);
   const [reopened, setReopened] = useState(false);
+  // What the last live check was run with, so the dial can run it again at a
+  // different setting. A recorded case needs none of this; a reopened one
+  // cannot be re-run, and the dial says so rather than going quiet.
+  const [lastRequest, setLastRequest] = useState<AnalyzeRequest | null>(null);
+
+  // C2's offline evidence, for the per-task figure at the bottom of the page.
+  //
+  // Fetched once, and allowed to fail without consequence: what it carries is
+  // an addition to the result on screen, never a precondition for it. The
+  // recorded runs exist so this page works with no backend at all, and a
+  // network error here must not take that away.
+  const [metrics, setMetrics] = useState<MetricsResponse | null>(null);
+  useEffect(() => {
+    getMetrics()
+      .then((next) => setMetrics(next.available ? next : null))
+      .catch(() => setMetrics(null));
+  }, []);
 
   // A check reopened from the history page wins over everything: the reader
   // clicked a specific row and is owed that row.
@@ -123,16 +157,22 @@ export default function Demo({
     setError(null);
     setSaved(null);
     setReopened(true);
-    setResult(opened);
+    setLastRequest(null);
+    setOwnResult(opened);
+    if (opened.alpha !== null) setAlpha(opened.alpha);
   }, [opened]);
 
   // Otherwise open on the first recorded case, so the page is never a blank
   // form.
   useEffect(() => {
-    if (result || opened || recorded.length === 0) return;
+    if (ownResult || opened || recorded.length === 0) return;
     setSlug(recorded[0].slug);
-    setResult(recorded[0].result);
-  }, [recorded, result, opened]);
+  }, [recorded, ownResult, opened]);
+
+  // What is on screen. A recorded case is read out of the file at the current
+  // setting; anything else is whatever the last check returned.
+  const chosen = slug ? (recorded.find((c) => c.slug === slug) ?? null) : null;
+  const result = chosen ? resultAt(chosen, alpha) : ownResult;
 
   const spans = useMemo(() => (result ? sortedSpans(result) : []), [result]);
 
@@ -148,7 +188,8 @@ export default function Demo({
     setSaved(null);
     setReopened(false);
     setSlug(next);
-    setResult(item.result);
+    setOwnResult(null);
+    setLastRequest(null);
   }
 
   async function runOwn() {
@@ -156,16 +197,18 @@ export default function Demo({
     setError(null);
     setSaved(null);
     setReopened(false);
+    const request: AnalyzeRequest = {
+      question,
+      context,
+      answer,
+      alpha,
+      task_type: taskType,
+    };
     try {
-      const next = await analyze({
-        question,
-        context,
-        answer,
-        alpha,
-        task_type: taskType,
-      });
+      const next = await analyze(request);
       setSlug(null);
-      setResult(next);
+      setLastRequest(request);
+      setOwnResult(next);
 
       // Only a real check is kept. Clicking through the three recorded
       // examples is not something anyone wants a history of, and filling the
@@ -183,7 +226,36 @@ export default function Demo({
     }
   }
 
-  const chosen = slug ? (recorded.find((c) => c.slug === slug) ?? null) : null;
+  /**
+   * Move the dial.
+   *
+   * A recorded case has every setting already built, so this only changes
+   * which one is read. A live check does not, and re-running it is the only
+   * honest way to move it: recomputing the threshold in the browser would be a
+   * second implementation of the guarantee, and the two would drift.
+   *
+   * A reopened check cannot be moved at all. It is a record of something that
+   * already happened at a setting somebody chose, and quietly re-deciding it
+   * here would turn a record into a live result without saying so.
+   */
+  async function moveDial(next: number) {
+    setAlpha(next);
+    if (chosen || reopened || !lastRequest) return;
+    setBusy(true);
+    setError(null);
+    // The saved note referred to the run at the old setting. Leaving it up
+    // would have the page claim that what is on screen is in the history when
+    // what is in the history is a different result.
+    setSaved(null);
+    try {
+      setOwnResult(await analyze({ ...lastRequest, alpha: next }));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    } finally {
+      setBusy(false);
+    }
+  }
+
   const counts = result ? countByVerdict(result) : { flag: 0, abstain: 0, pass: 0 };
 
   // "The document check read every sentence and would cite none of them" and
@@ -269,7 +341,11 @@ export default function Demo({
                 <p className="t-body max-w-2xl text-slate-600">
                   This one calls the live system, so it needs the local server to
                   be running. If it is not, the three examples above still work —
-                  they were recorded from real runs.
+                  they were recorded from real runs. It checks at{" "}
+                  <span className="font-medium text-slate-800">
+                    {careLabel(alpha).name.toLowerCase()}
+                  </span>
+                  ; you can move that on the dial once there is a result.
                 </p>
 
                 <div className="mt-6 space-y-5">
@@ -295,41 +371,27 @@ export default function Demo({
                     rows={5}
                   />
 
-                  <div className="grid gap-5 sm:grid-cols-2">
-                    <label className="block">
-                      <span className="t-body font-medium text-slate-800">
-                        {FIELD.task.label}
-                      </span>
-                      <select
-                        value={taskType}
-                        onChange={(e) => setTaskType(e.target.value as TaskType)}
-                        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[0.9375rem] text-slate-800"
-                      >
-                        {(Object.keys(TASK_LABEL) as TaskType[]).map((t) => (
-                          <option key={t} value={t}>
-                            {TASK_LABEL[t]}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-
-                    <label className="block">
-                      <span className="t-body font-medium text-slate-800">
-                        How careful should it be
-                      </span>
-                      <select
-                        value={alpha}
-                        onChange={(e) => setAlpha(Number(e.target.value))}
-                        className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[0.9375rem] text-slate-800"
-                      >
-                        {[0.1, 0.2, 0.3].map((a) => (
-                          <option key={a} value={a}>
-                            {careLabel(a).name} — {careLabel(a).line}
-                          </option>
-                        ))}
-                      </select>
-                    </label>
-                  </div>
+                  {/* There is no second setting control here. It used to
+                      offer three of the six settings from a dropdown while the
+                      dial below offered all six, which is one value with two
+                      controls -- the reader has no way to know which one won.
+                      The dial is the control; this form takes the text. */}
+                  <label className="block">
+                    <span className="t-body font-medium text-slate-800">
+                      {FIELD.task.label}
+                    </span>
+                    <select
+                      value={taskType}
+                      onChange={(e) => setTaskType(e.target.value as TaskType)}
+                      className="mt-2 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-[0.9375rem] text-slate-800 sm:max-w-sm"
+                    >
+                      {(Object.keys(TASK_LABEL) as TaskType[]).map((t) => (
+                        <option key={t} value={t}>
+                          {TASK_LABEL[t]}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
                 </div>
 
                 <div className="mt-7 flex flex-wrap items-center gap-4">
@@ -407,7 +469,34 @@ export default function Demo({
             />
 
             <Reveal>
-              <Card className="overflow-hidden">
+              <PlainSummary
+                result={result}
+                counts={counts}
+                plainShare={plainShare}
+                nTest={metrics?.n_test ?? null}
+              />
+            </Reveal>
+
+            {alphas.length > 1 && (
+              <Reveal delay={0.05}>
+                <CareDial
+                  alphas={alphas}
+                  alpha={alpha}
+                  onChange={moveDial}
+                  row={
+                    metrics?.coverage.find(
+                      (r) => Math.abs(r.alpha - alpha) < 1e-9,
+                    ) ?? null
+                  }
+                  busy={busy}
+                  frozen={reopened}
+                  live={!chosen && !reopened && lastRequest !== null}
+                />
+              </Reveal>
+            )}
+
+            <Reveal delay={0.1}>
+              <Card className="mt-5 overflow-hidden">
                 <div className="border-b border-slate-100 px-6 py-4 sm:px-8">
                   <VerdictLegend />
                 </div>
@@ -430,28 +519,6 @@ export default function Demo({
               </Reveal>
             )}
 
-            <Reveal delay={0.1}>
-              <div className="mt-6 grid gap-4 sm:grid-cols-3">
-                <Tally
-                  tone="flag"
-                  n={counts.flag}
-                  label={VERDICT.flag.label}
-                  note="The document does not back these up."
-                />
-                <Tally
-                  tone="abstain"
-                  n={counts.abstain}
-                  label={VERDICT.abstain.label}
-                  note="Handed to a person rather than guessed at."
-                />
-                <Tally
-                  tone="pass"
-                  n={`${Math.round(plainShare * 100)}%`}
-                  label="Of the answer left plain"
-                  note="Backed by the document. Read it and move on."
-                />
-              </div>
-            </Reveal>
           </Band>
 
           {/* ---- 4. each mark ----------------------------------------- */}
@@ -491,7 +558,7 @@ export default function Demo({
               lead="The percentages above are only worth something if this text resembles the material the system was tested against. So before it shows you anything, it checks — and when the answer is no, it says so instead of quietly carrying on."
             />
             <Reveal>
-              <PromiseNotice result={result} />
+              <PromiseNotice result={result} metrics={metrics} />
             </Reveal>
           </Band>
 
@@ -518,6 +585,127 @@ export default function Demo({
   );
 }
 
+/**
+ * The four questions a person who did not build this actually asks.
+ *
+ * In this order, because it is the order they are asked in: what do I do now,
+ * how much work did that save me, can I trust the number, and does any of it
+ * apply to the text I just pasted in. Everything else on the page answers a
+ * question an author would ask.
+ *
+ * Every quantity in it is already elsewhere on the page in a form only an
+ * author can read: the counts are C2's conformal decisions, the trust line is
+ * its calibration, the last line is its distribution check. Nothing is
+ * computed here that is not computed there.
+ *
+ * It replaced three stat boxes that printed the same three counts with no
+ * sentence attached to any of them. A count is not an answer to "what do I do
+ * now", and this page has now been rebuilt twice to remove exactly that.
+ */
+function PlainSummary({
+  result,
+  counts,
+  plainShare,
+  nTest,
+}: {
+  result: AnalysisResult;
+  counts: Record<ConformalDecision, number>;
+  /** Share of the answer carrying no mark at all. */
+  plainShare: number;
+  /** How many held-out answers the correction was checked against. */
+  nTest: number | null;
+}) {
+  const sentences = result.context_sentences.length;
+  const marks = result.spans.length;
+  const check = result.distribution_check;
+  const good = result.guarantee_applies;
+  const applies = good
+    ? PLAIN.appliesYes
+    : check?.checked
+      ? PLAIN.appliesNo
+      : PLAIN.appliesNone;
+
+  const rows: {
+    tone: ConformalDecision;
+    n: string;
+    title: string;
+    body: string;
+  }[] = [];
+  if (counts.flag > 0) {
+    rows.push({
+      tone: "flag",
+      n: String(counts.flag),
+      title: VERDICT.flag.label,
+      body: PLAIN.flagBody,
+    });
+  }
+  if (counts.abstain > 0) {
+    rows.push({
+      tone: "abstain",
+      n: String(counts.abstain),
+      title: VERDICT.abstain.label,
+      body: PLAIN.unsureBody,
+    });
+  }
+  rows.push({
+    tone: "pass",
+    n: `${Math.round(plainShare * 100)}%`,
+    title: PLAIN.cleanTitle,
+    body: PLAIN.cleanBody,
+  });
+
+  return (
+    <Card className="p-6 sm:p-8">
+      <p className="t-h3 text-slate-900">{PLAIN.title}</p>
+
+      {marks === 0 && (
+        <p className="t-lead mt-3 max-w-2xl text-slate-700">{PLAIN.nothing}</p>
+      )}
+
+      <ul className="mt-6 space-y-5">
+        {rows.map((row) => (
+          <li key={row.title} className="flex gap-4 sm:gap-5">
+            <span
+              className={`tnum flex h-11 w-14 shrink-0 items-center justify-center rounded-xl text-[1.25rem] font-semibold ${SKIN[row.tone].chip}`}
+            >
+              {row.n}
+            </span>
+            <div className="min-w-0">
+              <p className="t-body font-semibold text-slate-900">{row.title}</p>
+              <p className="t-small mt-1 max-w-xl leading-relaxed text-slate-600">
+                {row.body}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div className="mt-7 space-y-3 border-t border-slate-200/80 pt-6">
+        <p className="t-small max-w-2xl text-slate-600">
+          {marks === 0
+            ? PLAIN.effortNothing(sentences)
+            : PLAIN.effort(sentences, marks)}
+        </p>
+        <p className="t-small max-w-2xl text-slate-600">
+          {nTest === null ? PLAIN.trustWithout : PLAIN.trustWith(nTest)}
+        </p>
+        <p
+          className={`t-small flex max-w-2xl items-start gap-2 font-medium ${
+            good ? "text-pass-ink" : "text-abstain-ink"
+          }`}
+        >
+          {good ? (
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          ) : (
+            <TriangleAlert className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+          )}
+          {applies}
+        </p>
+      </div>
+    </Card>
+  );
+}
+
 function headline(counts: Record<ConformalDecision, number>): string {
   if (counts.flag === 0 && counts.abstain === 0) {
     return "It found nothing the document does not support.";
@@ -532,24 +720,157 @@ function headline(counts: Record<ConformalDecision, number>): string {
   return `It found ${parts.join(", and ")}.`;
 }
 
-function Tally({
-  tone,
-  n,
-  label,
-  note,
+/**
+ * The one dial.
+ *
+ * Six stops, not a continuous slider, and that is the point rather than a
+ * limitation: these are the settings C2's offline run actually measured, so
+ * every position has a real coverage figure to sit beside it. A continuous
+ * control would let a reader land somewhere nothing was ever measured and
+ * still show them a number, which is the habit this whole component exists to
+ * argue against.
+ *
+ * The figures under it are read from /api/metrics, which reads the same JSON
+ * the report is built from. If the API is not answering they are simply
+ * absent; the dial still works, because the results it selects between were
+ * built offline and are already in the page.
+ */
+function CareDial({
+  alphas,
+  alpha,
+  onChange,
+  row,
+  busy,
+  frozen,
+  live,
 }: {
-  tone: ConformalDecision;
-  n: number | string;
+  alphas: number[];
+  alpha: number;
+  onChange: (next: number) => void;
+  /** What was measured at this exact setting, when the API is answering. */
+  row: CoverageRow | null;
+  busy: boolean;
+  /** A reopened check: a record of a run, not a run. */
+  frozen: boolean;
+  /** Moving it will call the live system again. */
+  live: boolean;
+}) {
+  const stops = [...alphas].sort((a, b) => b - a); // careless on the left
+  const index = Math.max(
+    0,
+    stops.findIndex((a) => Math.abs(a - alpha) < 1e-9),
+  );
+  const care = careLabel(alpha);
+
+  return (
+    <Card className="p-6 sm:p-8">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
+        <p className="t-h3 text-slate-900">{DIAL.title}</p>
+        <p className="t-small font-medium text-slate-700">{care.name}</p>
+      </div>
+      <p className="t-body mt-2.5 max-w-2xl text-slate-600">{DIAL.lead}</p>
+
+      <div className="mt-6 max-w-2xl">
+        <label className="sr-only" htmlFor="care-dial">
+          {DIAL.title}
+        </label>
+        <input
+          id="care-dial"
+          type="range"
+          min={0}
+          max={stops.length - 1}
+          step={1}
+          value={index}
+          disabled={frozen || busy}
+          onChange={(e) => onChange(stops[Number(e.target.value)])}
+          className="h-2 w-full cursor-pointer appearance-none rounded-full bg-slate-200 accent-brand-600 disabled:cursor-not-allowed disabled:opacity-50"
+        />
+        <div className="mt-2 flex justify-between">
+          {stops.map((stop) => (
+            <button
+              key={stop}
+              type="button"
+              disabled={frozen || busy}
+              onClick={() => onChange(stop)}
+              className={`tnum rounded px-1 py-0.5 text-[0.75rem] transition disabled:cursor-not-allowed ${
+                Math.abs(stop - alpha) < 1e-9
+                  ? "font-semibold text-slate-900"
+                  : "text-slate-400 hover:text-slate-700"
+              }`}
+            >
+              {Math.round((1 - stop) * 100)}
+            </button>
+          ))}
+        </div>
+        <p className="t-small mt-1 text-slate-500">{care.line}</p>
+      </div>
+
+      {row && (
+        <>
+          {/* The same four numbers as one sentence, above the four numbers.
+              Somebody who reads only the sentence has still been told the
+              trade the dial makes, which is the only thing they need from it. */}
+          <p className="t-body mt-7 max-w-2xl border-t border-slate-200/80 pt-6 text-slate-700">
+            {DIAL.summary(
+              Math.round(row.target_coverage * 100),
+              Math.round(row.empirical_coverage * 100),
+              Math.round(row.abstention_rate * 100),
+            )}
+          </p>
+          <div className="mt-6 grid gap-5 sm:grid-cols-4">
+            <DialStat label={DIAL.asked} value={row.target_coverage} muted />
+            <DialStat label={DIAL.caught} value={row.empirical_coverage} />
+            <DialStat label={DIAL.unsure} value={row.abstention_rate} />
+            <DialStat label={DIAL.stands} value={row.flag_rate} />
+          </div>
+        </>
+      )}
+
+      <p className="t-small mt-5 text-slate-500">
+        {frozen
+          ? DIAL.frozen
+          : busy
+            ? DIAL.rerunning
+            : row
+              ? `${row.inside_band ? DIAL.inside : DIAL.outside} ${DIAL.measured}`
+              : live
+                ? DIAL.live
+                : ""}
+      </p>
+    </Card>
+  );
+}
+
+/**
+ * One of the dial's four numbers, as a count out of a hundred.
+ *
+ * Not a percentage. "48%" is a unit a reader has to convert before it means
+ * anything, and the readers this page is for will not convert it; "48 in 100"
+ * is already the thing they wanted to know.
+ */
+function DialStat({
+  label,
+  value,
+  muted = false,
+}: {
   label: string;
-  note: string;
+  /** A rate in [0, 1]. Printed as a count out of a hundred. */
+  value: number;
+  muted?: boolean;
 }) {
   return (
-    <div className={`rounded-xl bg-white p-5 ring-1 ring-inset ${SKIN[tone].ring}`}>
-      <p className="tnum text-[1.75rem] font-semibold leading-none tracking-tight text-slate-900">
-        {n}
+    <div>
+      <p className="t-small text-slate-500">{label}</p>
+      <p className="mt-1 flex items-baseline gap-1.5">
+        <span
+          className={`tnum text-[1.375rem] font-semibold leading-none tracking-tight ${
+            muted ? "text-slate-500" : "text-slate-900"
+          }`}
+        >
+          {Math.round(value * 100)}
+        </span>
+        <span className="t-small text-slate-500">{DIAL.perHundred}</span>
       </p>
-      <p className="t-body mt-2.5 font-medium text-slate-800">{label}</p>
-      <p className="t-small mt-1 text-slate-500">{note}</p>
     </div>
   );
 }
@@ -614,6 +935,12 @@ function SpanCard({
   const verdict = VERDICT[decision];
   const Icon = VERDICT_ICON[decision];
   const score = span.calibrated_score;
+  const raw = span.span_score;
+  // A point of difference is the smallest movement worth a sentence; below it
+  // the two numbers print the same and the line would be claiming a change the
+  // reader cannot see.
+  const moved =
+    raw !== null && score !== null && Math.abs(raw - score) >= 0.01;
   const checked = attributed;
   const typed = span.error_type && span.error_type !== "unknown";
 
@@ -663,15 +990,39 @@ function SpanCard({
                   {pct(score)}
                 </p>
               </div>
-              <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-slate-200/70">
-                <motion.div
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${Math.round(score * 100)}%` }}
-                  viewport={{ once: true, amount: 0.6 }}
-                  transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                  className={`h-full rounded-full ${skin.bar}`}
-                />
+              {/* The bar carries two quantities: the fill is the corrected
+                  score, and the hairline is where the detector's own score
+                  sat before C2 touched it. The reliability diagram on the
+                  proof page argues the correction over 2,390 passages, which
+                  is the right way to argue it and the wrong way to show it.
+                  Here it is one number moving, on the passage in front of the
+                  reader, on the screen where the system is actually judged. */}
+              <div className="relative mt-2">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-slate-200/70">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${Math.round(score * 100)}%` }}
+                    viewport={{ once: true, amount: 0.6 }}
+                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    className={`h-full rounded-full ${skin.bar}`}
+                  />
+                </div>
+                {raw !== null && (
+                  <span
+                    aria-hidden
+                    style={{ left: `${Math.max(0, Math.min(100, raw * 100))}%` }}
+                    className="absolute -top-1 h-4 w-[2px] -translate-x-1/2 rounded-full bg-slate-500"
+                  />
+                )}
               </div>
+              {raw !== null && (
+                <p className="t-small mt-2 flex items-center gap-1.5 text-slate-500">
+                  <span className="h-3 w-[2px] rounded-full bg-slate-500" aria-hidden />
+                  {CORRECTION.label}{" "}
+                  <span className="tnum font-medium text-slate-700">{pct(raw)}</span>
+                  <Hint text={moved ? CORRECTION.moved : CORRECTION.same} />
+                </p>
+              )}
             </div>
           )}
         </div>
@@ -682,7 +1033,14 @@ function SpanCard({
             for a person. The "corrected against thousands of answers"
             explanation used to print on every card, four times a page; it is
             said once now, in this band's own introduction. */}
-        {decision === "abstain" && (
+        <RuledOut set={span.prediction_set} />
+
+        {/* The fallback, and only the fallback. RuledOut says this and says
+            which of the two ABSTAINs it was; it can only do that when the
+            result carries the set. A check saved before the contract did
+            cannot, and for those this sentence is still the most honest thing
+            available. */}
+        {decision === "abstain" && span.prediction_set === null && (
           <p className="t-small mt-4 text-slate-600">{verdict.lead}</p>
         )}
       </div>
@@ -855,7 +1213,199 @@ function MistakeKind({
   );
 }
 
-function PromiseNotice({ result }: { result: AnalysisResult }) {
+/**
+ * The decision, shown as the set it actually is.
+ *
+ * A split-conformal decision is not a label the model picked. It is the set of
+ * answers the calibrated threshold could not rule out, and the three verdicts
+ * on screen are only the shapes that set can take. Once a reader has seen the
+ * set, "not sure" stops reading as a number that happened to land in the
+ * middle and starts reading as what it is: a refusal the method arrived at on
+ * purpose. That is the most common misreading of this system and two chips fix
+ * it better than a paragraph does.
+ *
+ * It renders nothing when the set is absent. A result saved before the
+ * contract carried it cannot say which of the two ABSTAINs it was, and
+ * guessing the commoner one on screen would be exactly the class of mistake
+ * this component exists to prevent.
+ */
+function RuledOut({ set }: { set: number[] | null }) {
+  if (set === null) return null;
+
+  // 1 is "not in the document": the detector predicts hallucination, so the
+  // positive label is the bad news. The verdict is deliberately not a prop --
+  // the set is what the verdict was read off, not the other way round, and
+  // taking both would let them disagree on screen.
+  const keptNo = set.includes(1);
+  const keptYes = set.includes(0);
+  const kept = set.length;
+
+  const chip = (live: boolean, tone: "flag" | "pass", label: string) => (
+    <span
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.8125rem] font-medium ring-1 ring-inset ${
+        live
+          ? `${SKIN[tone].chip} ring-transparent`
+          : "bg-transparent text-slate-400 line-through ring-slate-200"
+      }`}
+    >
+      {label}
+    </span>
+  );
+
+  return (
+    <div className="mt-4">
+      {/* The sentence prints only when it says something the verdict chip
+          above has not already said. On a flag or a pass it would be the
+          third restatement of one fact on one card; on either kind of
+          ABSTAIN it is the only place the difference is stated at all. */}
+      {kept !== 1 && (
+        <p className="t-small font-medium text-slate-700">
+          {kept === 2 ? RULED.both : RULED.none}
+        </p>
+      )}
+      <div
+        className={`flex flex-wrap items-center gap-x-3 gap-y-2 ${
+          kept === 1 ? "" : "mt-2.5"
+        }`}
+      >
+        <span className="t-small flex items-center gap-1.5 text-slate-500">
+          {RULED.title}
+          <Hint text={RULED.hint} />
+        </span>
+        {chip(keptNo, "flag", RULED.no)}
+        {chip(keptYes, "pass", RULED.yes)}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * The distribution check, opened up.
+ *
+ * It shipped as one green or amber card, which asks a reader to take the
+ * verdict on trust -- from the component whose entire purpose is not asking
+ * anyone to take a number on trust. Every quantity below was already being
+ * measured and sent on every response, and nothing read them.
+ *
+ * The track is a percentile, not a value: where this text sits among the
+ * material the promise was calibrated on. The middle is ordinary and both ends
+ * are far from anything the system was tested against, so it is drawn as a
+ * range with a marker rather than as a bar filling from the left, which would
+ * read as "more is worse".
+ */
+function FitStrip({ check }: { check: DistributionCheck }) {
+  if (check.features.length === 0) return null;
+
+  return (
+    <Card className="mt-5 p-6 sm:p-8">
+      <p className="t-h3 text-slate-900">{FIT.title}</p>
+      <p className="t-body mt-2.5 max-w-2xl text-slate-600">{FIT.lead}</p>
+
+      <ul className="mt-6 space-y-4">
+        {check.features.map((f: FeatureCheck) => {
+          const at = Math.max(0, Math.min(1, f.percentile));
+          const where = at <= 0.05 ? FIT.low : at >= 0.95 ? FIT.high : FIT.middle;
+          return (
+            <li key={f.name} className="grid gap-2 sm:grid-cols-[14rem_1fr] sm:gap-5">
+              <p
+                className={`t-small font-medium ${
+                  f.unusual ? "text-abstain-ink" : "text-slate-700"
+                }`}
+              >
+                {f.label}
+              </p>
+              <div>
+                <div className="relative h-2 rounded-full bg-slate-200/70">
+                  <span
+                    aria-hidden
+                    style={{ left: `${at * 100}%` }}
+                    className={`absolute -top-1 h-4 w-[3px] -translate-x-1/2 rounded-full ${
+                      f.unusual ? "bg-abstain" : "bg-slate-600"
+                    }`}
+                  />
+                </div>
+                <p className="t-small mt-1.5 text-slate-500">
+                  {where}
+                  {f.unusual ? ` — ${FIT.unusual.toLowerCase()}` : ""}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="t-small mt-6 border-t border-slate-200/80 pt-4 text-slate-500">
+        {FIT.onesided}
+      </p>
+    </Card>
+  );
+}
+
+/**
+ * The promise for one kind of text, rather than the pooled figure.
+ *
+ * Coverage has always been reported per task in the results and only the
+ * pooled number ever reached a screen. Pooled is the weaker claim -- a system
+ * can hold 88% across everything while missing badly on one task of three --
+ * and a reader looking at a summarisation result is owed the summarisation
+ * number. `inside_band` is not a fudge factor: the band comes from the two
+ * split sizes and says how far a fair run is allowed to fall short.
+ */
+function TaskPromise({
+  result,
+  metrics,
+}: {
+  result: AnalysisResult;
+  metrics: MetricsResponse;
+}) {
+  const row = metrics.per_task.find((r) => r.group === result.task_type);
+
+  return (
+    <Card className="mt-5 p-6 sm:p-8">
+      <p className="t-h3 text-slate-900">{TASK_PROMISE.title}</p>
+      <p className="t-body mt-2.5 max-w-2xl text-slate-600">{TASK_PROMISE.lead}</p>
+
+      {row ? (
+        <>
+          <div className="mt-6 flex flex-wrap items-end gap-x-10 gap-y-5">
+            <div>
+              <p className="t-small text-slate-500">{TASK_PROMISE.asked}</p>
+              <p className="tnum mt-1 text-[1.625rem] font-semibold leading-none tracking-tight text-slate-500">
+                90%
+              </p>
+            </div>
+            <div>
+              <p className="t-small text-slate-500">
+                {TASK_PROMISE.caught} · {TASK_LABEL[result.task_type]}
+              </p>
+              <p className="tnum mt-1 text-[1.625rem] font-semibold leading-none tracking-tight text-slate-900">
+                {pct(row.empirical_coverage)}
+              </p>
+            </div>
+          </div>
+          <p
+            className={`t-small mt-5 ${
+              row.inside_band ? "text-slate-600" : "text-abstain-ink"
+            }`}
+          >
+            {row.inside_band ? TASK_PROMISE.inside : TASK_PROMISE.outside} Measured
+            on {row.n_test.toLocaleString()} passages of this kind.
+          </p>
+        </>
+      ) : (
+        <p className="t-small mt-5 text-slate-600">{TASK_PROMISE.none}</p>
+      )}
+    </Card>
+  );
+}
+
+function PromiseNotice({
+  result,
+  metrics,
+}: {
+  result: AnalysisResult;
+  metrics: MetricsResponse | null;
+}) {
   const check = result.distribution_check;
   const state = !result.guarantee_applies
     ? check?.checked
@@ -865,36 +1415,41 @@ function PromiseNotice({ result }: { result: AnalysisResult }) {
   const good = result.guarantee_applies;
 
   return (
-    <Card
-      className={`p-6 ring-1 ring-inset sm:p-8 ${
-        good ? "ring-pass-ring" : "ring-abstain-ring"
-      }`}
-    >
-      <div className="flex flex-col gap-5 sm:flex-row">
-        <span
-          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
-            good ? "bg-pass-soft text-pass-ink" : "bg-abstain-soft text-abstain-ink"
-          }`}
-        >
-          {good ? (
-            <ShieldCheck className="h-6 w-6" aria-hidden />
-          ) : (
-            <TriangleAlert className="h-6 w-6" aria-hidden />
-          )}
-        </span>
-        <div className="min-w-0">
-          <h3 className="t-h3 text-slate-900">{state.title}</h3>
-          <p className="t-lead mt-3 max-w-2xl text-slate-600">{state.body}</p>
-          {!good && (
-            <p className="t-body mt-4 max-w-2xl text-slate-500">
-              Most tools would have shown you the same percentages here without
-              mentioning it. Saying so costs us a clean demo and is the more
-              useful thing to do.
-            </p>
-          )}
+    <>
+      <Card
+        className={`p-6 ring-1 ring-inset sm:p-8 ${
+          good ? "ring-pass-ring" : "ring-abstain-ring"
+        }`}
+      >
+        <div className="flex flex-col gap-5 sm:flex-row">
+          <span
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${
+              good ? "bg-pass-soft text-pass-ink" : "bg-abstain-soft text-abstain-ink"
+            }`}
+          >
+            {good ? (
+              <ShieldCheck className="h-6 w-6" aria-hidden />
+            ) : (
+              <TriangleAlert className="h-6 w-6" aria-hidden />
+            )}
+          </span>
+          <div className="min-w-0">
+            <h3 className="t-h3 text-slate-900">{state.title}</h3>
+            <p className="t-lead mt-3 max-w-2xl text-slate-600">{state.body}</p>
+            {!good && (
+              <p className="t-body mt-4 max-w-2xl text-slate-500">
+                Most tools would have shown you the same percentages here
+                without mentioning it. Saying so costs us a clean demo and is
+                the more useful thing to do.
+              </p>
+            )}
+          </div>
         </div>
-      </div>
-    </Card>
+      </Card>
+
+      {check?.checked && <FitStrip check={check} />}
+      {metrics && <TaskPromise result={result} metrics={metrics} />}
+    </>
   );
 }
 

@@ -110,11 +110,39 @@ def test_c2_layer_recomputes_the_quantile_for_any_alpha():
 def test_c2_layer_decisions_split_flag_abstain_and_pass():
     layer = C2Layer(_artifact(nonconformity=[0.3] * 100))
     # threshold ends up at 0.3: p=0.95 keeps only label 1, p=0.05 keeps only 0.
-    flag, nonconformity = layer.decide(0.95, alpha=0.1)
+    flag, nonconformity, label_set = layer.decide(0.95, alpha=0.1)
     assert flag is ConformalDecision.FLAG
     assert nonconformity == pytest.approx(0.05)
+    assert label_set == [1]
     assert layer.decide(0.05, alpha=0.1)[0] is ConformalDecision.PASS
+    assert layer.decide(0.05, alpha=0.1)[2] == [0]
     assert layer.decide(0.50, alpha=0.1)[0] is ConformalDecision.ABSTAIN
+    # And this ABSTAIN is the EMPTY set, not the two-label one: at a threshold
+    # of 0.3 a probability of 0.5 clears neither hypothesis. It is the clearest
+    # possible demonstration of why the set is carried separately -- read off
+    # `conformal_decision` alone, this span is indistinguishable from one the
+    # system found genuinely borderline, and it is the opposite of that.
+    assert layer.decide(0.50, alpha=0.1)[2] == []
+
+
+def test_c2_layer_tells_the_two_shapes_of_abstain_apart():
+    """ABSTAIN is two opposite states and only the set separates them.
+
+    Wide non-conformities put the threshold above 0.5, so a mid probability
+    clears BOTH hypotheses and the set comes back with both labels in it: the
+    span is genuinely borderline. Tight ones put the threshold below 0.5 and
+    the same probability clears NEITHER: the system will not stand behind
+    either answer. `conformal_decision` says ABSTAIN in both cases.
+    """
+    borderline = C2Layer(_artifact(nonconformity=[0.6] * 100))
+    decision, _, label_set = borderline.decide(0.5, alpha=0.1)
+    assert decision is ConformalDecision.ABSTAIN
+    assert label_set == [0, 1]
+
+    neither = C2Layer(_artifact(nonconformity=[0.02] * 100))
+    decision, _, label_set = neither.decide(0.5, alpha=0.1)
+    assert decision is ConformalDecision.ABSTAIN
+    assert label_set == []
 
 
 def test_c2_layer_loads_from_a_file(tmp_path):

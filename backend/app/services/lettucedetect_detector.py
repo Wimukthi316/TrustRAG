@@ -192,23 +192,33 @@ class C2Layer:
 
         return conformal_quantile(self.nonconformity, alpha)
 
-    def decide(self, calibrated: float, alpha: float) -> Tuple[ConformalDecision, float]:
-        """Return the decision and the span's non-conformity score.
+    def decide(
+        self, calibrated: float, alpha: float
+    ) -> Tuple[ConformalDecision, float, List[int]]:
+        """Return the decision, the span's non-conformity score, and the set.
 
         The non-conformity reported is the one for the *flagged* hypothesis,
         1 - p, which is what the UI tooltip should show: how unusual it would be
         for this span to be a genuine hallucination.
+
+        The set is returned alongside the decision rather than derived from it,
+        because it cannot be: ABSTAIN covers both the two-label set and the
+        empty set, and those are opposite states. Both are real at the alphas
+        the interface offers -- the empty set is 19.4% of spans at alpha 0.40.
         """
         q = self.threshold(alpha)
-        keep_one = (1.0 - calibrated) <= q
         keep_zero = calibrated <= q
+        keep_one = (1.0 - calibrated) <= q
+        prediction_set = [
+            label for label, keep in ((0, keep_zero), (1, keep_one)) if keep
+        ]
         if keep_one and not keep_zero:
             decision = ConformalDecision.FLAG
         elif keep_zero and not keep_one:
             decision = ConformalDecision.PASS
         else:
             decision = ConformalDecision.ABSTAIN
-        return decision, 1.0 - calibrated
+        return decision, 1.0 - calibrated, prediction_set
 
 
 class LettuceDetectDetector:
@@ -482,9 +492,9 @@ class LettuceDetectDetector:
             candidates, raw_scores, calibrated, covered_probs
         ):
             if self.c2:
-                decision, nonconformity = self.c2.decide(cal, req.alpha)
+                decision, nonconformity, label_set = self.c2.decide(cal, req.alpha)
             else:
-                decision, nonconformity = None, None
+                decision, nonconformity, label_set = None, None, None
             # A PASS span is the rest of the answer and is not worth drawing.
             if decision is ConformalDecision.PASS:
                 continue
@@ -509,6 +519,7 @@ class LettuceDetectDetector:
                     if nonconformity is not None
                     else None,
                     conformal_decision=decision,
+                    prediction_set=label_set,
                     alpha=req.alpha if self.c2 else None,
                     error_type=c3.get("error_type"),
                     explanation=c3.get("explanation"),

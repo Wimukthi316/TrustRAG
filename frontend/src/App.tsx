@@ -4,6 +4,7 @@ import Nav, { type View } from "./components/Nav";
 import Home from "./pages/Home";
 import Demo from "./pages/Demo";
 import Proof from "./pages/Proof";
+import Adaptive from "./pages/Adaptive";
 import History from "./pages/History";
 import { getRecordedRuns, type RecordedCase } from "./recorded";
 import type { AnalysisResult } from "./types";
@@ -35,6 +36,10 @@ export default function App() {
   // does not, which in front of a room is the only thing that matters.
   const [recorded, setRecorded] = useState<RecordedCase[]>([]);
 
+  // The settings the dial may offer. They come out of the same file as the
+  // cases, so the dial can never offer a position that was not built.
+  const [alphas, setAlphas] = useState<number[]>([]);
+
   // A check opened from the history page. It is shown on the demo page rather
   // than on a fourth kind of screen, because a saved result and a fresh one are
   // the same thing and deserve the same six bands.
@@ -42,8 +47,14 @@ export default function App() {
 
   useEffect(() => {
     getRecordedRuns()
-      .then((runs) => setRecorded(runs.cases))
-      .catch(() => setRecorded([]));
+      .then((runs) => {
+        setRecorded(runs.cases);
+        setAlphas((runs.alphas ?? [String(runs.alpha)]).map(Number));
+      })
+      .catch(() => {
+        setRecorded([]);
+        setAlphas([]);
+      });
   }, []);
 
   // Moving between pages should start at the top of the new one.
@@ -82,11 +93,13 @@ export default function App() {
             {view === "demo" && (
               <Demo
                 recorded={recorded}
+                alphas={alphas}
                 opened={opened}
                 onProof={() => setView("proof")}
               />
             )}
             {view === "proof" && <Proof onDemo={() => setView("demo")} />}
+            {view === "adaptive" && <Adaptive onProof={() => setView("proof")} />}
             {view === "history" && (
               <History
                 onOpen={(result) => {

@@ -2,12 +2,13 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Menu, ShieldCheck, X } from "lucide-react";
 
-export type View = "home" | "demo" | "proof" | "history";
+export type View = "home" | "demo" | "proof" | "adaptive" | "history";
 
 const ITEMS: { id: View; label: string }[] = [
   { id: "home", label: "How it works" },
   { id: "demo", label: "See it work" },
   { id: "proof", label: "Why believe it" },
+  { id: "adaptive", label: "Under shift" },
   { id: "history", label: "Your history" },
 ];
 

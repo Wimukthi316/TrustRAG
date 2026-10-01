@@ -97,6 +97,19 @@ class Span(BaseModel):
         default=None, gt=0.0, lt=1.0,
         description="Miscoverage level the decision was taken at (target coverage = 1 - alpha)",
     )
+    prediction_set: Optional[List[int]] = Field(
+        default=None,
+        description=(
+            "The labels the calibrated threshold could not rule out, ascending: "
+            "[], [0], [1] or [0, 1]. Carried separately because "
+            "`conformal_decision` cannot express all four -- SplitConformal."
+            "decisions() maps the two-label set AND the empty set both onto "
+            "ABSTAIN, so a genuinely borderline span and a span the system will "
+            "not stand behind either way arrive identical. The empty set is not "
+            "hypothetical: 0.0% of spans at alpha 0.10, 19.4% at alpha 0.40 "
+            "(results/c2/c1/c2_results.json). None means no conformal layer ran."
+        ),
+    )
 
     # --- C3: explanation (not in PP2 scope) ---------------------------
     error_type: Optional[ErrorType] = None
@@ -116,6 +129,14 @@ class Span(BaseModel):
     def _check_offsets(self) -> "Span":
         if self.end <= self.start:
             raise ValueError(f"end ({self.end}) must be greater than start ({self.start})")
+        if self.prediction_set is not None:
+            labels = self.prediction_set
+            if any(v not in (0, 1) for v in labels):
+                raise ValueError(f"prediction_set may only contain 0 and 1, got {labels}")
+            if labels != sorted(set(labels)):
+                raise ValueError(
+                    f"prediction_set must be ascending and without repeats, got {labels}"
+                )
         return self
 
 

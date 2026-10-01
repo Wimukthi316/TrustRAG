@@ -11,10 +11,14 @@ from src.common.recorded_analysis import (
     C2_ARTIFACT,
     CALIB_DUMP,
     CASES,
+    DEFAULT_ALPHA,
+    DIAL_ALPHAS,
     OUT,
     RAW_DIR,
     TEST_DUMP,
     RecordedRuns,
+    alpha_key,
+    build_cases,
 )
 from src.common.schema import AnalysisResult, ConformalDecision
 
@@ -135,3 +139,67 @@ def test_the_cases_cover_the_states_they_were_chosen_for(runs: RecordedRuns):
     assert any(s.evidence_sentence for s in all_spans), "no case shows an evidence hit"
     assert any(not s.evidence_sentence for s in all_spans), "no case shows an abstention"
     assert any(not r.guarantee_applies for r in results.values())
+
+
+@needs_artefacts
+def test_every_dial_setting_is_built(runs: RecordedRuns):
+    """The dial selects between builds; it must never interpolate between them.
+
+    A setting with no build falls back to the default one, and the reader then
+    sees a result that belongs to a different setting under a label that says
+    otherwise. Nothing on the screen would look wrong.
+    """
+    for case in build_cases(runs):
+        built = {alpha_key(DEFAULT_ALPHA), *case["variants"]}
+        missing = [alpha_key(a) for a in DIAL_ALPHAS if alpha_key(a) not in built]
+        assert not missing, f"{case['slug']} has no build at alpha {missing}"
+
+
+@needs_artefacts
+def test_loosening_the_promise_leaves_fewer_passages_undecided(runs: RecordedRuns):
+    """A dial that moves and changes nothing demonstrates the opposite of its point.
+
+    A larger alpha is a weaker promise, so it must not leave MORE passages
+    undecided than a smaller one. This is the direction the whole trade rests
+    on and it is asserted rather than assumed, because a regeneration against a
+    stale artefact could produce six identical results and the page would look
+    exactly the same.
+    """
+    cases = build_cases(runs)
+
+    def undecided(key: str) -> int:
+        total = 0
+        for case in cases:
+            builds = {alpha_key(DEFAULT_ALPHA): case["result"], **case["variants"]}
+            total += sum(
+                1
+                for span in builds[key]["spans"]
+                if span["conformal_decision"] == "abstain"
+            )
+        return total
+
+    strict = undecided(alpha_key(min(DIAL_ALPHAS)))
+    loose = undecided(alpha_key(max(DIAL_ALPHAS)))
+    assert strict >= loose, (
+        f"loosening the promise left more passages undecided ({loose}) than "
+        f"tightening it ({strict}), which is backwards"
+    )
+
+
+@needs_artefacts
+def test_the_prediction_set_travels_with_the_decision(runs: RecordedRuns):
+    """ABSTAIN is two opposite states and only the set separates them.
+
+    Recorded runs are what the interface shows when there is no backend, so a
+    field missing here is a field missing in front of a panel.
+    """
+    for case in CASES:
+        for span in runs.build(case["id"]).spans:
+            assert span.prediction_set is not None, (
+                f"{case['slug']}: a recorded span carries no prediction set"
+            )
+            assert set(span.prediction_set) <= {0, 1}
+            if span.conformal_decision is ConformalDecision.FLAG:
+                assert span.prediction_set == [1]
+            if span.conformal_decision is ConformalDecision.PASS:
+                assert span.prediction_set == [0]

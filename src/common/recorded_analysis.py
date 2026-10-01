@@ -59,6 +59,19 @@ C2_REFERENCE = Path("results/c2/c1/c2_ood_reference.json")
 
 DEFAULT_ALPHA = 0.1
 
+# The settings the interface's dial offers, and the reason there are exactly
+# these six: they are the alphas C2's offline run measured
+# (results/c2/c1/c2_results.json). A dial that offered a seventh would be
+# offering a position with no measured coverage beside it, and the whole point
+# of putting the dial on the screen is that the reader can see what each
+# setting actually delivered rather than what it promised.
+DIAL_ALPHAS: tuple[float, ...] = (0.05, 0.1, 0.15, 0.2, 0.3, 0.4)
+
+
+def alpha_key(alpha: float) -> str:
+    """The string a variant is filed under. One place, so JSON and TS agree."""
+    return f"{alpha:g}"
+
 
 def _read_jsonl(path: Path) -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
@@ -137,14 +150,18 @@ class RecordedRuns:
 
         conformal = SplitConformal(alpha=alpha).fit(self.calib_scores, self.calib_labels)
         decisions = conformal.decisions(calibrated) if raw_scores else []
+        # The set the decision was read off. ABSTAIN is two different states
+        # and only the set can tell them apart, so the recorded copy carries
+        # what the live endpoint carries.
+        label_sets = conformal.prediction_sets(calibrated) if raw_scores else []
 
         from backend.app.services.detector import split_sentences
 
         sentences = split_sentences(context)
 
         spans: List[Span] = []
-        for (start, end), raw, cal, decision in zip(
-            candidates, raw_scores, calibrated, decisions
+        for (start, end), raw, cal, decision, label_set in zip(
+            candidates, raw_scores, calibrated, decisions, label_sets
         ):
             # The serving path drops PASS spans: the rest of the answer is not
             # worth drawing. Keeping them here would make the offline copy show
@@ -164,6 +181,7 @@ class RecordedRuns:
                     calibrated_score=round(float(cal), 4),
                     nonconformity=round(1.0 - float(cal), 4),
                     conformal_decision=decision,
+                    prediction_set=sorted(label_set),
                     alpha=alpha,
                     error_type=typing.get("error_type"),
                     explanation=typing.get("explanation"),
@@ -335,12 +353,35 @@ OUT = Path("frontend/public/recorded-runs.json")
 
 
 def build_cases(
-    runs: Optional["RecordedRuns"] = None, alpha: float = DEFAULT_ALPHA
+    runs: Optional["RecordedRuns"] = None,
+    alpha: float = DEFAULT_ALPHA,
+    alphas: Sequence[float] = DIAL_ALPHAS,
 ) -> List[Dict[str, Any]]:
+    """Every case, built once per setting the dial offers.
+
+    The dial cannot re-run the model in a browser, and it must not do the
+    conformal arithmetic there either -- a threshold recomputed in JavaScript
+    is a second implementation of the guarantee, and the two would drift. So
+    every position is built here, by C2's own SplitConformal, and the browser
+    only chooses between results that already exist.
+
+    Six settings rather than one costs about 160 kB in the shipped file and
+    buys the one thing a panel cannot otherwise be shown: the same passage
+    changing verdict as the promise is loosened.
+
+    `result` stays as the default-alpha build because the home page and the
+    packager read it by that name. `variants` carries the other five, so
+    nothing is stored twice.
+    """
     runs = runs or RecordedRuns()
     out: List[Dict[str, Any]] = []
     for case in CASES:
         result = runs.build(case["id"], alpha)
+        variants = {
+            alpha_key(a): json.loads(runs.build(case["id"], a).model_dump_json())
+            for a in alphas
+            if alpha_key(a) != alpha_key(alpha)
+        }
         out.append(
             {
                 "slug": case["slug"],
@@ -349,6 +390,7 @@ def build_cases(
                 "response_id": case["id"],
                 "source": "RAGTruth test split, recorded run",
                 "result": json.loads(result.model_dump_json()),
+                "variants": variants,
             }
         )
     return out
@@ -366,6 +408,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             "python -m src.common.recorded_analysis"
         ),
         "alpha": DEFAULT_ALPHA,
+        "alphas": [alpha_key(a) for a in DIAL_ALPHAS],
         "cases": build_cases(runs),
     }
     OUT.parent.mkdir(parents=True, exist_ok=True)
@@ -379,6 +422,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             f"spans={len(spans)} flag={flags} with-evidence={evid} "
             f"guarantee={case['result']['guarantee_applies']}"
         )
+        # The dial's whole claim is that the setting changes the answer. Print
+        # what it changes, per case, so a regeneration that quietly produced
+        # six identical results would be visible in the log rather than in
+        # front of a panel.
+        by_alpha = {alpha_key(DEFAULT_ALPHA): case["result"]}
+        by_alpha.update(case["variants"])
+        for key in payload["alphas"]:
+            variant = by_alpha[key]
+            marks = variant["spans"]
+            counts = {
+                "flag": sum(1 for s in marks if s["conformal_decision"] == "flag"),
+                "unsure": sum(
+                    1 for s in marks if s["conformal_decision"] == "abstain"
+                ),
+                "empty": sum(1 for s in marks if s.get("prediction_set") == []),
+            }
+            print(
+                f"    alpha {key:<5s} marks={len(marks):>2d} "
+                f"flag={counts['flag']} unsure={counts['unsure']} "
+                f"neither={counts['empty']}"
+            )
     print(f"wrote {OUT} ({OUT.stat().st_size / 1024:.1f} kB)")
     return 0
 
