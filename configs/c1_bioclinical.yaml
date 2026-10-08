@@ -1,0 +1,73 @@
+# C1 domain-adaptation ablation: biomedical/clinical backbone.
+#
+# IDENTICAL to c1_base.yaml in every value except model.name, run_name and
+# output.dir. The ONLY variable changed is the pretrained backbone, so the gap
+# against the general ModernBERT-base run is attributable to the domain
+# pretraining and nothing else -- same data, same split seed, same optimiser,
+# same max_length, same effective batch.
+#
+# Backbone: thomas-sounack/BioClinical-ModernBERT-base (arXiv:2506.10896, MIT).
+# It is continued-pretrained FROM answerdotai/ModernBERT-base on PubMed + PMC +
+# clinical notes, keeps the 8192 context and the ModernBERT tokenizer
+# (vocab_size 50368), and loads as a native `modernbert` model, so
+# AutoModelForTokenClassification attaches a fresh 3-label head exactly as it
+# does for ModernBERT-base -- a one-field swap, no other code change.
+#   VERIFY before the report: licence (MIT per the HF card), the arXiv id, and
+#   that the tokenizer matches ModernBERT-base so the collator is unchanged.
+#
+# Why this run exists: the general ModernBERT-base C1 does not transfer to
+# medicine (MedHallu pqa_labeled example F1 0.5259 against a 0.6667 trivial
+# floor, 2026-10-09). This asks whether a biomedical backbone, trained on the
+# same RAGTruth span data, recovers usable detection -- the first of the two
+# domain-adaptation levers (the second is fine-tuning on synthetic medical
+# spans, phase 3).
+#
+# Run it by reusing notebooks/c1_kaggle_train.ipynb unchanged except its config
+# cell:
+#   CONFIG, RUN, TAG = "configs/c1_bioclinical.yaml", "bioclinical-modernbert-base", "-bioclinical"
+# Keep SEED = 42 so the train/val/calib split matches every other C1 run.
+#
+# Memory note: ~150M params, same size class as ModernBERT-base, so batch_size 2
+# / grad_accum 4 at 3072 tokens should behave the same. If it OOMs, halve
+# batch_size and double grad_accum (effective batch stays 8); gradient_checkpointing
+# is the next lever.
+
+run_name: c1-bioclinical-modernbert-base
+seed: 42
+
+data:
+  train_file: data/processed/ragtruth_train.jsonl
+  test_file: data/processed/ragtruth_test.jsonl
+  limit: null
+  val_fraction: 0.05
+  calib_fraction: 0.10
+  max_length: 3072
+
+model:
+  name: thomas-sounack/BioClinical-ModernBERT-base
+  gradient_checkpointing: false
+
+train:
+  epochs: 6
+  batch_size: 2
+  grad_accum: 4
+  lr: 1.0e-5
+  weight_decay: 0.01
+  warmup_ratio: 0.06
+  max_grad_norm: 1.0
+  precision: auto
+  group_by_length: true
+  num_workers: 2
+  class_weights: null
+  log_every: 20
+  eval_batch_size: 8
+
+output:
+  dir: results/c1/bioclinical-modernbert-base
+  save_best: true
+  select_on: example.f1
+
+wandb:
+  enabled: true
+  project: trustrag-c1
+  entity: null
