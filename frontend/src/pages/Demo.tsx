@@ -16,7 +16,7 @@ import {
   Sparkles,
   TriangleAlert,
 } from "lucide-react";
-import { analyze, extractFile, getMetrics } from "../api";
+import { analyze, extractFile, getExample, getMetrics } from "../api";
 import type { ExtractResult } from "../api";
 import { saveCheck } from "../history";
 import {
@@ -194,6 +194,21 @@ export default function Demo({
     setLastRequest(null);
   }
 
+  async function loadMedicalExample() {
+    // Fills the form with a real MedHallu (PubMedQA) case so a visitor can
+    // run the live detector on a genuine medical hallucination in one click.
+    setError(null);
+    try {
+      const ex = await getExample("medical");
+      setQuestion(ex.question);
+      setContext(ex.context);
+      setAnswer(ex.answer);
+      if (ex.task_type) setTaskType(ex.task_type);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
   async function runOwn() {
     setBusy(true);
     setError(null);
@@ -351,6 +366,13 @@ export default function Demo({
                 </p>
 
                 <div className="mt-6 space-y-5">
+                  <button
+                    type="button"
+                    onClick={loadMedicalExample}
+                    className="inline-flex items-center gap-2 rounded-lg border border-brand-300 bg-brand-50 px-3 py-1.5 text-[0.8125rem] font-medium text-brand-700 transition hover:bg-brand-100"
+                  >
+                    Load a medical example
+                  </button>
                   <Field
                     label={FIELD.question.label}
                     plain={FIELD.question.plain}

@@ -389,7 +389,36 @@ HANDWRITTEN = AnalyzeRequest(
     task_type=TaskType.QA,
 )
 
-EXAMPLES = {"ragtruth_qa": RAGTRUTH_QA, "handwritten": HANDWRITTEN}
+# A real MedHallu record (Pandit et al., arXiv:2502.14302, MIT), built on
+# PubMedQA. The passage reports that NO high-risk HPV DNA was detected; the answer
+# claims their presence -- a grounded contradiction, which is exactly what a
+# medical trust layer has to catch. Kept verbatim so the demo shows the detector
+# on a genuine medical case rather than an invented one.
+MEDICAL_QA = AnalyzeRequest(
+    question=(
+        "Can 'high-risk' human papillomaviruses (HPVs) be detected in human "
+        "breast milk?"
+    ),
+    context=(
+        "passage 1:Using polymerase chain reaction techniques, we evaluated the "
+        "presence of HPV infection in human breast milk collected from 21 "
+        "HPV-positive and 11 HPV-negative mothers. Of the 32 studied human milk "
+        "specimens, no 'high-risk' HPV 16, 18, 31, 33, 35, 39, 45, 51, 52, 56, "
+        "58 or 58 DNA was detected."
+    ),
+    answer=(
+        "This preliminary case-control study suggests the presence of mucosal "
+        "'high-risk' HPV types in human breast milk, particularly HPV 16 and 18."
+    ),
+    alpha=0.1,
+    task_type=TaskType.QA,
+)
+
+EXAMPLES = {
+    "ragtruth_qa": RAGTRUTH_QA,
+    "handwritten": HANDWRITTEN,
+    "medical": MEDICAL_QA,
+}
 
 
 @app.get("/api/example", response_model=AnalyzeRequest)
