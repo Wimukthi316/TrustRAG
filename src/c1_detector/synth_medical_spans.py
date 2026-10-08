@@ -14,24 +14,27 @@ distribution is not natural hallucination). It is training/ablation data, not a
 gold benchmark; MedHallu (answer-level) and, if obtained, MedHalu/MedHal-Loc are
 the real medical evals.
 
-Three injectors, tried in this order so most positives are in-place conflicts
-rather than canned insertions:
+Four injectors, tried in this order so most positives are grounded in-place
+conflicts rather than canned insertions:
 
   1. number        - change a measurement/dosage/percentage/count to a clearly
                      different value. evident_conflict.
   2. directionality- flip a direction/polarity word to its antonym
                      (increased<->decreased, significant<->insignificant, ...).
                      evident_conflict.
-  3. fabricated    - insert one unsupported clause after the first sentence, only
-                     when neither in-place edit applies. evident_baseless_info.
-                     Kept last and few because repeated canned clauses are an
-                     easy, unrealistic signal.
+  3. entity        - replace an entity in the answer with a DIFFERENT entity that
+                     appears in the answer's own context passage, so the result
+                     is a grounded wrong-entity contradiction rather than a
+                     generic one. evident_conflict.
+  4. fabricated    - insert one unsupported clause after the first sentence, only
+                     when none of the in-place edits apply. evident_baseless_info.
+                     Last and few because repeated canned clauses are an easy,
+                     unrealistic signal; the first three keep it a fallback.
 
 For every row: one NEGATIVE record (the clean Ground Truth, no spans) and, when
 an injector applies, one POSITIVE record (the edited answer with its one span).
 Offsets are asserted to round-trip (answer[start:end] == span text) before a
-record is emitted; a row whose answer admits no injector is emitted as a negative
-only, and counted.
+record is emitted.
 
 Usage:
     python -m src.c1_detector.synth_medical_spans --out-dir data/processed/synth_medical
@@ -44,7 +47,7 @@ import json
 import random
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 REPO_ID = "UTAustin-AIHealth/MedHallu"
 CONFIGS = ("pqa_labeled", "pqa_artificial")
@@ -54,17 +57,45 @@ ANTONYMS = {
     "increased": "decreased", "decreased": "increased",
     "increase": "decrease", "decrease": "increase",
     "increases": "decreases", "decreases": "increases",
-    "higher": "lower", "lower": "higher",
+    "increasing": "decreasing", "decreasing": "increasing",
+    "higher": "lower", "lower": "higher", "high": "low", "low": "high",
     "elevated": "reduced", "reduced": "elevated",
     "greater": "lesser", "lesser": "greater",
     "significant": "insignificant", "significantly": "insignificantly",
-    "effective": "ineffective", "beneficial": "harmful",
+    "effective": "ineffective", "beneficial": "harmful", "harmful": "beneficial",
     "positive": "negative", "negative": "positive",
-    "improved": "worsened", "improves": "worsens",
-    "associated": "unassociated", "present": "absent",
+    "improved": "worsened", "improves": "worsens", "worsened": "improved",
+    "associated": "unassociated", "present": "absent", "absent": "present",
     "activated": "inhibited", "activates": "inhibits",
-    "promotes": "suppresses", "induced": "prevented",
+    "promotes": "suppresses", "suppresses": "promotes",
+    "induced": "prevented", "prevented": "induced",
+    "upregulated": "downregulated", "downregulated": "upregulated",
+    "overexpressed": "underexpressed",
+    "acute": "chronic", "chronic": "acute",
+    "benign": "malignant", "malignant": "benign",
+    "stable": "unstable", "unstable": "stable",
+    "normal": "abnormal", "abnormal": "normal",
+    "safe": "unsafe", "unsafe": "safe",
+    "sensitive": "resistant", "resistant": "sensitive",
+    "responsive": "unresponsive", "susceptible": "resistant",
+    "soluble": "insoluble", "early": "late", "late": "early",
+    "better": "worse", "worse": "better",
+    "more": "less", "less": "more", "faster": "slower", "slower": "faster",
+    "rapid": "slow", "correlated": "uncorrelated", "related": "unrelated",
 }
+
+# Sentence-initial / structural capitals that are not entities. Excluded from the
+# entity injector so it swaps drug/gene/disease-like terms, not "Results".
+ENTITY_STOP = {
+    "The", "This", "These", "That", "Those", "It", "In", "On", "At", "As", "An",
+    "A", "We", "Our", "Their", "His", "Her", "Its", "Results", "Result",
+    "Conclusion", "Conclusions", "Background", "Methods", "Method", "Objective",
+    "Objectives", "Patients", "Patient", "However", "Although", "There", "While",
+    "When", "Thus", "Therefore", "Here", "Both", "All", "No", "Not", "After",
+    "Before", "During", "First", "Second", "Study", "Studies", "Group", "Groups",
+}
+
+ENTITY_RE = re.compile(r"\b([A-Z][A-Za-z]{2,}|[A-Z]{2,})\b")
 
 # Inserted only as a fallback. Unsupported relative to any specific abstract.
 FABRICATED = (
@@ -78,9 +109,7 @@ FABRICATED = (
 Injection = Tuple[str, int, int, str, str]  # new_answer, start, end, span_text, error_type
 
 
-def _inject_number(text: str, rng: random.Random) -> Optional[Injection]:
-    # Standalone integers/decimals, optional trailing %, not part of a longer
-    # token (so not the "19" in COVID-19 or a word-internal digit).
+def _inject_number(text: str, context: str, rng: random.Random) -> Optional[Injection]:
     matches = [m for m in re.finditer(r"(?<![\w.-])\d{1,4}(?:\.\d+)?%?", text)]
     if not matches:
         return None
@@ -99,7 +128,7 @@ def _inject_number(text: str, rng: random.Random) -> Optional[Injection]:
     return text[:start] + new + text[m.end():], start, start + len(new), new, "evident_conflict"
 
 
-def _inject_direction(text: str, rng: random.Random) -> Optional[Injection]:
+def _inject_direction(text: str, context: str, rng: random.Random) -> Optional[Injection]:
     candidates = [
         (m, m.group().lower())
         for m in re.finditer(r"[A-Za-z]+", text)
@@ -115,33 +144,60 @@ def _inject_direction(text: str, rng: random.Random) -> Optional[Injection]:
     return text[:start] + repl + text[m.end():], start, start + len(repl), repl, "evident_conflict"
 
 
-def _inject_fabricated(text: str, rng: random.Random) -> Optional[Injection]:
+def _entities(s: str) -> Set[str]:
+    return {e for e in ENTITY_RE.findall(s) if e not in ENTITY_STOP}
+
+
+def _inject_entity(text: str, context: str, rng: random.Random) -> Optional[Injection]:
+    """Swap an entity in the answer for a different one from its own context.
+
+    Grounded by construction: both the removed and the inserted entity are terms
+    the passage actually uses, so the edit is a wrong-entity contradiction rather
+    than a free-floating one. Returns None when the answer shares fewer than the
+    two distinct context entities it needs.
+    """
+    ctx_ents = _entities(context)
+    if len(ctx_ents) < 2:
+        return None
+    hits = [m for m in ENTITY_RE.finditer(text) if m.group() in ctx_ents]
+    if not hits:
+        return None
+    m = rng.choice(hits)
+    orig = m.group()
+    alts = sorted(e for e in ctx_ents if e.lower() != orig.lower())
+    if not alts:
+        return None
+    repl = rng.choice(alts)
+    start = m.start()
+    return text[:start] + repl + text[m.end():], start, start + len(repl), repl, "evident_conflict"
+
+
+def _inject_fabricated(text: str, context: str, rng: random.Random) -> Optional[Injection]:
     boundary = re.search(r"[.!?]\s", text)
     pos = boundary.end() if boundary else len(text)
     clause = rng.choice(FABRICATED)
-    insert = (clause + " ") if (boundary and pos < len(text)) else (" " + clause)
     if boundary and pos < len(text):
-        new_text = text[:pos] + insert + text[pos:]
+        new_text = text[:pos] + clause + " " + text[pos:]
         start, span_text = pos, clause
     else:
-        new_text = text[:pos] + insert
+        new_text = text[:pos] + " " + clause
         start, span_text = pos + 1, clause
     return new_text, start, start + len(span_text), span_text, "evident_baseless_info"
 
 
-INJECTORS = (_inject_number, _inject_direction, _inject_fabricated)
+INJECTORS = (_inject_number, _inject_direction, _inject_entity, _inject_fabricated)
 
 
-def inject_one(text: str, rng: random.Random) -> Optional[Injection]:
+def inject_one(text: str, context: str, rng: random.Random) -> Optional[Injection]:
     """First applicable injector, in the order defined above."""
     for injector in INJECTORS:
-        result = injector(text, rng)
-        if result is not None:
-            new_text, start, end, span_text, _etype = result
-            # The guarantee the whole file rests on. Never emit a span that does
-            # not slice back to its own text.
-            if new_text[start:end] != span_text or end <= start:
-                continue
+        result = injector(text, context, rng)
+        if result is None:
+            continue
+        new_text, start, end, span_text, _etype = result
+        # The guarantee the whole file rests on. Never emit a span that does not
+        # slice back to its own text.
+        if end > start and new_text[start:end] == span_text:
             return result
     return None
 
@@ -190,11 +246,10 @@ def build_records(config: str, seed: int, limit: Optional[int] = None) -> Tuple[
         difficulty = str(row.get("Difficulty Level") or "")
         row_id = str(row.get("id", idx))
 
-        # Clean negative.
         records.append(_record(row_id, "clean", question, context, answer, [], difficulty, config))
         stats["negative"] += 1
 
-        injected = inject_one(answer, rng)
+        injected = inject_one(answer, context, rng)
         if injected is None:
             stats["no_injector"] += 1
             continue
@@ -236,9 +291,6 @@ def main() -> int:
             print(f"unknown config {config!r}; known: {', '.join(CONFIGS)}")
             return 2
         records, stats = build_records(config, args.seed, args.limit)
-        # Every emitted span must round-trip. Checked again here across the whole
-        # set, not just per injection, so a later edit to the record shape cannot
-        # silently break the contract.
         bad = 0
         for r in records:
             for s in r["spans"]:
