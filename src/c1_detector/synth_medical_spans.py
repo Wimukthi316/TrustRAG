@@ -36,13 +36,28 @@ an injector applies, one POSITIVE record (the edited answer with its one span).
 Offsets are asserted to round-trip (answer[start:end] == span text) before a
 record is emitted.
 
+LEAKAGE CONTROL (phase 3b). This set is TRAINING data; the medical example-level
+eval is MedHallu pqa_labeled. To keep them disjoint:
+  * `--held-out-answers-config CONF` drops any row whose clean answer text also
+    appears as a Ground Truth in CONF, so no answer trained on reappears in the
+    eval even if the two configs overlap.
+  * `--test-fraction` carves a deterministic, row-hashed slice into a separate
+    `{config}.test.jsonl` so there is an IN-DOMAIN synthetic span test the model
+    never trained on. The hash is over (split_seed, config, row_id), so the split
+    is stable across machines and independent of row order.
+Both default to off, so the old single-file behaviour is unchanged.
+
 Usage:
     python -m src.c1_detector.synth_medical_spans --out-dir data/processed/synth_medical
+    python -m src.c1_detector.synth_medical_spans \\
+        --configs pqa_artificial --held-out-answers-config pqa_labeled \\
+        --test-fraction 0.12 --out-dir data/processed/synth_medical
 """
 
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import random
 import re
@@ -202,20 +217,36 @@ def inject_one(text: str, context: str, rng: random.Random) -> Optional[Injectio
     return None
 
 
+def _norm(text: str) -> str:
+    """Whitespace- and case-insensitive key for matching the same answer text."""
+    return " ".join(text.lower().split())
+
+
+def _row_bucket(config: str, row_id: str, split_seed: int) -> int:
+    """Deterministic 0..999 bucket for a row, independent of its position.
+
+    Keyed on (split_seed, config, row_id) so the train/test carve is identical on
+    any machine and does not depend on dataset iteration order.
+    """
+    digest = hashlib.sha1(f"{split_seed}:{config}:{row_id}".encode("utf-8")).hexdigest()
+    return int(digest[:8], 16) % 1000
+
+
 def build_context(knowledge: Any) -> str:
     passages = [knowledge] if isinstance(knowledge, str) else [str(p) for p in (knowledge or [])]
     return "\n\n".join(f"passage {i}:{p}" for i, p in enumerate(passages, start=1))
 
 
 def _record(row_id: str, kind: str, question: str, context: str, answer: str,
-            spans: List[Dict[str, Any]], difficulty: str, config: str) -> Dict[str, Any]:
+            spans: List[Dict[str, Any]], difficulty: str, config: str,
+            split: str = "train") -> Dict[str, Any]:
     return {
         "id": f"synthmed:{config}:{row_id}:{kind}",
         "source_id": row_id,
         "model": "",
         "task_type": "qa",
         "source": f"synth-medical/{config}",
-        "split": "train",
+        "split": split,
         "quality": difficulty,
         "annotator": "synthetic",
         "question": question,
@@ -225,13 +256,45 @@ def _record(row_id: str, kind: str, question: str, context: str, answer: str,
     }
 
 
-def build_records(config: str, seed: int, limit: Optional[int] = None) -> Tuple[List[Dict[str, Any]], Dict[str, int]]:
+def _answers_of(config: str, limit: Optional[int] = None) -> Set[str]:
+    """Normalised Ground Truth answer texts of a config, for leakage exclusion."""
+    from datasets import load_dataset
+
+    data = load_dataset(REPO_ID, config, split="train")
+    out: Set[str] = set()
+    for idx, row in enumerate(data):
+        if limit is not None and idx >= limit:
+            break
+        answer = str(row.get("Ground Truth") or "").strip()
+        if answer:
+            out.add(_norm(answer))
+    return out
+
+
+def build_records(
+    config: str,
+    seed: int,
+    limit: Optional[int] = None,
+    exclude_answers: Optional[Set[str]] = None,
+    test_fraction: float = 0.0,
+    split_seed: int = 0,
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]], Dict[str, int]]:
+    """Build (train_records, test_records, stats) for one config.
+
+    A row goes to the test list when its hashed bucket falls under test_fraction;
+    with test_fraction == 0.0 every row is a train row and test_records is empty.
+    A row whose clean answer is in exclude_answers is dropped entirely (both its
+    negative and its positive), and counted under stats["excluded"].
+    """
     from datasets import load_dataset
 
     data = load_dataset(REPO_ID, config, split="train")
     rng = random.Random(seed)
-    records: List[Dict[str, Any]] = []
+    train: List[Dict[str, Any]] = []
+    test: List[Dict[str, Any]] = []
+    cutoff = int(round(max(0.0, min(1.0, test_fraction)) * 1000))
     stats = {"rows": 0, "positive": 0, "negative": 0, "no_injector": 0,
+             "excluded": 0, "test_rows": 0,
              "evident_conflict": 0, "evident_baseless_info": 0}
 
     for idx, row in enumerate(data):
@@ -240,13 +303,22 @@ def build_records(config: str, seed: int, limit: Optional[int] = None) -> Tuple[
         answer = str(row.get("Ground Truth") or "").strip()
         if not answer:
             continue
+        if exclude_answers is not None and _norm(answer) in exclude_answers:
+            stats["excluded"] += 1
+            continue
         stats["rows"] += 1
         question = str(row.get("Question") or "")
         context = build_context(row.get("Knowledge"))
         difficulty = str(row.get("Difficulty Level") or "")
         row_id = str(row.get("id", idx))
 
-        records.append(_record(row_id, "clean", question, context, answer, [], difficulty, config))
+        is_test = _row_bucket(config, row_id, split_seed) < cutoff
+        bucket = test if is_test else train
+        split = "test" if is_test else "train"
+        if is_test:
+            stats["test_rows"] += 1
+
+        bucket.append(_record(row_id, "clean", question, context, answer, [], difficulty, config, split))
         stats["negative"] += 1
 
         injected = inject_one(answer, context, rng)
@@ -258,11 +330,11 @@ def build_records(config: str, seed: int, limit: Optional[int] = None) -> Tuple[
             "start": start, "end": end, "text": span_text,
             "error_type": etype, "implicit_true": False, "due_to_null": False,
         }
-        records.append(_record(row_id, "hall", question, context, new_answer, [span], difficulty, config))
+        bucket.append(_record(row_id, "hall", question, context, new_answer, [span], difficulty, config, split))
         stats["positive"] += 1
         stats[etype] += 1
 
-    return records, stats
+    return train, test, stats
 
 
 def write_jsonl(records: List[Dict[str, Any]], path: Path) -> int:
@@ -273,6 +345,15 @@ def write_jsonl(records: List[Dict[str, Any]], path: Path) -> int:
     return len(records)
 
 
+def _check_roundtrip(records: List[Dict[str, Any]]) -> int:
+    bad = 0
+    for r in records:
+        for s in r["spans"]:
+            if r["answer"][s["start"]:s["end"]] != s["text"]:
+                bad += 1
+    return bad
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Synthesise a medical span-labelled hallucination set from MedHallu."
@@ -281,28 +362,54 @@ def main() -> int:
     parser.add_argument("--configs", nargs="*", default=list(CONFIGS))
     parser.add_argument("--seed", type=int, default=13)
     parser.add_argument("--limit", type=int, default=None, help="debug: first N rows per config")
+    parser.add_argument(
+        "--held-out-answers-config", default=None,
+        help="drop any row whose clean answer also appears in this config's Ground "
+             "Truth, so training never sees an answer used by that eval set",
+    )
+    parser.add_argument(
+        "--test-fraction", type=float, default=0.0,
+        help="deterministic fraction of rows carved into {config}.test.jsonl",
+    )
+    parser.add_argument("--split-seed", type=int, default=0, help="hash seed for the train/test carve")
     args = parser.parse_args()
 
     out_dir = Path(args.out_dir)
-    manifest: Dict[str, Any] = {"source": REPO_ID, "seed": args.seed, "configs": {}}
+    manifest: Dict[str, Any] = {
+        "source": REPO_ID, "seed": args.seed,
+        "held_out_answers_config": args.held_out_answers_config,
+        "test_fraction": args.test_fraction, "split_seed": args.split_seed,
+        "configs": {},
+    }
+
+    exclude_answers: Optional[Set[str]] = None
+    if args.held_out_answers_config:
+        if args.held_out_answers_config not in CONFIGS:
+            print(f"unknown held-out config {args.held_out_answers_config!r}; known: {', '.join(CONFIGS)}")
+            return 2
+        exclude_answers = _answers_of(args.held_out_answers_config, args.limit)
+        print(f"excluding {len(exclude_answers):,} answer(s) seen in {args.held_out_answers_config}")
 
     for config in args.configs:
         if config not in CONFIGS:
             print(f"unknown config {config!r}; known: {', '.join(CONFIGS)}")
             return 2
-        records, stats = build_records(config, args.seed, args.limit)
-        bad = 0
-        for r in records:
-            for s in r["spans"]:
-                if r["answer"][s["start"]:s["end"]] != s["text"]:
-                    bad += 1
+        train, test, stats = build_records(
+            config, args.seed, args.limit,
+            exclude_answers=exclude_answers,
+            test_fraction=args.test_fraction, split_seed=args.split_seed,
+        )
+        bad = _check_roundtrip(train) + _check_roundtrip(test)
         assert bad == 0, f"{bad} spans did not round-trip in {config}"
-        written = write_jsonl(records, out_dir / f"{config}.jsonl")
-        manifest["configs"][config] = stats
-        print(f"{config:<16} wrote {written:,} records  "
+        written = write_jsonl(train, out_dir / f"{config}.jsonl")
+        test_written = 0
+        if test:
+            test_written = write_jsonl(test, out_dir / f"{config}.test.jsonl")
+        manifest["configs"][config] = {**stats, "train_records": written, "test_records": test_written}
+        print(f"{config:<16} train {written:,} rec / test {test_written:,} rec  "
               f"({stats['positive']:,} pos / {stats['negative']:,} neg; "
               f"conflict {stats['evident_conflict']:,}, baseless {stats['evident_baseless_info']:,}, "
-              f"no-injector {stats['no_injector']:,})")
+              f"no-injector {stats['no_injector']:,}, excluded {stats['excluded']:,})")
 
     with (out_dir / "manifest.json").open("w", encoding="utf-8") as handle:
         json.dump(manifest, handle, indent=2)
