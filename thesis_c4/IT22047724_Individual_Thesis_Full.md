@@ -1,196 +1,194 @@
-# TRUSTRAG: SPAN-LEVEL CALIBRATED HALLUCINATION DETECTION FOR RETRIEVAL-AUGMENTED GENERATION
+# DECLARATION OF THE CANDIDATE AND SUPERVISOR
 
-## INDIVIDUAL THESIS
+“I declare that this is my own work and this dissertation does not incorporate without acknowledgement any material previously submitted for a Degree or Diploma in any other University or institute of higher learning and to the best of my knowledge and belief it does not contain any material previously published or written by another person except where the acknowledgement is made in the text.
 
-**Epitakumbure Mudunkothgedara Sakindu Nivein Rathnasiri**  
-**(IT22047724)**
+Also, I hereby grant to Sri Lanka Institute of Information Technology, the non-exclusive right to reproduce and distribute my dissertation, in whole or in part in print, electronic or other medium. I retain the right to use this content in whole or part in future works (such as articles or books).”
 
-**Individual component:** Retrieval-Attribution Alignment and Evidence Grounding  
-**Group ID:** R26-DS-018
+**Academic Integrity and AI Disclosure:** I have disclosed all use of generative AI and other automated tools in Appendix B in accordance with the module policy. I remain responsible for the accuracy, originality, citations, code, data, analyses, and conclusions in this dissertation.
 
-Report submitted in partial fulfilment of the requirements for the  
-**Bachelor of Science Honours in Information Technology**  
-**Specialising in Data Science**
+**Candidate Name:** Epitakumbure Mudunkothgedara Sakindu Nivein Rathnasiri (`IT22047724`)
 
-**Department of Information Technology**  
-**Sri Lanka Institute of Information Technology**  
-**Sri Lanka**
+**Signature:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_     **Date:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
 
-**October 2026**
+The supervisor/s should certify the dissertation with the following declaration:
 
----
+**“The above candidate has carried out research for the bachelor’s degree Dissertation under my supervision.”**
 
-# DECLARATION AND SUPERVISOR CERTIFICATION
-
-**Candidate declaration.** I declare that this thesis is my own work and does not incorporate, without acknowledgement, material previously submitted for a degree or diploma at any university or institute of higher learning. To the best of my knowledge, it contains no material previously published or written by another person except where acknowledgement is made in the text. I grant the Sri Lanka Institute of Information Technology the non-exclusive right to reproduce and distribute this thesis, in whole or in part, in print, electronic, or other media, while retaining the right to use the content in future work.
-
-**Academic integrity and AI disclosure.** I have disclosed all use of generative AI and other automated tools in accordance with the module policy. I remain responsible for the accuracy, originality, citations, code, data, analyses, and conclusions in this thesis.
-
-**Student name:** Epitakumbure Mudunkothgedara Sakindu Nivein Rathnasiri (E. M. S. N. Rathnasiri)  
-**Student ID:** IT22047724  
-**Signature:** \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_     **Date:** \_\_\_\_\_\_\_\_\_\_\_\_
-
-**Supervisor certification.** The above candidate carried out this research for the bachelor's degree thesis under my supervision.
-
-| Role and name | Signature | Date |
+| Supervisor Role & Name | Signature of the Supervisor | Date |
 | :--- | :--- | :--- |
-| **Supervisor:** Mr. Samadhi Rathnayaka | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ | \_\_\_\_\_\_\_\_\_\_\_\_ |
-| **Co-supervisor:** Dr. Lakmini Abeywardhana | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ | \_\_\_\_\_\_\_\_\_\_\_\_ |
+| **Supervisor:** Mr. Samadhi Rathnayaka | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ | \_\_\_\_\_\_\_\_\_\_\_\_\_\_ |
+| **Co-Supervisor:** Dr. Lakmini Abeywardhana | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ | \_\_\_\_\_\_\_\_\_\_\_\_\_\_ |
 
 ---
 
-# ABSTRACT
+# DEDICATION
 
-Retrieval-Augmented Generation (RAG) conditions large language models on retrieved source documents to reduce factual fabrication, yet corpus-scale evaluations on RAGTruth demonstrate that 43.1% of generated responses still contain unsupported or contradicted claims. Even when a sequence-tagging detector localises a suspicious span in a generated answer, a human reviewer must still read the entire retrieved context—averaging 19.05 sentences per span across the RAGTruth test split—to verify whether a specific sentence settles the claim or whether the information is completely absent from the source. Existing RAG evaluation frameworks return either uncalibrated response-level scores or nearest-neighbour sentence citations that never abstain on baseless fabrications and provide no finite-sample guarantee that the true supporting or contradicting sentence is retained. This thesis presents **Component 4 (Retrieval-Attribution Alignment and Evidence Grounding)** of the TrustRAG platform. First, we conduct a corpus-level audit of RAGTruth's `Original:` annotator quotes on frozen splits ($1,214$ calibration and $1,533$ test spans), establishing that only $50.68\%$ of human evidence quotes appear verbatim in the source and validating a content-token containment protocol ($\theta = 0.50$) alongside a dual-rater blind audit of 50 no-evidence snippets ($94.00\%$ primary agreement, $98.00\%$ inter-annotator agreement, Cohen's $\kappa = 0.8466$). Second, we benchmark four attribution backends (`lexical`, `embed`, `hhem_support`, and `nli_entail`) and uncover a critical retrieval bottleneck: a dense top-5 pre-filter discards the true evidence sentence $21.90\%$ of the time, whereas an inverse-document-frequency (IDF) lexical containment scorer drops only $2.41\%$ at $k=5$ and achieves an unconditional Top-1 accuracy of $0.8952$ ($\text{MRR} = 0.9307$) at $1.312\text{ ms}$ p50 CPU latency with $0\text{ MB}$ additional memory overhead. Third, we wrap sentence attribution in Least Ambiguous Set-Valued Classifiers (LAC) split conformal prediction and Conformal Risk Control (CRC); at $\alpha = 0.10$, C4 achieves $90.03\%$ empirical coverage while shrinking the reviewer's reading load from $19.05$ to $4.61$ sentences per span, a **$70.63\%$ reduction in human verification effort**. Finally, a calibrated no-evidence abstention gate ($\tau = 0.1973$) achieves $0.8080$ recall on baseless claims and, when fused as a tie-breaker on Component 2's uncertain abstentions, contributes an isolated **$+5.96$ example-F1 point gain** ($0.6960 \rightarrow 0.7557$).
-
-**Keywords:** Retrieval-Augmented Generation, Hallucination Attribution, Split Conformal Prediction, Evidence Grounding, Selective Abstention
+This dissertation is dedicated to my parents and family, whose sacrifices, patience, and constant encouragement made my undergraduate journey in Data Science at the Sri Lanka Institute of Information Technology possible, and to the open-source machine learning community advancing trustworthy and verifiable artificial intelligence.
 
 ---
 
 # ACKNOWLEDGEMENTS
 
-I wish to express my sincere gratitude to our primary research supervisor, **Mr. Samadhi Rathnayaka**, and our co-supervisor, **Dr. Lakmini Abeywardhana**, of the Department of Information Technology, Faculty of Computing, Sri Lanka Institute of Information Technology (SLIIT). Their rigorous feedback on experimental design, statistical calibration, conformal coverage guarantees, and honest baseline reporting shaped every stage of this dissertation.
+I wish to express my sincere gratitude to our primary research supervisor, **Mr. Samadhi Rathnayaka**, and our co-supervisor, **Dr. Lakmini Abeywardhana**, of the Department of Information Technology, Faculty of Computing, Sri Lanka Institute of Information Technology (SLIIT). Their rigorous guidance on experimental design, statistical calibration, conformal coverage guarantees, and honest baseline reporting shaped every stage of this dissertation.
 
-I am deeply grateful to my project teammates in Group **R26-DS-018** for an exceptional collaborative engineering and research partnership: **Wimukthi Gunarathna** (`IT22060976`, Component 1: ModernBERT Span-Level Hallucination Detector), **Sadini Wanniarachchi** (`IT22592546`, Component 2: Post-Hoc Calibration, Split Conformal Prediction, and Runtime Exchangeability Gate), and **Ranya Sivakumar** (`IT22607232`, Component 3: Calibration-Consistent Explanation Generation and Bounded Escalation Agent). Maintaining a single frozen JSON data contract (`src/common/schema.py`) and an 861-test automated regression suite across four independent components was only possible because of their discipline and technical generosity.
+I am deeply grateful to my project teammates in Group **R26-DS-018** for an exceptional collaborative engineering and research partnership in developing the **TrustRAG** platform: **Wimukthi Gunarathna** (`IT22060976`, Component 1: ModernBERT Span-Level Hallucination Detector), **Sadini Wanniarachchi** (`IT22592546`, Component 2: Post-Hoc Calibration, Split Conformal Prediction, and Runtime Exchangeability Gate), and **Ranya Sivakumar** (`IT22607232`, Component 3: Calibration-Consistent Explanation Generation and Bounded Escalation Agent). Maintaining a single frozen JSON data contract (`src/common/schema.py`) and an automated regression suite across four independent components was only possible because of their discipline and technical generosity.
 
-Finally, I thank my parents and family for their unwavering encouragement, patience, and support throughout my undergraduate studies at SLIIT. This research was conducted using institutional and personal computing resources without external commercial funding.
+Finally, I thank the academic and administrative staff of the Faculty of Computing at SLIIT, as well as my parents and family, for their unwavering support throughout my bachelor's degree studies. This research was conducted using institutional and personal computing resources without external commercial sponsorship.
+
+---
+
+# ABSTRACT
+
+Retrieval-Augmented Generation (RAG) conditions large language models on retrieved source documents to reduce factual fabrication, yet corpus-scale evaluations on RAGTruth demonstrate that 43.1% of generated responses still contain unsupported or contradicted claims. Even when a sequence-tagging detector localises a suspicious span in a generated answer, a human reviewer must still read the entire retrieved context—averaging 19.05 sentences per span across the RAGTruth test split—to verify whether a specific sentence settles the claim or whether the information is completely absent from the source. Existing RAG evaluation frameworks return either uncalibrated response-level scores or nearest-neighbour sentence citations that never abstain on baseless fabrications and provide no finite-sample guarantee that the true supporting or contradicting sentence is retained. This dissertation presents **Component 4 (Retrieval-Attribution Alignment and Evidence Grounding)** of the TrustRAG platform. First, we conduct a corpus-level audit of RAGTruth's `Original:` annotator quotes on frozen splits (1,214 calibration and 1,533 test spans), establishing that 50.68% of human evidence quotes appear verbatim in the source and validating a content-token containment protocol alongside a dual-rater blind audit of 50 no-evidence snippets (94.00% primary agreement, 98.00% inter-annotator agreement, Cohen's $\kappa = 0.8466$). Second, we benchmark lexical, dense embedding (`bge-small-en-v1.5`), NLI cross-encoder (`DeBERTa-v3`), and `HHEM` attribution backends, uncovering that a top-5 lexical pre-filter discards the true evidence sentence 21.94% of the time versus 2.35% for full-pool scoring, and showing that our zero-GPU-overhead lexical attributor executes in 1.312 ms median CPU latency (0.0 MB RAM/VRAM overhead). Third, we wrap sentence attribution in Least Ambiguous Set-Valued Classifiers (LAC) split conformal prediction; at $\alpha = 0.10$, Component 4 achieves 90.03% empirical coverage while shrinking the reviewer's reading load from 19.05 to 4.61 sentences per span, a **70.6% reduction in human reading effort** (and 69.47% faster human verification in user testing) while improving calibrated no-evidence abstention.
+
+**Keywords:** Retrieval-Augmented Generation, Hallucination Attribution, Split Conformal Prediction, Evidence Grounding, Selective Abstention
 
 ---
 
 # TABLE OF CONTENTS
 
-* **DECLARATION AND SUPERVISOR CERTIFICATION** .................................................... ii
-* **ABSTRACT** ............................................................................................................ iii
-* **ACKNOWLEDGEMENTS** ........................................................................................... iv
-* **TABLE OF CONTENTS** ............................................................................................. v
-* **LIST OF FIGURES** .................................................................................................. viii
-* **LIST OF TABLES** .................................................................................................... ix
-* **LIST OF ABBREVIATIONS** ...................................................................................... xi
-* **1 INTRODUCTION** .................................................................................................. 1
-  * 1.1 Overall project context .................................................................................... 1
-  * 1.2 Individual component context .......................................................................... 3
-  * 1.3 Problem statement .......................................................................................... 5
-  * 1.4 Research gap ................................................................................................... 6
-  * 1.5 Aim and objectives .......................................................................................... 8
-  * 1.6 Research questions or hypotheses .................................................................... 9
-  * 1.7 Scope limitations and assumptions ................................................................... 10
-  * 1.8 Individual contribution ..................................................................................... 11
-  * 1.9 Thesis structure ............................................................................................... 13
-* **2 LITERATURE REVIEW AND RELATED WORK** .......................................................... 14
-  * 2.1 Review method and scope ................................................................................ 14
-  * 2.2 Domain and theoretical foundations ................................................................. 16
-  * 2.3 Related research .............................................................................................. 19
-  * 2.4 Existing systems products and techniques ........................................................ 22
-  * 2.5 Gap synthesis and conceptual framework ......................................................... 24
-* **3 RESEARCH METHODOLOGY** ................................................................................... 27
-  * 3.1 Research design ............................................................................................... 27
-  * 3.2 Data participants or study materials ................................................................. 29
-  * 3.3 Experimental or study procedure ..................................................................... 32
-  * 3.4 Measures and evaluation metrics ..................................................................... 35
-  * 3.5 Data analysis ................................................................................................... 38
-  * 3.6 Ethics privacy security and responsible AI ....................................................... 39
-  * 3.7 Reproducibility and research artefacts ............................................................. 40
-* **4 PRODUCT AND SOLUTION DESIGN** ......................................................................... 42
-  * 4.1 Requirements .................................................................................................. 42
-  * 4.2 Component architecture within the complete solution ...................................... 44
-  * 4.3 Design alternatives and decisions .................................................................... 46
-  * 4.4 Detailed design ................................................................................................ 48
-  * 4.5 Standards and professional practice ................................................................. 51
-* **5 IMPLEMENTATION INTEGRATION AND TESTING** ..................................................... 53
-  * 5.1 Development environment and technology stack .............................................. 53
-  * 5.2 Component implementation ............................................................................. 54
-  * 5.3 Integration with the other components ............................................................ 57
-  * 5.4 Verification and software testing ...................................................................... 59
-  * 5.5 Deployment and operation ............................................................................... 61
-* **6 RESULTS AND VALIDATION** .................................................................................... 63
-  * 6.1 Research results ............................................................................................... 63
-  * 6.2 Product and technical results ........................................................................... 71
-  * 6.3 User or stakeholder validation ......................................................................... 73
-  * 6.4 Integration results ........................................................................................... 75
-  * 6.5 Summary of findings ....................................................................................... 77
-* **7 DISCUSSION** ......................................................................................................... 78
-  * 7.1 Interpretation of findings ................................................................................ 78
-  * 7.2 Comparison with literature baselines and existing solutions ............................ 80
-  * 7.3 Research contribution ...................................................................................... 81
-  * 7.4 Product contribution ........................................................................................ 82
-  * 7.5 Limitations and threats to validity ................................................................... 83
-  * 7.6 Implications ..................................................................................................... 84
-* **8 COMMERCIALISATION AND SUSTAINABILITY** ........................................................ 85
-  * 8.1 Value proposition and target users ................................................................... 85
-  * 8.2 Market and competitive position ...................................................................... 86
-  * 8.3 Business or sustainability model ...................................................................... 87
-  * 8.4 Scalability intellectual property and compliance ............................................... 88
-  * 8.5 Contribution to the Sustainable Development Goals ........................................ 89
-* **9 CONCLUSION AND FUTURE DIRECTIONS** ............................................................... 90
-  * 9.1 Conclusion ....................................................................................................... 90
-  * 9.2 Achievement of objectives ............................................................................... 91
-  * 9.3 Individual research and product contributions ................................................. 92
-  * 9.4 Future directions ............................................................................................. 93
-* **REFERENCES** ........................................................................................................... 95
-* **GLOSSARY** .............................................................................................................. 99
-* **APPENDICES** ........................................................................................................... 100
-  * Appendix A Research instruments and extended results ........................................ 100
-  * Appendix B Academic integrity and AI use disclosure ........................................... 104
+| Section / Chapter | Title | Page |
+| :--- | :--- | :---: |
+| | Declaration of the Candidate & Supervisor | i |
+| | Dedication | ii |
+| | Acknowledgements | iii |
+| | Abstract | iv |
+| | Table of Contents | v |
+| | List of Figures | vi |
+| | List of Tables | vii |
+| | List of Abbreviations | viii |
+| | List of Appendices | ix |
+| **1.** | **INTRODUCTION** | **1** |
+| 1.1 | Overall Project Context | 1 |
+| 1.2 | Individual Component Context | 3 |
+| 1.3 | Problem Statement | 5 |
+| 1.4 | Research Gap | 6 |
+| 1.5 | Aim and Objectives | 8 |
+| 1.6 | Research Questions or Hypotheses | 9 |
+| 1.7 | Scope, Limitations and Assumptions | 10 |
+| 1.8 | Individual Contribution | 11 |
+| 1.9 | Thesis Structure | 13 |
+| **2.** | **LITERATURE REVIEW AND RELATED WORK** | **14** |
+| 2.1 | Review Method and Scope | 14 |
+| 2.2 | Domain and Theoretical Foundations | 16 |
+| 2.3 | Related Research | 19 |
+| 2.4 | Existing Systems, Products and Techniques | 22 |
+| 2.5 | Gap Synthesis and Conceptual Framework | 24 |
+| **3.** | **RESEARCH METHODOLOGY** | **27** |
+| 3.1 | Research Design | 27 |
+| 3.2 | Data, Participants or Study Materials | 29 |
+| 3.3 | Experimental or Study Procedure | 32 |
+| 3.4 | Measures and Evaluation Metrics | 35 |
+| 3.5 | Data Analysis | 38 |
+| 3.6 | Ethics, Privacy, Security and Responsible AI | 39 |
+| 3.7 | Reproducibility and Research Artefacts | 40 |
+| **4.** | **PRODUCT AND SOLUTION DESIGN** | **42** |
+| 4.1 | Requirements | 42 |
+| 4.2 | Component Architecture Within the Complete Solution | 44 |
+| 4.3 | Design Alternatives and Decisions | 46 |
+| 4.4 | Detailed Design | 48 |
+| 4.5 | Standards and Professional Practice | 51 |
+| **5.** | **IMPLEMENTATION, INTEGRATION AND TESTING** | **53** |
+| 5.1 | Development Environment and Technology Stack | 53 |
+| 5.2 | Component Implementation | 54 |
+| 5.3 | Integration With the Other Components | 57 |
+| 5.4 | Verification and Software Testing | 59 |
+| 5.5 | Deployment and Operation | 61 |
+| **6.** | **RESULTS AND VALIDATION** | **63** |
+| 6.1 | Research Results | 63 |
+| 6.2 | Product and Technical Results | 71 |
+| 6.3 | User or Stakeholder Validation | 73 |
+| 6.4 | Integration Results | 75 |
+| 6.5 | Summary of Findings | 77 |
+| **7.** | **DISCUSSION** | **78** |
+| 7.1 | Interpretation of Findings | 78 |
+| 7.2 | Comparison With Literature Baselines and Existing Solutions | 80 |
+| 7.3 | Research Contribution | 81 |
+| 7.4 | Product Contribution | 82 |
+| 7.5 | Limitations and Threats to Validity | 83 |
+| 7.6 | Implications | 84 |
+| **8.** | **COMMERCIALISATION AND SUSTAINABILITY** | **85** |
+| 8.1 | Value Proposition and Target Users | 85 |
+| 8.2 | Market and Competitive Position | 86 |
+| 8.3 | Business or Sustainability Model | 87 |
+| 8.4 | Scalability, Intellectual Property and Compliance | 88 |
+| 8.5 | Contribution to the Sustainable Development Goals | 89 |
+| **9.** | **CONCLUSION AND FUTURE DIRECTIONS** | **90** |
+| 9.1 | Conclusion | 90 |
+| 9.2 | Achievement of Objectives | 91 |
+| 9.3 | Individual Research and Product Contributions | 92 |
+| 9.4 | Future Directions | 93 |
+| | **REFERENCES** | **95** |
+| | **GLOSSARY** | **99** |
+| | **Appendix A:** Extended Experimental Results & 50-Span Dual-Rater Audit | **100** |
+| | **Appendix B:** Academic Integrity and Generative AI Use Disclosure | **104** |
 
 ---
 
 # LIST OF FIGURES
 
-* **Figure 4.1:** TrustRAG Four-Stage Calibrated Architecture with Component 4 Highlighted (`paper/figures/c4_arch_system.png`)
-* **Figure 4.2:** Component 4 Internal Attribution, Conformal Prediction Set, and Abstention Pipeline (`paper/figures/c4_arch_pipeline.png`)
-* **Figure 4.3:** Frozen Pydantic Data Contract (`src/common/schema.py`) and C4 Serving Artefact Schema (`paper/figures/c4_arch_schema.png`)
-* **Figure 6.1:** Attribution Backend Top-1 Accuracy against Four Trivial Floors by Task and Pre-Filter Ceiling (`paper/figures/c4_attribution_accuracy.png`)
-* **Figure 6.2:** Attribution Score Reliability Diagrams and Expected Calibration Error Across Calibrators (`paper/figures/c4_score_calibration.png`)
-* **Figure 6.3:** Conformal Evidence Set Empirical Coverage vs. Target $1 - \alpha$ with $3\sigma$ Finite-Sample Band (`paper/figures/c4_conformal_coverage.png`)
-* **Figure 6.4:** Mean Conformal Evidence Set Size vs. Candidate Context Pool Size Across Risk Levels (`paper/figures/c4_conformal_set_size.png`)
-* **Figure 6.5:** Calibrated No-Evidence Abstention Precision, Recall, and F1 vs. Task-Specific Floors (`paper/figures/c4_no_evidence_pr.png`)
-* **Figure 6.6:** Leave-One-Task-Out Cross-Task Transfer of Conformal Quantiles and Abstention Thresholds (`paper/figures/c4_transfer_matrix.png`)
-* **Figure 6.7:** Reviewer Reading-Cost Curve: Context Sentences Read per Flagged Span vs. Empirical Coverage (`paper/figures/c4_review_cost_curve.png`)
+| Figure | Description | Page |
+| :--- | :--- | :---: |
+| **Figure 4.1** | TrustRAG Four-Stage Calibrated Architecture with Component 4 Highlighted | 44 |
+| **Figure 4.2** | Component 4 Internal Attribution, Conformal Prediction Set, and Abstention Pipeline | 48 |
+| **Figure 4.3** | Frozen Pydantic Data Contract (`src/common/schema.py`) and C4 Serving Artefact Schema | 50 |
+| **Figure 6.1** | Attribution Backend Top-1 Accuracy Against Trivial Floors by Task and Pre-Filter Ceiling | 66 |
+| **Figure 6.2** | Post-Hoc Attribution Score Calibration and Expected Calibration Error Across Calibrators | 67 |
+| **Figure 6.3** | Conformal Evidence Set Empirical Coverage vs. Target $1 - \alpha$ with $3\sigma$ Finite-Sample Band | 68 |
+| **Figure 6.4** | Mean Conformal Evidence Set Size vs. Candidate Context Pool Size Across Risk Levels | 69 |
+| **Figure 6.5** | Calibrated No-Evidence Abstention Precision, Recall, and F1 vs. Trivial Baselines | 70 |
+| **Figure 6.6** | Leave-One-Task-Out Cross-Task Transfer of Conformal Quantiles (`alpha = 0.10`) | 71 |
+| **Figure 6.7** | Reviewer Reading-Cost Curve: Context Sentences Read per Flagged Span vs. Empirical Coverage | 72 |
 
 ---
 
 # LIST OF TABLES
 
-* **Table 1.1:** Ownership and Interface Boundaries of the Four TrustRAG Research Components
-* **Table 1.2:** Mapping of Research Questions, Individual Objectives, Evaluation Layers, and Thesis Chapters
-* **Table 2.1:** Systematic Literature Search Strings, Databases, and Inclusion/Exclusion Criteria
-* **Table 2.2:** Comparative Gap Synthesis Matrix of Hallucination Detection and Attribution Systems
-* **Table 3.1:** Frozen RAGTruth Dataset Splits and Evidence Annotation Distribution (Layer 1 Audit)
-* **Table 3.2:** Twelve-Layer Experimental Protocol and Associated Artefact Outputs in Component 4
-* **Table 4.1:** Functional and Non-Functional Requirements Specification for Component 4
-* **Table 4.2:** Architectural Trade-Off Matrix Across Attribution Scorer Backends and Conformal Formalisms
-* **Table 5.1:** Development Environment, Software Dependencies, and Pinning Strategy
-* **Table 5.2:** Layer-by-Layer Module Inventory of `src/c4_attribution/`
-* **Table 5.3:** Five-Level Software Verification and Regression Test Matrix (`147` C4 Tests / `861` Suite Tests)
-* **Table 6.1 (C4-1):** Evidence Supervision on the Frozen Calibration and Test Splits (`results/c4/analysis/evidence_audit.json`)
-* **Table 6.2 (C4-2):** Verbatim Rate, Content-Token Containment, and No-Evidence Share by Task and Error Type
-* **Table 6.3 (C4-3):** Attribution Matching Protocol and Containment Threshold $\theta$ Sweep on the Test Split
-* **Table 6.4 (C4-4):** Lexical Attribution Baseline Against Four Trivial Floors on the Test Split (Convention A)
-* **Table 6.5 (C4-5):** Attribution Backend Comparison and Hypothesis-Formation Ablations on the Test Split
-* **Table 6.6 (C4-6):** Candidate Pre-Filter Recall@k and Irrecoverable Error Floor Across $k \in \{1, 3, 5, 10\}$
-* **Table 6.7 (C4-7):** Post-Hoc Attribution Score Calibration (Temperature, Platt, Isotonic) vs. Constant Floor
-* **Table 6.8 (C4-8):** Split Conformal Evidence Prediction Sets on the Test Split Across $\alpha \in [0.01, 0.40]$
-* **Table 6.9 (C4-9):** Marginal vs. Group-Conditional Conformal Coverage and Set Size by Task at $\alpha = 0.10$
-* **Table 6.10 (C4-10):** Comparison of Least Ambiguous Set-Valued Classifiers (LAC) and Conformal Risk Control (CRC)
-* **Table 6.11 (C4-11):** Calibrated No-Evidence Abstention Performance Against Task-Specific Floors
-* **Table 6.12 (C4-12):** Leave-One-Task-Out Cross-Task Transfer of Conformal Quantiles and Abstention Thresholds
-* **Table 6.13 (C4-13):** Reviewer Reading-Cost Curve and Context Compression Across Miscoverage Levels
-* **Table 6.14 (C4-15):** Runtime Inference Latency, Span Throughput, and Memory Footprint Across Backends
-* **Table 6.15 (C4-16):** End-to-End User Acceptance Testing (UAT), Blind Dual-Rater Audit ($\kappa = 0.8466$), and Reviewer Effort Study
-* **Table 6.16 (C4-14):** Multi-Component C1 $\times$ C2 $\times$ C4 Fusion and Disagreement Matrix on the Test Split
-* **Table 8.1:** Commercial Competitor Positioning and Unit Cost Comparison
-* **Table 9.1:** Summary Matrix of Achieved Objectives, Empirical Findings, and Artefact Evidence
+| Table | Description | Page |
+| :--- | :--- | :---: |
+| **Table 1.1** | Ownership and Interface Boundaries of the Four TrustRAG Research Components | 2 |
+| **Table 1.2** | Mapping of Research Questions, Individual Objectives, Evaluation Layers, and Thesis Chapters | 9 |
+| **Table 2.1** | Systematic Literature Search Strings, Databases, and Inclusion/Exclusion Criteria | 15 |
+| **Table 2.2** | Comparative Gap Synthesis Matrix of Hallucination Detection and Attribution Systems | 25 |
+| **Table 3.1** | Frozen RAGTruth Dataset Splits and Evidence Annotation Distribution (Layer 1 Audit) | 30 |
+| **Table 3.2** | Fifteen-Layer Experimental Protocol and Associated Artefact Outputs in Component 4 | 33 |
+| **Table 4.1** | Functional and Non-Functional Requirements Specification for Component 4 | 43 |
+| **Table 4.2** | Architectural Trade-Off Matrix Across Attribution Scorer Backends and Conformal Formalisms | 47 |
+| **Table 5.1** | Development Environment, Software Dependencies, and Pinning Strategy | 53 |
+| **Table 5.2** | Layer-by-Layer Module Inventory of `src/c4_attribution/` | 55 |
+| **Table 5.3** | Five-Level Software Verification and Regression Test Matrix (`147` C4 Tests) | 60 |
+| **Table 6.1** | Ground-Truth Evidence Audit and Containment Rates on Frozen Splits (`C4-1`) | 64 |
+| **Table 6.2** | Segmentation Ablation and Extraction Convention Verification (`C4-2`) | 64 |
+| **Table 6.3** | Overall Attribution Accuracy on Test Split (`824` Attributable Spans, `C4-3`) | 65 |
+| **Table 6.4** | Per-Task Attribution Accuracy Breakdown (`QA`, `Summarization`, `Data2Text`, `C4-4`) | 65 |
+| **Table 6.5** | Candidate Pre-Filter Sensitivity and Drop-Rate Analysis (`C4-5`) | 66 |
+| **Table 6.6** | Multi-Feature Score Fusion (`fusion:linear` and `fusion:learned`) vs. Single Backends (`C4-6`) | 67 |
+| **Table 6.7** | Post-Hoc Probability Calibration Across Four Calibrators on Test Split (`C4-7`) | 67 |
+| **Table 6.8** | Calibration Generalisation Gap (`Calib` vs. `Test` ECE, `C4-8`) | 68 |
+| **Table 6.9** | Split-Conformal Evidence Sets (LAC vs. APS) Across $\alpha \in \{0.05..0.40\}$ (`C4-9`) | 68 |
+| **Table 6.10** | Conformal Coverage and Set-Size Stratification by Task at $\alpha = 0.10$ (`C4-10`) | 69 |
+| **Table 6.11** | Calibrated No-Evidence Abstention Performance on Test Split (`1,046` Spans, `C4-11`) | 70 |
+| **Table 6.12** | Cross-Task (LOTO) and Cross-Dataset (`MedHallu`, `RAGBench`) Transfer Evaluation (`C4-12`) | 70 |
+| **Table 6.13** | Reviewer Reading Burden and Effort Reduction Across $\alpha$ Levels (`C4-13`) | 71 |
+| **Table 6.14** | C1 $\times$ C4 Borderline Span Tie-Breaking Ablation on Test Split (`C4-14`) | 72 |
+| **Table 6.15** | Runtime Inference Latency, Span Throughput, and Memory Footprint Across Backends (`C4-15`) | 73 |
+| **Table 6.16** | End-to-End User Acceptance Testing (UAT), Blind Audit ($\kappa = 0.8466$), and Reviewer Timing (`C4-16`) | 74 |
+| **Table 8.1** | Competitive Positioning of TrustRAG (with Component 4) Against Existing RAG Verification Products | 86 |
+| **Table 9.1** | Summary of Achievement of Research Objectives and Research Questions | 91 |
+| **Table A.1** | Complete 50-Span Dual-Rater Blind Human Audit of the `no_evidence` Ground-Truth Label | 101 |
+| **Table B.1** | Generative AI Use Disclosure Log | 104 |
 
 ---
 
 # LIST OF ABBREVIATIONS
 
-| Abbreviation | Meaning |
+| Abbreviation | Description |
 | :--- | :--- |
 | **API** | Application Programming Interface |
 | **APS** | Adaptive Prediction Sets |
 | **AUROC** | Area Under the Receiver Operating Characteristic Curve |
 | **BGE** | BAAI General Embedding (`BAAI/bge-small-en-v1.5`) |
+| **BM25** | Best Matching 25 Probabilistic Retrieval Function |
 | **CE** | Cross-Entropy |
 | **CI** | Confidence Interval |
 | **CPU** | Central Processing Unit |
@@ -208,10 +206,9 @@ Finally, I thank my parents and family for their unwavering encouragement, patie
 | **LAC** | Least Ambiguous Set-Valued Classifiers |
 | **LLM** | Large Language Model |
 | **LOTO** | Leave-One-Task-Out |
-| **MCE** | Maximum Calibration Error |
 | **MRR** | Mean Reciprocal Rank |
+| **NDCG** | Normalised Discounted Cumulative Gain |
 | **NLI** | Natural Language Inference |
-| **NLL** | Negative Log-Likelihood |
 | **OOD** | Out-of-Distribution |
 | **QA** | Question Answering |
 | **RAG** | Retrieval-Augmented Generation |
@@ -226,6 +223,16 @@ Finally, I thank my parents and family for their unwavering encouragement, patie
 | **UI** | User Interface |
 
 ---
+
+# LIST OF APPENDICES
+
+| Appendix | Description | Page |
+| :--- | :--- | :---: |
+| **Appendix - A** | Extended Experimental Results, Production Calibration Artifact (`c4_artifact.json`), and Complete 50-Span Dual-Rater Blind Audit Table | 100 |
+| **Appendix - B** | Academic Integrity and Generative AI Use Disclosure Log | 104 |
+
+---
+
 
 # 1 INTRODUCTION
 

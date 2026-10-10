@@ -1,15 +1,23 @@
-"""Compile the complete SLIIT IT4010 Individual Thesis (Markdown + DOCX) for Component 4."""
+"""Compile the complete SLIIT IT4010 Individual Thesis (Markdown + DOCX) for Component 4.
+
+Strictly implements all formatting, layout, cover/title page, pagination (Roman i..ix
+centered on preliminary pages, Arabic 1..N bottom-right on main body & appendices, no
+page number on Cover/Title pages), font, margin, table-caption-above, figure-caption-below,
+and reference-spacing rules from the SLIIT 'Guidelines on Documentation and Submission
+of Dissertations' (Appendices I-VII) and the IT4010 Individual Thesis Template.
+"""
 
 from __future__ import annotations
 
 import json
-import os
 import re
 import shutil
 from pathlib import Path
+from urllib.parse import unquote
 
 import docx
 from docx import Document
+from docx.enum.section import WD_SECTION
 from docx.enum.table import WD_ALIGN_VERTICAL, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_LINE_SPACING
 from docx.oxml import OxmlElement, parse_xml
@@ -21,6 +29,60 @@ THESIS_DIR = REPO_ROOT / "thesis_c4"
 FIGURES_DIR = REPO_ROOT / "paper" / "figures"
 ARTIFACT_DIR = Path(r"C:\Users\sakin\.gemini\antigravity\brain\ef5e3954-9263-4132-a477-840a113409ca")
 WORKSPACE_DIR = Path(r"c:\Users\sakin\Documents\antigravity\vibrant-mendeleev")
+
+SMALL_WORDS = {
+    "a", "an", "and", "as", "at", "but", "by", "for", "from", "in", "into",
+    "nor", "of", "on", "onto", "or", "over", "per", "the", "to", "up", "via",
+    "vs", "vs.", "with", "within", "without",
+}
+
+
+def to_title_case(heading: str) -> str:
+    """Convert a section heading (e.g. '1.1 Overall project context') to SLIIT Title Case."""
+    parts = heading.split()
+    out = []
+    for idx, word in enumerate(parts):
+        # Preserve section numbers like '1.1', acronyms, or hyphenated tokens with capitals
+        if re.match(r"^\d+(\.\d+)*\.?$", word):
+            out.append(word)
+        elif any(c.isupper() for c in word[1:]) or word.isupper():
+            out.append(word)
+        elif idx > 1 and word.lower() in SMALL_WORDS:
+            out.append(word.lower())
+        else:
+            out.append(word[:1].upper() + word[1:])
+    return " ".join(out)
+
+
+def to_sentence_case(heading: str) -> str:
+    """Convert a sub-section heading (e.g. '1.1.1 Detailed Sub Heading') to SLIIT Sentence case."""
+    preserve = {
+        "RAG", "RAGTruth", "RAGBench", "MedHallu", "TrustRAG", "ModernBERT",
+        "DeBERTa", "DeBERTa-v3", "RoBERTa", "BGE", "BM25", "IDF", "TF-IDF",
+        "NLI", "HHEM", "HHEM-2.1-Open", "LAC", "APS", "CRC", "ECE", "MRR",
+        "NDCG", "Hit@1", "Hit@3", "Hit@5", "AUROC", "F1", "IoU", "LOTO",
+        "CPU", "GPU", "RAM", "VRAM", "API", "REST", "JSON", "FastAPI",
+        "Pydantic", "React", "Vite", "PyTorch", "Python", "SLIIT", "GDPR",
+        "EU", "AI", "SDG", "SDGs", "UAT", "SUS", "Cohen's", "Platt", "Beta",
+        "Isotonic", "C1", "C2", "C3", "C4", "QA", "D2T",
+    }
+    parts = heading.split()
+    out = []
+    first_word_seen = False
+    for word in parts:
+        if re.match(r"^\d+(\.\d+)*\.?$", word):
+            out.append(word)
+            continue
+        bare = word.strip("():,.")
+        if bare in preserve or any(bare.startswith(p) for p in preserve):
+            out.append(word)
+            first_word_seen = True
+        elif not first_word_seen:
+            out.append(word[:1].upper() + word[1:].lower())
+            first_word_seen = True
+        else:
+            out.append(word.lower())
+    return " ".join(out)
 
 
 def update_no_evidence_sample_md() -> None:
@@ -59,6 +121,8 @@ def clean_latex_for_docx(text: str) -> str:
         (r"\hat{C}_\alpha(s)", "Ĉ_α(s)"),
         (r"\hat{C}_\alpha", "Ĉ_α"),
         (r"\hat{C}_{0.10}(s)", "Ĉ_0.10(s)"),
+        (r"\mathcal{C}_\alpha(s_i)", "C_α(s_i)"),
+        (r"\mathcal{C}_\lambda(s_r)", "C_λ(s_r)"),
         (r"\mathcal{C}_x", "C_x"),
         (r"\mathcal{D}_{\text{cal}}", "D_cal"),
         (r"\mathcal{D}_{\text{test}}", "D_test"),
@@ -151,22 +215,51 @@ def clean_latex_for_docx(text: str) -> str:
     out = text
     for old, new in replacements:
         out = out.replace(old, new)
-    # Strip \text{...}, \mathbf{...}, \mathrm{...}
     out = re.sub(r"\\(?:text|mathbf|mathrm|mathcal|operatorname)\{([^}]*)\}", r"\1", out)
     out = re.sub(r"\\frac\{([^}]*)\}\{([^}]*)\}", r"(\1)/(\2)", out)
     out = re.sub(r"\\sqrt\{([^}]*)\}", r"√(\1)", out)
     out = out.replace(r"\left", "").replace(r"\right", "")
     out = out.replace("$$", "")
-    # Remove single math $ delimiters while keeping content
     out = re.sub(r"\$([^$]+)\$", r"\1", out)
     return out
 
 
-def add_page_number_to_footer(section) -> None:
-    """Add right-aligned page number in Times New Roman 11pt to the section footer."""
+def configure_section_margins(section) -> None:
+    """Apply SLIIT A4 dimensions and 40mm Left/Bottom, 25mm Top/Right margins."""
+    section.page_width = Mm(210)
+    section.page_height = Mm(297)
+    section.left_margin = Mm(40)
+    section.bottom_margin = Mm(40)
+    section.top_margin = Mm(25)
+    section.right_margin = Mm(25)
+
+
+def set_section_pagination(section, fmt: str | None, align, start: int = 1) -> None:
+    """Configure section page numbering per SLIIT Section 03 (Pagination).
+
+    - fmt=None: No page number (Cover Page and Title Page)
+    - fmt='lowerRoman', align=CENTER, start=1: Preliminary pages (i, ii, iii...) centered at bottom
+    - fmt='decimal', align=RIGHT, start=1: Main body & appendices (1, 2, 3...) bottom-right
+    """
     footer = section.footer
+    footer.is_linked_to_previous = False
+    for p in list(footer.paragraphs):
+        p.clear()
+
+    if fmt is None:
+        return
+
+    # Set w:pgNumType on sectPr
+    sectPr = section._sectPr
+    for existing in sectPr.findall(qn("w:pgNumType")):
+        sectPr.remove(existing)
+    pgNumType = OxmlElement("w:pgNumType")
+    pgNumType.set(qn("w:fmt"), fmt)
+    pgNumType.set(qn("w:start"), str(start))
+    sectPr.append(pgNumType)
+
     p = footer.paragraphs[0] if footer.paragraphs else footer.add_paragraph()
-    p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    p.alignment = align
     run = p.add_run()
     run.font.name = "Times New Roman"
     run.font.size = Pt(11)
@@ -186,11 +279,120 @@ def add_page_number_to_footer(section) -> None:
     r.append(fldChar3)
 
 
+def add_centered_line(doc: Document, text: str, pt_size: float, bold: bool = False) -> None:
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(0)
+    p.paragraph_format.space_after = Pt(0)
+    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
+    if text:
+        r = p.add_run(text)
+        r.font.name = "Times New Roman"
+        r.font.size = Pt(pt_size)
+        r.bold = bold
+        r.font.color.rgb = RGBColor(0, 0, 0)
+    else:
+        r = p.add_run("")
+        r.font.name = "Times New Roman"
+        r.font.size = Pt(pt_size)
+
+
+def add_sliit_cover_and_title_pages(doc: Document) -> None:
+    """Render Appendix I (Cover Page) and Appendix III (Title Page) with exact SLIIT line spacing."""
+    # --- APPENDIX I: COVER PAGE ---
+    add_centered_line(
+        doc,
+        "TRUSTRAG: SPAN-LEVEL CALIBRATED HALLUCINATION DETECTION FOR RETRIEVAL-AUGMENTED GENERATION",
+        16,
+        bold=True,
+    )
+    add_centered_line(
+        doc,
+        "RETRIEVAL-ATTRIBUTION ALIGNMENT AND EVIDENCE GROUNDING",
+        14,
+        bold=True,
+    )
+    # 5 blank lines (16pt, 1.5 space)
+    for _ in range(5):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(doc, "Epitakumbure Mudunkothgedara Sakindu Nivein Rathnasiri", 14, bold=False)
+    add_centered_line(doc, "", 16)
+    add_centered_line(doc, "(IT22047724)", 14, bold=False)
+
+    for _ in range(2):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(doc, "BSc (Hons) Degree in Information Technology", 14, bold=False)
+    add_centered_line(doc, "Specialising in Data Science", 14, bold=False)
+
+    for _ in range(3):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(doc, "Department of Information Technology", 14, bold=False)
+    add_centered_line(doc, "", 16)
+    add_centered_line(doc, "Sri Lanka Institute of Information Technology", 14, bold=False)
+    add_centered_line(doc, "Sri Lanka", 14, bold=False)
+
+    for _ in range(2):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(doc, "October 2026", 14, bold=False)
+
+    # Page break before Appendix III Title Page (still inside Section 1 with no page numbers)
+    doc.add_page_break()
+
+    # --- APPENDIX III: TITLE PAGE ---
+    add_centered_line(
+        doc,
+        "TRUSTRAG: SPAN-LEVEL CALIBRATED HALLUCINATION DETECTION FOR RETRIEVAL-AUGMENTED GENERATION",
+        16,
+        bold=True,
+    )
+    add_centered_line(
+        doc,
+        "RETRIEVAL-ATTRIBUTION ALIGNMENT AND EVIDENCE GROUNDING",
+        14,
+        bold=True,
+    )
+    for _ in range(5):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(doc, "Epitakumbure Mudunkothgedara Sakindu Nivein Rathnasiri", 14, bold=False)
+    add_centered_line(doc, "", 16)
+    add_centered_line(doc, "(IT22047724)", 14, bold=False)
+
+    for _ in range(2):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(
+        doc,
+        "Dissertation submitted in partial fulfillment of the requirements for the Degree of",
+        12,
+        bold=False,
+    )
+    add_centered_line(
+        doc,
+        "Bachelor of Science Honours in Information Technology Specialising in Data Science",
+        12,
+        bold=False,
+    )
+
+    for _ in range(3):
+        add_centered_line(doc, "", 16)
+
+    add_centered_line(doc, "Department of Information Technology", 14, bold=False)
+    add_centered_line(doc, "", 16)
+    add_centered_line(doc, "Sri Lanka Institute of Information Technology", 14, bold=False)
+    add_centered_line(doc, "Sri Lanka", 14, bold=False)
+    add_centered_line(doc, "", 16)
+    add_centered_line(doc, "October 2026", 14, bold=False)
+
+
 def format_inline_runs(paragraph, text: str, font_size_pt: float = 12.0, default_bold: bool = False) -> None:
     """Parse **bold**, *italic*, and `code` tokens and add formatted Times New Roman runs."""
     text = text.replace("<br>", "\n")
     text = clean_latex_for_docx(text)
-    # Convert markdown links [label](url) -> label
     text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
 
     pattern = re.compile(r"(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)")
@@ -243,17 +445,29 @@ def set_cell_margins(cell, top=60, bottom=60, left=100, right=100) -> None:
     tcPr.append(tcMar)
 
 
+def add_table_caption_paragraph(doc: Document, caption_text: str) -> None:
+    """Add a centered, single-spaced Table caption ABOVE the table per SLIIT Section 04."""
+    clean_cap = caption_text.strip()
+    if clean_cap.startswith("*") and clean_cap.endswith("*") and not clean_cap.startswith("**"):
+        clean_cap = clean_cap[1:-1].strip()
+    p = doc.add_paragraph()
+    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p.paragraph_format.space_before = Pt(8)
+    p.paragraph_format.space_after = Pt(4)
+    p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+    p.paragraph_format.keep_with_next = True
+    format_inline_runs(p, clean_cap, font_size_pt=11.0, default_bold=False)
+
+
 def add_markdown_table(doc: Document, table_lines: list[str]) -> None:
-    """Render a Markdown table into a bordered, single-spaced Word table."""
+    """Render a Markdown table into a centered, bordered, single-spaced Word table."""
     parsed_rows = []
     for line in table_lines:
         stripped = line.strip()
         if not stripped.startswith("|"):
             continue
-        # Remove outer pipes and split by unescaped pipe
         inner = stripped[1:-1] if stripped.endswith("|") else stripped[1:]
         cells = [c.strip().replace("\\|", "|") for c in re.split(r"(?<!\\)\|", inner)]
-        # Skip separator row |---|---|
         if all(re.match(r"^:?-{2,}:?$", c.replace(" ", "")) for c in cells if c != ""):
             continue
         parsed_rows.append(cells)
@@ -266,8 +480,7 @@ def add_markdown_table(doc: Document, table_lines: list[str]) -> None:
     table.style = "Table Grid"
     table.alignment = WD_TABLE_ALIGNMENT.CENTER
 
-    # Choose font size based on column count so wide tables fit cleanly on A4
-    font_pt = 9.0 if num_cols >= 7 else (9.5 if num_cols >= 5 else 10.0)
+    font_pt = 9.0 if num_cols >= 7 else (9.5 if num_cols >= 5 else 10.5)
 
     for r_idx, row_data in enumerate(parsed_rows):
         row = table.rows[r_idx]
@@ -285,7 +498,6 @@ def add_markdown_table(doc: Document, table_lines: list[str]) -> None:
             p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
             format_inline_runs(p, cell_text, font_size_pt=font_pt, default_bold=is_header)
 
-    # Small spacer after table
     sp = doc.add_paragraph()
     sp.paragraph_format.space_before = Pt(0)
     sp.paragraph_format.space_after = Pt(4)
@@ -295,38 +507,41 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
     """Convert the full Markdown dissertation into a strictly formatted SLIIT IT4010 .docx file."""
     doc = Document()
 
-    # Configure A4 page dimensions and SLIIT margins (Left=40mm, Bottom=40mm, Top=25mm, Right=25mm)
-    for section in doc.sections:
-        section.page_width = Mm(210)
-        section.page_height = Mm(297)
-        section.left_margin = Mm(40)
-        section.bottom_margin = Mm(40)
-        section.top_margin = Mm(25)
-        section.right_margin = Mm(25)
-        add_page_number_to_footer(section)
+    # Section 1: Cover Page & Title Page (NO page numbers)
+    sec1 = doc.sections[0]
+    configure_section_margins(sec1)
+    set_section_pagination(sec1, fmt=None, align=WD_ALIGN_PARAGRAPH.CENTER)
 
-    # Configure default Normal style
     normal_style = doc.styles["Normal"]
     normal_style.font.name = "Times New Roman"
     normal_style.font.size = Pt(12)
     normal_style.font.color.rgb = RGBColor(0, 0, 0)
 
+    # Render Appendix I (Cover Page) and Appendix III (Title Page)
+    add_sliit_cover_and_title_pages(doc)
+
+    # Section 2: Preliminary Pages (Lowercase Roman numerals i, ii, iii... centered at bottom)
+    sec2 = doc.add_section(WD_SECTION.NEW_PAGE)
+    configure_section_margins(sec2)
+    set_section_pagination(sec2, fmt="lowerRoman", align=WD_ALIGN_PARAGRAPH.CENTER, start=1)
+
     lines = full_md.splitlines()
     i = 0
     n = len(lines)
-    in_single_space_section = False  # True inside ABSTRACT, REFERENCES, APPENDICES, TOC, etc.
-    is_first_h1 = True
+    in_single_space_section = False
+    in_abstract_section = False
+    in_references_section = False
+    first_prelim_h1 = True
+    body_section_started = False
 
     while i < n:
         line = lines[i]
         stripped = line.strip()
 
-        # Skip horizontal rules
         if stripped in ("---", "***", "___"):
             i += 1
             continue
 
-        # Handle page break markers if any
         if stripped == "\\newpage":
             doc.add_page_break()
             i += 1
@@ -340,7 +555,7 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
             while i < n and not lines[i].strip().startswith("```"):
                 code_lines.append(lines[i])
                 i += 1
-            i += 1  # skip closing ```
+            i += 1
             p = doc.add_paragraph()
             p.paragraph_format.left_indent = Mm(6)
             p.paragraph_format.right_indent = Mm(6)
@@ -383,19 +598,25 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
             r.italic = True
             continue
 
-        # Handle Markdown tables
+        # Handle Markdown tables (and check if a Table caption immediately follows the table)
         if stripped.startswith("|") and "|" in stripped[1:]:
             table_lines = []
             while i < n and lines[i].strip().startswith("|"):
                 table_lines.append(lines[i])
                 i += 1
+            # Look ahead to see if the next non-empty line is a trailing "*Table X.Y: ...*" caption
+            lookahead = i
+            while lookahead < n and not lines[lookahead].strip():
+                lookahead += 1
+            if lookahead < n and re.match(r"^\*+Table\s+\d+", lines[lookahead].strip()):
+                add_table_caption_paragraph(doc, lines[lookahead].strip())
+                i = lookahead + 1
             add_markdown_table(doc, table_lines)
             continue
 
-        # Handle embedded images ![alt](path)
+        # Handle embedded images ![alt](path) -> Figure centered + Caption BELOW figure centered
         img_match = re.match(r"^!\[([^\]]*)\]\(([^)]+)\)$", stripped)
         if img_match:
-            from urllib.parse import unquote
             alt_text = img_match.group(1).strip()
             raw_path = unquote(img_match.group(2).strip().replace("file:///", ""))
             img_name = Path(raw_path).name
@@ -416,7 +637,7 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
                     p_cap.paragraph_format.space_before = Pt(2)
                     p_cap.paragraph_format.space_after = Pt(10)
                     p_cap.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
-                    format_inline_runs(p_cap, f"*{alt_text}*", font_size_pt=10.5)
+                    format_inline_runs(p_cap, alt_text, font_size_pt=11.0)
             i += 1
             continue
 
@@ -427,43 +648,71 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
             heading_text = clean_latex_for_docx(h_match.group(2).strip())
 
             if level == 1:
-                # Chapter Heading: ALL CAPS, 14pt, Bold, Times New Roman
-                if not is_first_h1:
-                    doc.add_page_break()
-                is_first_h1 = False
                 upper_h = heading_text.upper()
-                in_single_space_section = any(
+                # Check if this is Chapter 1 (# 1 INTRODUCTION) -> Start Section 3 (Arabic 1, 2, 3... bottom-right)
+                if upper_h.startswith("1 INTRODUCTION") and not body_section_started:
+                    sec3 = doc.add_section(WD_SECTION.NEW_PAGE)
+                    configure_section_margins(sec3)
+                    set_section_pagination(sec3, fmt="decimal", align=WD_ALIGN_PARAGRAPH.RIGHT, start=1)
+                    body_section_started = True
+                elif not first_prelim_h1:
+                    doc.add_page_break()
+                first_prelim_h1 = False
+
+                in_abstract_section = upper_h == "ABSTRACT"
+                in_references_section = upper_h in ("REFERENCES", "REFERENCE LIST")
+                in_single_space_section = in_abstract_section or in_references_section or any(
                     k in upper_h
                     for k in (
-                        "ABSTRACT",
-                        "REFERENCES",
                         "TABLE OF CONTENTS",
                         "LIST OF FIGURES",
                         "LIST OF TABLES",
                         "LIST OF ABBREVIATIONS",
+                        "LIST OF APPENDICES",
                         "DECLARATION",
                     )
                 )
+
                 p = doc.add_paragraph()
                 p.paragraph_format.space_before = Pt(12)
                 p.paragraph_format.space_after = Pt(12)
                 p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
                 p.paragraph_format.keep_with_next = True
-                if "TRUST-RAG" in upper_h or "TRUSTRAG:" in upper_h:
-                    p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                r = p.add_run(upper_h)
+
+                # Per SLIIT Section 1.4 (Page 6): Abstract Title = Title case / Times New Roman 12-point Bold
+                if in_abstract_section:
+                    r = p.add_run("Abstract")
+                    r.font.name = "Times New Roman"
+                    r.font.size = Pt(12)
+                    r.bold = True
+                    r.font.color.rgb = RGBColor(0, 0, 0)
+                else:
+                    # Chapter Heading: ALL CAPITAL — 14 Font size, Bold
+                    r = p.add_run(upper_h)
+                    r.font.name = "Times New Roman"
+                    r.font.size = Pt(14)
+                    r.bold = True
+                    r.font.color.rgb = RGBColor(0, 0, 0)
+            elif level == 2:
+                # Section Heading: Title case — 12 Font size, Bold (SLIIT Section 2.2)
+                p = doc.add_paragraph()
+                p.paragraph_format.space_before = Pt(10)
+                p.paragraph_format.space_after = Pt(6)
+                p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+                p.paragraph_format.keep_with_next = True
+                r = p.add_run(to_title_case(heading_text))
                 r.font.name = "Times New Roman"
-                r.font.size = Pt(14)
+                r.font.size = Pt(12)
                 r.bold = True
                 r.font.color.rgb = RGBColor(0, 0, 0)
             else:
-                # Section / Sub-section Heading: 12pt, Bold, Times New Roman
+                # Sub-section Heading: Sentence case — 12 Font size, Bold (SLIIT Section 2.2)
                 p = doc.add_paragraph()
-                p.paragraph_format.space_before = Pt(10 if level == 2 else 8)
-                p.paragraph_format.space_after = Pt(6 if level == 2 else 4)
+                p.paragraph_format.space_before = Pt(8)
+                p.paragraph_format.space_after = Pt(4)
                 p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
                 p.paragraph_format.keep_with_next = True
-                r = p.add_run(heading_text)
+                r = p.add_run(to_sentence_case(heading_text))
                 r.font.name = "Times New Roman"
                 r.font.size = Pt(12)
                 r.bold = True
@@ -471,21 +720,20 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
             i += 1
             continue
 
-        # Handle blank lines
         if not stripped:
             i += 1
             continue
 
-        # Handle Blockquotes (> ...)
+        # Handle Blockquotes (> ...) — Indented quotations use single line spacing per SLIIT Section 2.1
         if stripped.startswith(">"):
             quote_text = stripped.lstrip(">").strip()
             quote_text = re.sub(r"^\[!(?:NOTE|IMPORTANT|TIP|WARNING|CAUTION)\]\s*", "", quote_text)
             p = doc.add_paragraph()
-            p.paragraph_format.left_indent = Mm(8)
-            p.paragraph_format.right_indent = Mm(5)
-            p.paragraph_format.space_before = Pt(3)
+            p.paragraph_format.left_indent = Mm(10)
+            p.paragraph_format.right_indent = Mm(6)
+            p.paragraph_format.space_before = Pt(4)
             p.paragraph_format.space_after = Pt(4)
-            p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.ONE_POINT_FIVE
+            p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
             format_inline_runs(p, quote_text, font_size_pt=11.5)
             i += 1
             continue
@@ -509,23 +757,29 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
             i += 1
             continue
 
-        # Handle IEEE Reference entries [1] ...
+        # Handle IEEE Reference entries [1] ... (Single-spaced entry with double spacing between entries, SLIIT Section 1.12)
         if re.match(r"^\[\d+\]\s+", stripped):
             p = doc.add_paragraph()
             p.paragraph_format.left_indent = Mm(8)
             p.paragraph_format.first_line_indent = Mm(-8)
-            p.paragraph_format.space_before = Pt(2)
-            p.paragraph_format.space_after = Pt(4)
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(12)  # Double spacing between single-spaced entries
             p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
             p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
             format_inline_runs(p, stripped, font_size_pt=11.0)
             i += 1
             continue
 
-        # Handle Table / Figure captions (single line spacing)
+        # Handle Table captions that appear before a table (**Table X.Y: ...**)
+        if re.match(r"^\*\*Table\s+", stripped):
+            add_table_caption_paragraph(doc, stripped)
+            i += 1
+            continue
+
+        # Handle Algorithm / Proposition / Note lines
         is_caption = bool(
-            re.match(r"^\*\*(?:Table|Figure|Algorithm|Proposition)\s+", stripped)
-            or re.match(r"^\*(?:Figure|Table|Note:)\s*", stripped)
+            re.match(r"^\*\*(?:Figure|Algorithm|Proposition)\s+", stripped)
+            or re.match(r"^\*(?:Figure|Note:)\s*", stripped)
         )
         p = doc.add_paragraph()
         if is_caption:
@@ -533,6 +787,13 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
             p.paragraph_format.space_after = Pt(3)
             p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
             p.paragraph_format.keep_with_next = True
+            format_inline_runs(p, stripped, font_size_pt=11.0)
+        elif in_abstract_section:
+            # Per SLIIT Section 1.4 (Page 6): Abstract Text = Times New Roman 11-point, Single line spacing
+            p.paragraph_format.space_before = Pt(0)
+            p.paragraph_format.space_after = Pt(6)
+            p.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+            p.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
             format_inline_runs(p, stripped, font_size_pt=11.0)
         else:
             p.paragraph_format.space_before = Pt(0)
@@ -557,7 +818,6 @@ def ensure_all_chapter6_figures() -> None:
     import numpy as np
 
     FIGURES_DIR.mkdir(parents=True, exist_ok=True)
-    # 1. Copy the 3 matching figures from figures.py
     aliases = [
         ("c4_coverage_vs_alpha.png", "c4_conformal_coverage.png"),
         ("c4_set_size_vs_alpha.png", "c4_conformal_set_size.png"),
@@ -569,7 +829,7 @@ def ensure_all_chapter6_figures() -> None:
         if src_p.exists():
             shutil.copy2(src_p, dst_p)
 
-    # 2. Figure 6.1: Attribution Backend Top-1 Accuracy by Task vs Baselines
+    # Figure 6.1: Attribution Backend Top-1 Accuracy by Task vs Baselines
     fig, ax = plt.subplots(figsize=(7.2, 4.2), dpi=300)
     tasks = ["Overall (n=824)", "QA (n=44)", "Summarization (n=93)", "Data2Text (n=687)"]
     x = np.arange(len(tasks))
@@ -597,7 +857,7 @@ def ensure_all_chapter6_figures() -> None:
     fig.savefig(FIGURES_DIR / "c4_attribution_accuracy.png", dpi=300)
     plt.close(fig)
 
-    # 3. Figure 6.2: Score Calibration ECE Comparison Across Calibrators
+    # Figure 6.2: Score Calibration ECE Comparison Across Calibrators
     fig, ax = plt.subplots(figsize=(6.8, 4.0), dpi=300)
     backends = ["Lexical (IDF)", "BM25", "Embed (bge-small)", "NLI (DeBERTa-v3)"]
     xb = np.arange(len(backends))
@@ -622,7 +882,7 @@ def ensure_all_chapter6_figures() -> None:
     fig.savefig(FIGURES_DIR / "c4_score_calibration.png", dpi=300)
     plt.close(fig)
 
-    # 4. Figure 6.5: Calibrated No-Evidence Abstention Precision, Recall, and F1
+    # Figure 6.5: Calibrated No-Evidence Abstention Precision, Recall, and F1
     fig, ax = plt.subplots(figsize=(6.6, 4.0), dpi=300)
     methods = ["Always-Predict\nFloor", "Random Base-Rate\nFloor", "Uncalibrated\nTau=0.25", "Calibrated Lexical\nTau=0.33 (Served)", "Calibrated Embed\nTau=0.61", "Calibrated NLI\nTau=0.42"]
     xm = np.arange(len(methods))
@@ -644,7 +904,7 @@ def ensure_all_chapter6_figures() -> None:
     fig.savefig(FIGURES_DIR / "c4_no_evidence_pr.png", dpi=300)
     plt.close(fig)
 
-    # 5. Figure 6.6: Leave-One-Task-Out Cross-Task Transfer Matrix
+    # Figure 6.6: Leave-One-Task-Out Cross-Task Transfer Matrix
     fig, ax = plt.subplots(figsize=(6.4, 4.0), dpi=300)
     held_out = ["QA\n(Held-Out Test)", "Summarization\n(Held-Out Test)", "Data2Text\n(Held-Out Test)"]
     xt = np.arange(len(held_out))
@@ -718,4 +978,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
