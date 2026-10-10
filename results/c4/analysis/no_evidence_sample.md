@@ -10,4 +10,4 @@ as one.
 
 | # | task | label type | annotator's Original: text | yes/no |
 |---|---|---|---|---|
-| 1 | ? | ? | x |  |
+| 1 | ? | ? | x | yes |

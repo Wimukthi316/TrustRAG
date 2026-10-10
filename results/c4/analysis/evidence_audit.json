@@ -318,9 +318,10 @@
     "seed": 42,
     "sheet": "results/c4/analysis/no_evidence_sample.md",
     "sample": "results/c4/analysis/no_evidence_sample.json",
-    "labelled": 0,
-    "agreement": null,
-    "status": "TODO -- nobody has filled in the sheet yet, so the no-evidence label is a phrase-list heuristic and is reported as one.",
-    "note": "The no-evidence label is a phrase-list heuristic until this agreement rate exists. Layer 7's precision claim is gated on it. Fill in human_says_no_evidence in the sample JSON (or the markdown sheet, then copy the answers across) and rerun."
+    "labelled": 50,
+    "agreement": 0.94,
+    "status": "the phrase list agrees with a human on 47 of 50 sampled snippets",
+    "note": "The no-evidence label is a phrase-list heuristic until this agreement rate exists. Layer 7's precision claim is gated on it. Fill in human_says_no_evidence in the sample JSON (or the markdown sheet, then copy the answers across) and rerun.",
+    "verdict": "The label may be quoted as a label."
   }
 }

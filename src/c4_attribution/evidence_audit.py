@@ -389,9 +389,11 @@ def write_sample_sheet(sample: Sequence[Dict[str, Any]], path: Path = SAMPLE_SHE
         # Read with .get: the sheet is regenerated from a file a human may have
         # edited by hand, and a missing column should not stop the rebuild.
         snippet = (row.get("snippet") or "").replace("|", "\\|").replace("\n", " ")
+        verdict = row.get("human_says_no_evidence")
+        yn = "yes" if verdict is True else ("no" if verdict is False else "")
         lines.append(
             f"| {index} | {row.get('task', '?')} | {row.get('label_type', '?')} "
-            f"| {snippet[:200]} |  |"
+            f"| {snippet[:200]} | {yn} |"
         )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

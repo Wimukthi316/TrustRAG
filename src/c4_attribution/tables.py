@@ -84,11 +84,21 @@ def c4_1_supervision() -> str:
         ["split", "spans", "with Original:", "share", "attributable", "no evidence", "share"],
         rows,
     )
+    hc = report.get("hand_check", {})
+    hc_line = ""
+    if hc:
+        hc_line = (
+            f"\n\nHand check (n = {hc.get('n_sampled', 50)}, labelled = {hc.get('labelled', 0)}): "
+            f"agreement = {_f(hc.get('agreement'))} ({hc.get('status', TODO)}). "
+            f"{hc.get('verdict', '')}"
+        ).rstrip()
     return (
         "### C4-1  Evidence supervision on the frozen splits\n\n"
         + body
         + "\n\nC1's frozen calibration split and the untouched corpus test split. "
-        "Corpus-wide figures are a different quantity and are never mixed in.\n"
+        "Corpus-wide figures are a different quantity and are never mixed in."
+        + hc_line
+        + "\n"
     )
 
 
