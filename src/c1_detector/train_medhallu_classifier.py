@@ -41,6 +41,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -158,6 +159,14 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=None, help="debug: first N records per config")
     parser.add_argument("--no-dedup", action="store_true", help="skip the eval-answer exclusion")
     parser.add_argument("--device", default=None)
+    parser.add_argument(
+        "--save-model", action="store_true",
+        help="save the best model + tokenizer to <out-dir>/model so the web backend can serve it",
+    )
+    parser.add_argument(
+        "--hf-repo", default=None,
+        help="also push the saved model to this HuggingFace repo id (needs HF_TOKEN in env)",
+    )
     args = parser.parse_args()
 
     import numpy as np
@@ -276,6 +285,28 @@ def main() -> int:
 
     if best_state is not None:
         model.load_state_dict(best_state)
+
+    # ---- save the servable checkpoint ---------------------------------------
+    # The web backend loads a sequence-classification model by path, so the whole
+    # model (backbone + 2-class head) and its tokenizer are written together. Done
+    # before the final eval so a crash in reporting never loses the weights.
+    if args.save_model or args.hf_repo:
+        model_dir = Path(args.out_dir) / "model"
+        model_dir.mkdir(parents=True, exist_ok=True)
+        model.save_pretrained(model_dir)
+        tokenizer.save_pretrained(model_dir)
+        print(f"saved model + tokenizer to {model_dir}")
+        if args.hf_repo:
+            token = os.environ.get("HF_TOKEN") or os.environ.get("HUGGING_FACE_HUB_TOKEN")
+            if not token:
+                print("--hf-repo set but no HF_TOKEN in env; skipped the hub push")
+            else:
+                try:
+                    model.push_to_hub(args.hf_repo, token=token, private=True)
+                    tokenizer.push_to_hub(args.hf_repo, token=token, private=True)
+                    print(f"pushed to https://huggingface.co/{args.hf_repo}")
+                except Exception as exc:  # noqa: BLE001
+                    print(f"hub push failed ({exc}); the local copy in {model_dir} is intact")
 
     # ---- final evaluation on the held-out MedHallu config --------------------
     scores, labels = predict(eval_loader)
