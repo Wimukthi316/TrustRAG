@@ -1,0 +1,76 @@
+{
+  "hardware": {
+    "platform": "Windows-10-10.0.26200-SP0",
+    "processor": "Intel64 Family 6 Model 186 Stepping 3, GenuineIntel",
+    "python_version": "3.10.0",
+    "n_responses_benchmarked": 100,
+    "n_spans_benchmarked": 300,
+    "mean_sentences_per_context": 19.0
+  },
+  "segmentation": {
+    "mean_ms": 0.1355,
+    "p50_ms": 0.1371,
+    "p95_ms": 0.2719
+  },
+  "served_lexical_c4": {
+    "mean_ms_per_span": 1.8555,
+    "p50_ms_per_span": 1.3124,
+    "p95_ms_per_span": 2.7133,
+    "mean_ms_per_response": 5.5711,
+    "p95_ms_per_response": 7.5523,
+    "throughput_spans_per_sec": 538.9,
+    "additional_ram_mb": 0.0,
+    "additional_vram_mb": 0.0
+  },
+  "backend_comparison": [
+    {
+      "backend": "lexical (served online)",
+      "model_checkpoint": "IDF content-token containment (exact)",
+      "parameters_m": 0.0,
+      "memory_mb": 0.0,
+      "cpu_p50_ms_per_span": 1.312,
+      "cpu_p95_ms_per_span": 2.713,
+      "gpu_ms_per_span": 1.312,
+      "throughput_spans_per_sec": 538.9,
+      "unconditional_top1": 0.8952,
+      "mrr": 0.9307
+    },
+    {
+      "backend": "embed (dense bi-encoder)",
+      "model_checkpoint": "BAAI/bge-small-en-v1.5",
+      "parameters_m": 33.4,
+      "memory_mb": 133.0,
+      "cpu_p50_ms_per_span": 8.42,
+      "cpu_p95_ms_per_span": 12.15,
+      "gpu_ms_per_span": 1.85,
+      "throughput_spans_per_sec": 118.8,
+      "unconditional_top1": 0.3007,
+      "mrr": 0.5068
+    },
+    {
+      "backend": "hhem_support (cross-encoder, k=5)",
+      "model_checkpoint": "vectara/hallucination_evaluation_model",
+      "parameters_m": 184.0,
+      "memory_mb": 440.0,
+      "cpu_p50_ms_per_span": 24.6,
+      "cpu_p95_ms_per_span": 33.8,
+      "gpu_ms_per_span": 3.9,
+      "throughput_spans_per_sec": 40.7,
+      "unconditional_top1": 0.6959,
+      "mrr": 0.7599
+    },
+    {
+      "backend": "nli_entail (cross-encoder, k=5)",
+      "model_checkpoint": "MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli",
+      "parameters_m": 184.4,
+      "memory_mb": 738.0,
+      "cpu_p50_ms_per_span": 28.5,
+      "cpu_p95_ms_per_span": 39.2,
+      "gpu_ms_per_span": 4.25,
+      "throughput_spans_per_sec": 35.1,
+      "unconditional_top1": 0.6392,
+      "mrr": 0.7228
+    }
+  ],
+  "note": "Served lexical attribution adds 1.31 ms p50 (1.86 ms mean) per span and 0 MB of memory overhead on top of C1's ModernBERT process, satisfying the < 50 ms interactive NFR on a 6 GB laptop while achieving the highest unconditional Top-1 accuracy (0.8952)."
+}

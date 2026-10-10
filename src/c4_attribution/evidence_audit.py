@@ -38,7 +38,8 @@ from src.c4_attribution.dataset import (
 )
 from src.c4_attribution.lexical import best_containment, content_tokens
 
-OUT_DIR = Path("results/c4/analysis")
+ROOT = Path(__file__).resolve().parents[2]
+OUT_DIR = ROOT / "results/c4/analysis"
 REPORT = OUT_DIR / "evidence_audit.json"
 SAMPLE = OUT_DIR / "no_evidence_sample.json"
 SAMPLE_SHEET = OUT_DIR / "no_evidence_sample.md"
@@ -290,6 +291,39 @@ def segmentation_ablation(records: Sequence[SpanRecord]) -> Dict[str, Any]:
 # --------------------------------------------------------------------------
 
 
+def _cohens_kappa(r1: Sequence[bool], r2: Sequence[bool]) -> Dict[str, Any]:
+    """Compute raw inter-annotator agreement P_o and Cohen's Kappa (kappa)."""
+    n = len(r1)
+    if n == 0 or len(r2) != n:
+        return {
+            "inter_annotator_agreement": None,
+            "cohens_kappa": None,
+            "confusion_matrix": None,
+        }
+    both_true = sum(1 for a, b in zip(r1, r2) if a and b)
+    r1_t_r2_f = sum(1 for a, b in zip(r1, r2) if a and not b)
+    r1_f_r2_t = sum(1 for a, b in zip(r1, r2) if not a and b)
+    both_false = sum(1 for a, b in zip(r1, r2) if not a and not b)
+
+    p_o = (both_true + both_false) / n
+    p_r1_true = (both_true + r1_t_r2_f) / n
+    p_r2_true = (both_true + r1_f_r2_t) / n
+    p_r1_false = 1.0 - p_r1_true
+    p_r2_false = 1.0 - p_r2_true
+    p_e = (p_r1_true * p_r2_true) + (p_r1_false * p_r2_false)
+    kappa = (p_o - p_e) / (1.0 - p_e) if (1.0 - p_e) > 1e-12 else 1.0
+    return {
+        "inter_annotator_agreement": round(p_o, 4),
+        "cohens_kappa": round(kappa, 4),
+        "confusion_matrix": {
+            "both_true": both_true,
+            "r1_true_r2_false": r1_t_r2_f,
+            "r1_false_r2_true": r1_f_r2_t,
+            "both_false": both_false,
+        },
+    }
+
+
 def no_evidence_sample(
     records: Sequence[SpanRecord], n: int = HAND_CHECK_N, seed: int = HAND_CHECK_SEED
 ) -> List[Dict[str, Any]]:
@@ -319,6 +353,7 @@ def no_evidence_sample(
                 "span_text": row.label.span_text,
                 "snippet": row.label.snippet,
                 "human_says_no_evidence": None,
+                "human_rater_2_no_evidence": None,
             }
         )
     return out
@@ -349,7 +384,7 @@ def hand_check_agreement(path: Path = SAMPLE) -> Dict[str, Any]:
         }
     agree = sum(1 for r in labelled if bool(r["human_says_no_evidence"]))
     rate = agree / len(labelled)
-    return {
+    result: Dict[str, Any] = {
         "n_sampled": len(rows),
         "labelled": len(labelled),
         "agreement": rate,
@@ -367,6 +402,17 @@ def hand_check_agreement(path: Path = SAMPLE) -> Dict[str, Any]:
             "regex."
         ),
     }
+    dual = [
+        r for r in labelled if r.get("human_rater_2_no_evidence") is not None
+    ]
+    if len(dual) == len(labelled):
+        r1 = [bool(r["human_says_no_evidence"]) for r in dual]
+        r2 = [bool(r["human_rater_2_no_evidence"]) for r in dual]
+        agree_r2 = sum(1 for v in r2 if v)
+        irr = _cohens_kappa(r1, r2)
+        result["rater_2_agreement"] = round(agree_r2 / len(dual), 4)
+        result.update(irr)
+    return result
 
 
 def write_sample_sheet(sample: Sequence[Dict[str, Any]], path: Path = SAMPLE_SHEET) -> None:
@@ -382,18 +428,20 @@ def write_sample_sheet(sample: Sequence[Dict[str, Any]], path: Path = SAMPLE_SHE
         "does, every count resting on this label is a heuristic and is reported",
         "as one.",
         "",
-        "| # | task | label type | annotator's Original: text | yes/no |",
-        "|---|---|---|---|---|",
+        "| # | task | label type | annotator's Original: text | rater 1 | rater 2 |",
+        "|---|---|---|---|---|---|",
     ]
     for index, row in enumerate(sample, 1):
         # Read with .get: the sheet is regenerated from a file a human may have
         # edited by hand, and a missing column should not stop the rebuild.
         snippet = (row.get("snippet") or "").replace("|", "\\|").replace("\n", " ")
         verdict = row.get("human_says_no_evidence")
+        verdict_2 = row.get("human_rater_2_no_evidence")
         yn = "yes" if verdict is True else ("no" if verdict is False else "")
+        yn2 = "yes" if verdict_2 is True else ("no" if verdict_2 is False else "")
         lines.append(
             f"| {index} | {row.get('task', '?')} | {row.get('label_type', '?')} "
-            f"| {snippet[:200]} | {yn} |"
+            f"| {snippet[:200]} | {yn} | {yn2} |"
         )
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

@@ -8,6 +8,6 @@ Agreement goes into results/c4/analysis/evidence_audit.json. Until it
 does, every count resting on this label is a heuristic and is reported
 as one.
 
-| # | task | label type | annotator's Original: text | yes/no |
-|---|---|---|---|---|
-| 1 | ? | ? | x | yes |
+| # | task | label type | annotator's Original: text | rater 1 | rater 2 |
+|---|---|---|---|---|---|
+| 1 | ? | ? | x | yes |  |

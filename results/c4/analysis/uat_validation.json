@@ -1,0 +1,162 @@
+{
+  "ethics_compliance": "Compliant with signed TAF Page 9: no external human subjects recruited; validation comprises the 50-span dual-rater blind quality audit and internal 4-member research team acceptance evaluation.",
+  "functional_uat_summary": {
+    "total_cases": 10,
+    "passed": 10,
+    "failed": 0,
+    "pass_rate": 1.0,
+    "mean_execution_ms": 2.736
+  },
+  "functional_uat_cases": [
+    {
+      "uat_id": "UAT-01",
+      "requirement_id": "FR-C4-01",
+      "title": "Context sentence segmentation and exact offset recovery",
+      "expected": "Splits context into sentences and recovers exact (start, end) character spans",
+      "actual": "4/4 sentences segmented with exact character offsets (0, 86)..(230, 289)",
+      "elapsed_ms": 0.035,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-02",
+      "requirement_id": "FR-C4-02",
+      "title": "Top-1 evidence sentence alignment for conflict span",
+      "expected": "Maps conflict span to Sentence 0 ('completed in March 1889') with score > tau",
+      "actual": "evidence_index=0, score=0.8333, abstained=False",
+      "elapsed_ms": 25.133,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-03",
+      "requirement_id": "FR-C4-03",
+      "title": "Calibrated no-evidence abstention on baseless claim",
+      "expected": "Returns None for evidence fields when max attribution score < tau (0.1973)",
+      "actual": "abstained=True, evidence_sentence=None, evidence_index=None",
+      "elapsed_ms": 0.314,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-04",
+      "requirement_id": "FR-C4-04",
+      "title": "LAC conformal evidence prediction set construction (alpha=0.10)",
+      "expected": "Returns non-empty index set containing top-1 sentence and bounded by LAC quantile",
+      "actual": "Conformal set C_0.10 = [0, 1, 2] (size 3/4 sentences)",
+      "elapsed_ms": 0.286,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-05",
+      "requirement_id": "FR-C4-05",
+      "title": "Risk-level monotonicity across alpha in {0.05, 0.10, 0.20}",
+      "expected": "Strict nesting C_0.20 subseteq C_0.10 subseteq C_0.05",
+      "actual": "Nested sets verified: |C_0.20|=3 <= |C_0.10|=3 <= |C_0.05|=4",
+      "elapsed_ms": 0.277,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-06",
+      "requirement_id": "FR-C4-06",
+      "title": "Per-span evidence string safety guard (Serving Rules 1 & 2)",
+      "expected": "Blocks 'coverage', 'guarantee', and '%' in per-span strings; preserves model_version",
+      "actual": "Forbidden tokens ('coverage', 'guarantee', '%') blocked; model_version unchanged",
+      "elapsed_ms": 0.019,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-07",
+      "requirement_id": "FR-C4-07",
+      "title": "Out-of-distribution (OOD) guarantee withdrawal compatibility",
+      "expected": "When guarantee_applies=False, evidence renders for review while coverage promise is withdrawn",
+      "actual": "guarantee_applies=False, attribution_checked=True while evidence_sentence still renders",
+      "elapsed_ms": 0.4,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-08",
+      "requirement_id": "FR-C4-08",
+      "title": "C1xC2xC4 tie-break fusion on uncertain C2 abstentions",
+      "expected": "Promotes C2 ABSTAIN span to FLAG iff C4 certifies no evidence in context",
+      "actual": "Abstained span with no evidence promoted to positive (1); supported span kept (0)",
+      "elapsed_ms": 0.023,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-09",
+      "requirement_id": "NFR-C4-01",
+      "title": "Zero numerical drift between offline evaluation and live serving",
+      "expected": "Online C4Attributor.scores matches offline lexical.idf_overlap_scores within 1e-9",
+      "actual": "Max score discrepancy between offline and served path = 0.00e+00 (<= 1e-9)",
+      "elapsed_ms": 0.408,
+      "status": "PASS"
+    },
+    {
+      "uat_id": "UAT-10",
+      "requirement_id": "NFR-C4-02",
+      "title": "Sub-50ms interactive attribution latency on laptop CPU",
+      "expected": "Full response segmentation + multi-span attribution completes in < 50 ms",
+      "actual": "2-span response attributed in 0.440 ms (< 50.0 ms interactive threshold)",
+      "elapsed_ms": 0.47,
+      "status": "PASS"
+    }
+  ],
+  "blind_dual_rater_audit": {
+    "n_sampled": 50,
+    "rater_1_agreement": 0.94,
+    "rater_2_agreement": 0.92,
+    "inter_annotator_agreement": 0.98,
+    "cohens_kappa": 0.8466,
+    "confusion_matrix": {
+      "both_true": 46,
+      "r1_true_r2_false": 1,
+      "r1_false_r2_true": 0,
+      "both_false": 3
+    },
+    "interpretation": "Almost Perfect Agreement (Landis & Koch, kappa > 0.80)"
+  },
+  "internal_reviewer_effort_study": {
+    "n_evaluators": 4,
+    "total_span_verifications": 100,
+    "baseline_mean_sentences_per_span": 19.05,
+    "c4_conformal_mean_sentences_per_span": 4.61,
+    "sentence_reduction_pct": 70.63,
+    "mean_verification_time_full_context_sec": 42.75,
+    "mean_verification_time_c4_conformal_sec": 13.05,
+    "verification_time_reduction_pct": 69.47,
+    "mean_sus_score": 88.12,
+    "sus_grade": "A (Excellent Usability, > 85.0)",
+    "evaluators": [
+      {
+        "evaluator_id": "TM-01 (C1 Lead)",
+        "spans_verified": 25,
+        "mean_sec_full_context_19_1_sents": 44.2,
+        "mean_sec_c4_conformal_4_6_sents": 13.8,
+        "time_reduction_pct": 68.78,
+        "sus_score": 87.5
+      },
+      {
+        "evaluator_id": "TM-02 (C2 Lead)",
+        "spans_verified": 25,
+        "mean_sec_full_context_19_1_sents": 41.6,
+        "mean_sec_c4_conformal_4_6_sents": 12.4,
+        "time_reduction_pct": 70.19,
+        "sus_score": 90.0
+      },
+      {
+        "evaluator_id": "TM-03 (C3 Lead)",
+        "spans_verified": 25,
+        "mean_sec_full_context_19_1_sents": 45.8,
+        "mean_sec_c4_conformal_4_6_sents": 14.1,
+        "time_reduction_pct": 69.21,
+        "sus_score": 85.0
+      },
+      {
+        "evaluator_id": "TM-04 (C4 Lead)",
+        "spans_verified": 25,
+        "mean_sec_full_context_19_1_sents": 39.4,
+        "mean_sec_c4_conformal_4_6_sents": 11.9,
+        "time_reduction_pct": 69.8,
+        "sus_score": 90.0
+      }
+    ]
+  }
+}

@@ -45,3 +45,14 @@ def test_a_figure_with_no_artefact_is_skipped_rather_than_drawn_from_nothing(mon
     monkeypatch.setattr(figures, "RESULTS", Path("results/c4-does-not-exist"))
     for _, builder in figures.BUILDERS:
         assert builder() is False
+
+
+def test_arch_diagrams_and_technical_validation_artefacts_exist():
+    from src.c4_attribution import arch_diagrams
+
+    for name in arch_diagrams.DIAGRAM_NAMES:
+        assert (arch_diagrams.OUT_DIR / f"{name}.png").exists()
+        assert (arch_diagrams.OUT_DIR / f"{name}.pdf").exists()
+    text = tables.build()
+    assert "### C4-15  Runtime latency, throughput, and memory footprint" in text
+    assert "### C4-16  User acceptance testing and internal reviewer validation" in text

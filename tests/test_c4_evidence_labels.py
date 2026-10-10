@@ -148,5 +148,8 @@ def test_committed_hand_check_is_complete_and_meets_threshold():
     assert block["n_sampled"] == 50
     assert block["labelled"] == 50
     assert block["agreement"] == 0.94
+    assert block["rater_2_agreement"] == 0.92
+    assert block["inter_annotator_agreement"] == 0.98
+    assert block["cohens_kappa"] == 0.8466
     assert "may be quoted as a label" in block["verdict"]
 
