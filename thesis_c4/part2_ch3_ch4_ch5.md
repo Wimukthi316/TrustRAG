@@ -2,13 +2,17 @@
 
 ## 3.1 Research design
 
-Our evaluation follows an experimental, design-science approach organized across twelve analysis layers (`Layers 1` to `12`, followed by performance and acceptance tests in `Layers 13–15`). To avoid common pitfalls like test-set leakage or evaluating against noisy labels, we adhered to several strict guidelines throughout:
-* First, we checked ground-truth annotations before touching any model (Layers 1 and 1b). Rather than assuming RAGTruth's comments were clean, we inspected them on calibration data and ran a blind dual-rater check on 50 sampled snippets (achieving 94% agreement and Cohen's $\kappa = 0.8466$) to ensure our missing-evidence labels were trustworthy.
-* Second, we locked our containment matching threshold at $\theta = 0.50$ (Layer 2) prior to testing any retrieval backends, while recording sensitivity curves across $\theta \in [0.30, 0.90]$ under both single-sentence (Convention A) and multi-sentence (Convention B) rules.
-* Third, every fitted value—such as our chosen scoring mode (`lexical|sentence`), probability calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$—was derived strictly from the calibration split (`calib`) and evaluated exactly once on the test split (`test`).
-* Fourth, we evaluated models against simple task-specific baselines (Layers 3, 5, 7, 11), including random choice, selecting the first or longest sentence, and constant base-rate predictors.
-* Finally, we ensured exact numerical parity ($\le 10^{-9}$) between our offline experiment scripts and the online `C4Attributor` class loaded by FastAPI.
+Our experimental methodology follows a design-science approach structured across twelve analytical layers (Layers 1 to 12, followed by latency benchmarking and acceptance testing in Layers 13 to 15). To prevent data leakage and avoid training on noisy ground truth, we established five practical safeguards from day one.
 
+Before running any model, we audited the human supervision in RAGTruth across Layers 1 and 1b. Inspecting calibration snippets and conducting an independent blind dual-rater audit on 50 sampled annotations verified our negative-evidence extraction at 94.0% agreement (Cohen's $\kappa = 0.8466$).
+
+We then locked the containment matching threshold at $\theta = 0.50$ in Layer 2 prior to testing retrieval backends, while recording sensitivity curves across $\theta \in [0.30, 0.90]$ under both single-sentence (Convention A) and multi-sentence (Convention B) rules.
+
+Critically, every fitted parameter—including the chosen scorer (`lexical|sentence`), calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$—was derived strictly from the calibration split (`calib`) and evaluated exactly once on the held-out test split (`test`).
+
+To keep comparisons honest, we evaluated models against simple task-specific baselines (Layers 3, 5, 7, 11), including random selection, first and longest sentence heuristics, and constant base-rate predictors.
+
+Finally, regression tests enforce strict numerical parity ($\le 10^{-9}$) between offline evaluation scripts and the live `C4Attributor` service loaded by FastAPI.
 ---
 
 ## 3.2 Data participants or study materials
@@ -38,11 +42,13 @@ Table 3.1 summarises the supervision distribution measured in Layer 1 (`results/
 *Table 3.1: Frozen RAGTruth Dataset Splits and Evidence Annotation Distribution (Layer 1 Audit).*
 
 ### 3.2.2 Structure of RAGTruth's `original:` metadata
-Examining RAGTruth's `Original:` comments during Layer 1 brought several practical quirks to light:
-* **Closing markers:** Annotators marked the end of quotes using five specific tags (`original:`, `generative:`, `generated:`, `aigc:`, `aogc:`). Splitting on general colon characters breaks down whenever context sentences contain words like `Review:` or `Hours:`, so we limited our parsing strictly to those five tags.
-* **Multi-line passages:** In structured records, evidence quotes frequently span multiple lines before the next tag. Reading only the first line after `Original:` drops information in 6.4% of comments (118 cases), so our extractor reads up to the next recognized tag.
-* **Subtly true claims:** 105 spans (3.8%) were annotated as `implicit_true`, where statements are factually accurate in the real world but absent from the context text, and 22 spans were flagged as `due_to_null` due to missing JSON fields.
+During the Layer 1 audit, close examination of RAGTruth's `Original:` comments brought several structural quirks to light.
 
+First, annotators closed their quotation blocks using five specific tags (`original:`, `generative:`, `generated:`, `aigc:`, and `aogc:`). Splitting on general colon characters breaks down whenever context sentences contain words like `Review:` or `Hours:`, so our parser restricts tag detection strictly to this closed set.
+
+Second, structured data quotes routinely wrap across multiple lines before the next marker. Reading only the first line after `Original:` inadvertently discards evidence in 6.4% of comments (118 cases); our extractor captures lines continuously until the next tag is encountered.
+
+Finally, 105 spans (3.8%) were annotated as `implicit_true` (facts that hold in the real world but are absent from the context), while 22 spans were flagged as `due_to_null` due to missing JSON attributes.
 ---
 
 ## 3.3 Experimental or study procedure
@@ -115,12 +121,13 @@ Analyses are implemented deterministically using Python and NumPy with fixed ran
 
 ## 3.6 Ethics privacy security and responsible AI
 
-1. **Compliance with Topic Assessment Form:** In accordance with our signed Topic Assessment Form (Page 9), this project did not collect external personal data or recruit external human participants. All datasets used are public open-access benchmarks (`RAGTruth`, `RAGBench`). Human validation was restricted to internal team review.
-2. **Uncertainty Communication Safeguards:**
-   * **Serving Rule 2:** Per-span text fields cannot contain terms like `"coverage"` or `"guarantee"`, since conformal coverage is a property of the overall procedure, not an individual span.
-   * **Serving Rule 3:** When Component 2 detects out-of-distribution inputs (`guarantee_applies = False`), the interface renders candidate sentences but cleanly withdraws the coverage claim.
-3. **Data Privacy:** Because Component 4 runs entirely locally in memory, no user inputs or documents are transmitted to external APIs.
+In line with our approved Topic Assessment Form (Page 9), this investigation did not collect external personal data or recruit external human participants; all experiments operate on public open-access benchmarks (`RAGTruth`, `RAGBench`), with human validation restricted to internal team review.
 
+To communicate uncertainty responsibly, Component 4 enforces two strict runtime rules:
+Per-span text fields cannot contain terms like `'coverage'` or `'guarantee'`, since conformal coverage is a property of the overall procedure, not an individual span (Serving Rule 2).
+When Component 2 detects out-of-distribution inputs (`guarantee_applies = False`), the interface continues rendering candidate sentences but cleanly withdraws the coverage claim (Serving Rule 3).
+
+Additionally, because Component 4 executes completely in memory on local hardware, no user text or retrieved documents are ever transmitted to external APIs.
 ---
 
 ## 3.7 Reproducibility and research artefacts
@@ -168,13 +175,9 @@ Figure 4.1 shows how Component 4 connects with the other components in TrustRAG.
 ![Figure 4.1: TrustRAG Four-Stage Calibrated Architecture (Component 4 Highlighted)](file:///S:/Research%20New%20Project/TrustRAG/paper/figures/c4_arch_system.png)
 *Figure 4.1: TrustRAG Four-Stage Calibrated Architecture (Component 4 Highlighted).*
 
-In a request to `POST /api/analyze`:
-1. **Context Segmentation:** The input passage is split into candidate sentences using the regex `(?<=[.!?])\s+`.
-2. **Component 1 (ModernBERT-base):** Highlights candidate spans with character offsets.
-3. **Component 2 (Platt Scaling & Conformal Gate):** Assigns calibrated probabilities and decisions (`FLAG`, `ABSTAIN`, `PASS`).
-4. **Component 4 (Attribution & Abstention):** Scores sentences via IDF containment, applies the abstention cutoff $\tau = 0.1973$, constructs conformal sets $\mathcal{C}_\alpha(s)$, and provides tie-breaking for uncertain spans.
-5. **Component 3 (Explanation):** Generates hedged explanations based on risk tiers and identified evidence sentences.
+When a request arrives at `POST /api/analyze`, the input passage is segmented into candidate sentences via regex `(?<=[.!?])\s+`. Component 1's `ModernBERT-base` detector flags suspicious character spans, while Component 2 applies Platt calibration and a conformal gate to produce a tri-state classification (`FLAG`, `ABSTAIN`, `PASS`).
 
+Component 4 then scores each context sentence via within-context IDF containment. If the maximum similarity falls below $\tau = 0.1973$, it certifies the claim as ungrounded (`no_evidence`); otherwise, it builds a conformal prediction set $\mathcal{C}_\alpha(s)$ and supplies tie-breaking logic for uncertain spans. Finally, Component 3 generates hedged explanations based on the assigned risk tiers and identified evidence sentences.
 ---
 
 ## 4.3 Design alternatives and decisions
@@ -297,12 +300,7 @@ Output: Response-level binary hallucination prediction Y_hat(d) in {0, 1}
 
 ## 4.5 Standards and professional practice
 
-Design decisions adhere to international standards:
-1. **ISO/IEC 25010:2023 (SQuaRE):** Governs non-functional performance requirements: low latency (`NFR-C4-02`), zero memory overhead (`NFR-C4-03`), and parity (`NFR-C4-01`).
-2. **IEEE Std 1016-2009:** Structures software design descriptions across Figures 4.1, 4.2, and 4.3.
-3. **IEEE Std 829 / ISO/IEC/IEEE 29119:** Guides the five-tier software testing strategy.
-4. **OpenAPI 3.1.0 & Pydantic v2:** Enforces type safety on all REST endpoints.
-
+Our architectural and engineering decisions follow international software engineering standards. ISO/IEC 25010:2023 (SQuaRE) governed our non-functional requirements, specifically sub-50ms CPU latency (`NFR-C4-02`), zero GPU memory overhead (`NFR-C4-03`), and offline/online numerical parity (`NFR-C4-01`). IEEE Std 1016-2009 guided our architectural representations across Figures 4.1, 4.2, and 4.3, while IEEE Std 829 / ISO/IEC/IEEE 29119 structured our five-tier test suite. Type contracts across all REST endpoints are validated through OpenAPI 3.1.0 and Pydantic v2.
 ---
 
 # 5 IMPLEMENTATION INTEGRATION AND TESTING
@@ -382,5 +380,4 @@ We apply a five-tier testing strategy comprising **$147$ unit and contract tests
 
 ## 5.5 Deployment and operation
 
-* **Offline Evaluation:** Heavy neural scoring runs once offline via `prefilter.py`, saving score files to `results/c4/scores/` and calibration thresholds to `results/c4/c4_artifact.json`.
-* **Live Serving:** In production, FastAPI loads `c4_artifact.json` at startup. Because `C4Attributor` uses only standard Python libraries and NumPy, launching the service requires **no additional model weights, zero extra VRAM, and adds only $1.312\text{ ms}$ median latency per span**.
+In production deployment, heavy neural benchmarking runs once offline via `prefilter.py`, saving score files to `results/c4/scores/` and freezing calibration thresholds in `results/c4/c4_artifact.json`. At application startup, FastAPI loads this lightweight JSON contract. Because `C4Attributor` relies purely on standard Python libraries and NumPy, launching the service requires no external neural weights, consumes zero additional VRAM, and introduces only $1.312\text{ ms}$ median latency per span.
