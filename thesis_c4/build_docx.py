@@ -592,6 +592,14 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
     normal_style.font.size = Pt(12)
     normal_style.font.color.rgb = RGBColor(0, 0, 0)
 
+    for h_name, pt_size in [("Heading 1", 14), ("Heading 2", 12), ("Heading 3", 12)]:
+        if h_name in doc.styles:
+            h_style = doc.styles[h_name]
+            h_style.font.name = "Times New Roman"
+            h_style.font.size = Pt(pt_size)
+            h_style.font.bold = True
+            h_style.font.color.rgb = RGBColor(0, 0, 0)
+
     # Render ONLY the single official Title Page (matching IT4010 template)
     add_single_official_title_page(doc)
 
@@ -682,7 +690,20 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
 
             # Check if we are in TOC, List of Figures, List of Tables, List of Appendices, or List of Abbreviations
             if "TABLE OF CONTENTS" in current_h1:
-                add_borderless_toc_or_list(doc, table_lines, "TOC")
+                # Do NOT output static text rows. Insert native Word dynamic TOC field so
+                # the user can click 'Update Field' or insert/refresh a responsive TOC via References tab in Word.
+                p_toc = doc.add_paragraph()
+                p_toc.paragraph_format.space_before = Pt(6)
+                p_toc.paragraph_format.space_after = Pt(12)
+                p_toc.paragraph_format.line_spacing_rule = WD_LINE_SPACING.SINGLE
+                fld = OxmlElement("w:fldSimple")
+                fld.set(qn("w:instr"), 'TOC \\o "1-3" \\h \\z \\u')
+                r_toc = OxmlElement("w:r")
+                t_toc = OxmlElement("w:t")
+                t_toc.text = "[Right-click and select 'Update Field', or click 'References' -> 'Table of Contents']"
+                r_toc.append(t_toc)
+                fld.append(r_toc)
+                p_toc._p.append(fld)
                 continue
             elif "LIST OF FIGURES" in current_h1:
                 add_borderless_toc_or_list(doc, table_lines, "LOF")
@@ -898,7 +919,14 @@ def build_word_document(full_md: str, out_docx: Path) -> None:
         i += 1
 
     out_docx.parent.mkdir(parents=True, exist_ok=True)
-    doc.save(str(out_docx))
+    try:
+        doc.save(str(out_docx))
+    except PermissionError:
+        alt_path = out_docx.with_name(out_docx.stem + "_Updated.docx")
+        doc.save(str(alt_path))
+        print(f"Note: {out_docx.name} is currently open in Word. Saved to {alt_path.name} instead.")
+        out_docx = alt_path
+    return out_docx
 
 
 def ensure_all_chapter6_figures() -> None:
@@ -955,15 +983,20 @@ def main() -> None:
     artifact_md_path.write_text(artifact_md, encoding="utf-8")
 
     docx_repo_path = THESIS_DIR / "IT22047724_Sakindu_Rathnasiri_Individual_Thesis.docx"
-    build_word_document(full_md, docx_repo_path)
+    saved_path = build_word_document(full_md, docx_repo_path)
+    if saved_path is None:
+        saved_path = docx_repo_path
 
-    shutil.copy2(docx_repo_path, WORKSPACE_DIR / docx_repo_path.name)
+    try:
+        shutil.copy2(saved_path, WORKSPACE_DIR / saved_path.name)
+    except PermissionError:
+        pass
     shutil.copy2(master_md_path, WORKSPACE_DIR / master_md_path.name)
 
     words = len(full_md.split())
     lines = len(full_md.splitlines())
     print(f"Master Markdown written: {master_md_path} ({lines} lines, {words} words)")
-    print(f"Formatted DOCX written : {docx_repo_path} ({docx_repo_path.stat().st_size / 1024:.1f} KB)")
+    print(f"Formatted DOCX written : {saved_path} ({saved_path.stat().st_size / 1024:.1f} KB)")
 
 
 if __name__ == "__main__":
