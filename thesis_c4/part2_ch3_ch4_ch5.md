@@ -2,17 +2,12 @@
 
 ## 3.1 Research design
 
-We follow an empirical, design-science research methodology structured into a twelve-layer experimental protocol (`Layers 1` through `12`, with runtime benchmarking, UAT, and system checks in `Layers 13–15`). In applied machine learning, evaluating models on unverified labels or tuning thresholds directly on test data introduces significant selection bias. To avoid these issues, our research design enforces five key methodological principles:
-
-1. **Audit supervision before modelling (Layer 1 & 1b):** Before training or scoring any model, we audit the human supervision source (`Original:` annotations in RAGTruth) on Component 1's frozen splits (`src/c4_attribution/evidence_audit.py`). To ensure our regex heuristic for identifying no-evidence claims (`src/c4_attribution/evidence_labels.py`) is reliable, we conducted an independent dual-rater blind audit on $50$ sampled snippets (`seed = 42`). Rater 1 agreed on $47/50$ ($94.0\%$) and Rater 2 on $46/50$ ($92.0\%$), yielding raw agreement of $98.0\%$ and **Cohen's $\kappa = 0.8466$**.
-2. **Pre-fixed matching cutoff (Layer 2):** Because fewer than $51\%$ of human quotes match context text verbatim, we define the gold sentence as the candidate maximising content-token containment above a pre-set threshold $\theta = 0.50$ (`src/c4_attribution/matching.py`). We locked this threshold before running any attribution models and report sensitivity sweeps across $\theta \in [0.30, 0.90]$ under both single-sentence (Convention A) and multi-sentence (Convention B) definitions (`Table C4-3`).
-3. **Fit on calibration, test once on held-out split (Layers 4–11):** All parameter selection—including the choice of backend (`lexical|sentence`), calibrators, conformal quantiles $\hat{q}_{1-\alpha}$, and the abstention cutoff $\tau = 0.1973$—is performed **exclusively on the calibration split (`calib`)** and evaluated once on the test split (`test`). Unit tests confirm that tuning functions never access test records.
-4. **Report against task-specific baseline floors (Layers 3, 5, 7, 11):** Every primary table includes simple baseline floors broken down by task (`qa`, `data2text`, `summarization`):
-   * *Attribution baselines:* `first sentence`, `longest sentence`, `random`, and `abstain`.
-   * *Calibration floor:* Constant base-rate predictor ($\hat{p} \equiv \bar{y}_{\text{cal}}$).
-   * *Abstention baselines:* `always_abstain`, `never_abstain`, and unthresholded nearest-neighbour.
-   * *Fusion baselines:* `trivial_always_positive`, `HHEM`, and `C1 alone`, evaluated against bootstrap confidence intervals.
-5. **Exact parity between offline and online paths (Layer 12):** The production attributor (`C4Attributor` in `src/c4_attribution/serving.py`) uses the same IDF calculation as offline evaluation and loads calibrated values directly from `c4_artifact.json`, verified by regression tests to match within $10^{-9}$.
+Our evaluation follows an experimental, design-science approach organized across twelve analysis layers (`Layers 1` to `12`, followed by performance and acceptance tests in `Layers 13–15`). To avoid common pitfalls like test-set leakage or evaluating against noisy labels, we adhered to several strict guidelines throughout:
+* First, we checked ground-truth annotations before touching any model (Layers 1 and 1b). Rather than assuming RAGTruth's comments were clean, we inspected them on calibration data and ran a blind dual-rater check on 50 sampled snippets (achieving 94% agreement and Cohen's $\kappa = 0.8466$) to ensure our missing-evidence labels were trustworthy.
+* Second, we locked our containment matching threshold at $\theta = 0.50$ (Layer 2) prior to testing any retrieval backends, while recording sensitivity curves across $\theta \in [0.30, 0.90]$ under both single-sentence (Convention A) and multi-sentence (Convention B) rules.
+* Third, every fitted value—such as our chosen scoring mode (`lexical|sentence`), probability calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$—was derived strictly from the calibration split (`calib`) and evaluated exactly once on the test split (`test`).
+* Fourth, we evaluated models against simple task-specific baselines (Layers 3, 5, 7, 11), including random choice, selecting the first or longest sentence, and constant base-rate predictors.
+* Finally, we ensured exact numerical parity ($\le 10^{-9}$) between our offline experiment scripts and the online `C4Attributor` class loaded by FastAPI.
 
 ---
 
@@ -42,11 +37,11 @@ Table 3.1 summarises the supervision distribution measured in Layer 1 (`results/
 
 *Table 3.1: Frozen RAGTruth Dataset Splits and Evidence Annotation Distribution (Layer 1 Audit).*
 
-### 3.2.2 Structure of RAGTruth's `Original:` metadata
-Auditing the annotator comments in Layer 1 revealed several important characteristics:
-1. **Defined closing markers:** Annotators delimit quotes using five markers: `original:`, `generative:`, `generated:`, `aigc:`, and `aogc:`. Splitting on arbitrary colons incorrectly truncates quotes containing terms like `Review:` or `Hours:`, so we restrict delimiter parsing to this closed set.
-2. **Multi-line quotes:** Multi-line quotes (e.g. structured opening hours) wrap across multiple lines before `Generated:`. Extracting only the first line after `Original:` misses details in $6.43\%$ of comments ($118/1,835$). We extract text up to the next marker to retain full multi-line quotes.
-3. **Subtle factual labels:** $105$ spans ($3.82\%$) are flagged `implicit_true = True` (claims that are true in general knowledge but absent from the passage). Another $22$ spans are marked `due_to_null = True` (errors resulting from null JSON fields).
+### 3.2.2 Structure of RAGTruth's `original:` metadata
+Examining RAGTruth's `Original:` comments during Layer 1 brought several practical quirks to light:
+* **Closing markers:** Annotators marked the end of quotes using five specific tags (`original:`, `generative:`, `generated:`, `aigc:`, `aogc:`). Splitting on general colon characters breaks down whenever context sentences contain words like `Review:` or `Hours:`, so we limited our parsing strictly to those five tags.
+* **Multi-line passages:** In structured records, evidence quotes frequently span multiple lines before the next tag. Reading only the first line after `Original:` drops information in 6.4% of comments (118 cases), so our extractor reads up to the next recognized tag.
+* **Subtly true claims:** 105 spans (3.8%) were annotated as `implicit_true`, where statements are factually accurate in the real world but absent from the context text, and 22 spans were flagged as `due_to_null` due to missing JSON fields.
 
 ---
 
@@ -59,15 +54,15 @@ Table 3.2 outlines the twelve experimental layers in Component 4.
 | **Layer 1** | `evidence_labels.py`, `evidence_audit.py` | Parse `Original:` blocks on frozen splits; measure verbatim and content-token containment rates across tasks and error types. | `results/c4/analysis/evidence_audit.json` |
 | **Layer 1b** | `evidence_audit.py` | Sample $n=50$ (`seed=42`) no-evidence snippets; conduct dual-rater blind human audit and compute raw agreement $P_o$ and Cohen's $\kappa$. | `results/c4/analysis/no_evidence_sample.json`, `no_evidence_sample.md` |
 | **Layer 1c** | `sentences.py`, `evidence_audit.py` | Run sentence-segmentation ablation comparing the frozen serving splitter `(?<=[.!?])\s+` against a passage/blank-line-aware variant splitter. | `segmentation_ablation` in `evidence_audit.json` |
-| **Layer 2** | `matching.py` | Apply content-token containment matcher at pre-fixed $	heta = 0.50$ under `Convention A` (single best sentence) and `Convention B` (gold set $\ge 	heta$); sweep $	heta \in [0.30, 0.90]$. | `results/c4/analysis/attribution_matching_calib.json`, `attribution_matching_test.json` |
+| **Layer 2** | `matching.py` | Apply content-token containment matcher at pre-fixed $\theta = 0.50$ under `Convention A` (single best sentence) and `Convention B` (gold set $\ge \theta$); sweep $\theta \in [0.30, 0.90]$. | `results/c4/analysis/attribution_matching_calib.json`, `attribution_matching_test.json` |
 | **Layer 3** | `lexical.py` | Evaluate parameter-free IDF content-token containment scorer against four trivial floors (`first`, `longest`, `random`, `abstain`) per task and convention. | `results/c4/lexical/lexical_metrics.json` |
-| **Layer 4** | `prefilter.py` | Benchmark 4 backends (`lexical`, `embed`, `hhem_support`, `nli_entail`) $	imes$ 2 hypothesis modes (`span`, `sentence`); select best operating point on `calib`. | `results/c4/scores/scorer_metrics.json`, `results/c4/scores/{calib,test}_scores.jsonl` |
+| **Layer 4** | `prefilter.py` | Benchmark 4 backends (`lexical`, `embed`, `hhem_support`, `nli_entail`) $\times$ 2 hypothesis modes (`span`, `sentence`); select best operating point on `calib`. | `results/c4/scores/scorer_metrics.json`, `results/c4/scores/{calib,test}_scores.jsonl` |
 | **Layer 4b** | `prefilter.py` | Measure pre-filter Recall@k and irrecoverable error floor for $k \in \{1, 3, 5, 10\}$ comparing dense `embedding_used` vs. `idf_lexical_not_used`. | `prefilter` block in `results/c4/scores/scorer_metrics.json` |
 | **Layer 5** | `calibration.py` | Fit Temperature, Platt, and Isotonic calibrators on `calib` candidate sentence pairs; evaluate ECE, MCE, Brier, NLL, and AUROC on `test` vs. constant base-rate floor. | `results/c4/calibration/score_calibration.json` |
 | **Layer 6** | `evidence_conformal.py` | Construct split conformal evidence sets via LAC and CRC across $\alpha \in \{0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40\}$; test marginal vs. task-conditional coverage. | `results/c4/conformal/c4_conformal.json` |
-| **Layer 7** | `abstention.py` | Fit no-evidence abstention threshold $	au$ on `calib` by grid search over $[0.0, 1.0]$; evaluate precision, recall, and F1 on `test` against task-specific `always_abstain` floors. | `results/c4/analysis/no_evidence.json` |
-| **Layer 8** | `faithfulness.py` | Audit post-rationalisation / false-citation rate on baseless spans before and after applying the calibrated abstention threshold $	au = 0.1973$. | `results/c4/analysis/faithfulness_audit.json` |
-| **Layer 9** | `transfer.py` | Execute Leave-One-Task-Out (LOTO) cross-task transfer (`qa`, `data2text`, `summarization`), fitting $\hat{q}_{1-\alpha}$ and $	au$ on two tasks and testing on the held-out third task. | `results/c4/transfer/transfer_metrics.json` |
+| **Layer 7** | `abstention.py` | Fit no-evidence abstention threshold $\tau$ on `calib` by grid search over $[0.0, 1.0]$; evaluate precision, recall, and F1 on `test` against task-specific `always_abstain` floors. | `results/c4/analysis/no_evidence.json` |
+| **Layer 8** | `faithfulness.py` | Audit post-rationalisation / false-citation rate on baseless spans before and after applying the calibrated abstention threshold $\tau = 0.1973$. | `results/c4/analysis/faithfulness_audit.json` |
+| **Layer 9** | `transfer.py` | Execute Leave-One-Task-Out (LOTO) cross-task transfer (`qa`, `data2text`, `summarization`), fitting $\hat{q}_{1-\alpha}$ and $\tau$ on two tasks and testing on the held-out third task. | `results/c4/transfer/transfer_metrics.json` |
 | **Layer 10** | `review_cost.py` | Compute reviewer reading-cost curve: mean context sentences read per span and per response vs. empirical coverage across $\alpha$. | `results/c4/analysis/review_cost.json` |
 | **Layer 11** | `fusion.py` | Rebuild C2 decisions on $1,509$ test responses; evaluate `c1_alone`, `c1_c2_flag_only`, `c1_c2_gated_by_c4`, and `c4_tie_break` plus 4-cell disagreement table. | `results/c4/fusion/fusion_metrics.json` |
 | **Layer 12** | `serving.py` | Export `c4_artifact.json`, verify numerical parity ($\le 10^{-9}$) between offline `lexical` and online `C4Attributor`, and enforce Serving Rules 1–3. | `results/c4/c4_artifact.json` |
@@ -76,9 +71,9 @@ Table 3.2 outlines the twelve experimental layers in Component 4.
 *Table 3.2: Twelve-Layer Experimental Protocol and Associated Artefact Outputs in Component 4.*
 
 ### 3.3.1 Matching protocol definitions
-In Layer 2 (`src/c4_attribution/matching.py`), we score containment of quote $q$ in sentence $c_j$ as $	ext{cont}(q, c_j) = |T(q) \cap T(c_j)| / |T(q)|$:
-* **Convention A (Single Gold Sentence):** We select $j^* = \arg\max_j 	ext{cont}(q, c_j)$. If $	ext{cont}(q, c_{j^*}) \ge 	heta$ ($	heta = 0.50$), $j_{	ext{gold}} = j^*$; otherwise the span is marked unmatched.
-* **Convention B (Multiple Gold Sentences):** Any sentence meeting $	ext{cont}(q, c_j) \ge 	heta$ is counted as a valid gold match.
+In Layer 2 (`src/c4_attribution/matching.py`), we score containment of quote $q$ in sentence $c_j$ as $\text{cont}(q, c_j) = |T(q) \cap T(c_j)| / |T(q)|$:
+* **Convention A (Single Gold Sentence):** We select $j^* = \arg\max_j \text{cont}(q, c_j)$. If $\text{cont}(q, c_{j^*}) \ge \theta$ ($\theta = 0.50$), $j_{\text{gold}} = j^*$; otherwise the span is marked unmatched.
+* **Convention B (Multiple Gold Sentences):** Any sentence meeting $\text{cont}(q, c_j) \ge \theta$ is counted as a valid gold match.
 
 ### 3.3.2 Backend comparison setup
 Layer 4 compares four backends across raw span queries and enclosing sentence queries:
@@ -93,20 +88,16 @@ Layer 4 compares four backends across raw span queries and enclosing sentence qu
 
 We evaluate performance using six core metric groups:
 1. **Top-1 Accuracy, MRR, and Recall@k:**
-   $$	ext{Top-1} = \frac{1}{N_{	ext{attr}}} \sum_{r=1}^{N_{	ext{attr}}} \mathbb{I}\!\left[\pi_r(1) = j_{	ext{gold}}^{(r)}
-ight], \quad 	ext{MRR} = \frac{1}{N_{	ext{attr}}} \sum_{r=1}^{N_{	ext{attr}}} \frac{1}{	ext{rank}_r(j_{	ext{gold}}^{(r)})}$$
-   $$	ext{Recall@}k = \frac{1}{N_{	ext{attr}}} \sum_{r=1}^{N_{	ext{attr}}} \mathbb{I}\!\left[	ext{rank}_r(j_{	ext{gold}}^{(r)}) \le k
-ight]$$
+   $$\text{Top-1} = \frac{1}{N_{\text{attr}}} \sum_{r=1}^{N_{\text{attr}}} \mathbb{I}\!\left[\pi_r(1) = j_{\text{gold}}^{(r)}\right], \quad \text{MRR} = \frac{1}{N_{\text{attr}}} \sum_{r=1}^{N_{\text{attr}}} \frac{1}{\text{rank}_r(j_{\text{gold}}^{(r)})}$$
+   $$\text{Recall@}k = \frac{1}{N_{\text{attr}}} \sum_{r=1}^{N_{\text{attr}}} \mathbb{I}\!\left[\text{rank}_r(j_{\text{gold}}^{(r)}) \le k\right]$$
    We also report conditional Top-1 on cases where the gold sentence survived the candidate pre-filter.
 2. **Conformal Empirical Coverage & Finite-Sample Bounds:**
-   $$\widehat{	ext{Cov}}(\alpha) = \frac{1}{N_{	ext{test}}} \sum_{r=1}^{N_{	ext{test}}} \mathbb{I}\!\left[j_{	ext{gold}}^{(r)} \in \mathcal{C}_\alpha(s_r)
-ight], \quad 	ext{Band}_{3\sigma}(\alpha) = 3 \sqrt{\frac{\alpha(1 - \alpha)}{n_{	ext{test}}} + \frac{\alpha(1 - \alpha)}{n_{	ext{cal}}}}$$
+   $$\widehat{\text{Cov}}(\alpha) = \frac{1}{N_{\text{test}}} \sum_{r=1}^{N_{\text{test}}} \mathbb{I}\!\left[j_{\text{gold}}^{(r)} \in \mathcal{C}_\alpha(s_r)\right], \quad \text{Band}_{3\sigma}(\alpha) = 3 \sqrt{\frac{\alpha(1 - \alpha)}{n_{\text{test}}} + \frac{\alpha(1 - \alpha)}{n_{\text{cal}}}}$$
    We compute $95\%$ bootstrap confidence intervals across $1,000$ resamples.
 3. **Reviewer Reading Burden Reduction:**
-   $$	ext{Reduction}_{	ext{span}}(\alpha) = \frac{1}{N_{	ext{test}}} \sum_{r=1}^{N_{	ext{test}}} \left(1 - \frac{|\mathcal{C}_\alpha(s_r)|}{m_r}
-ight)$$
+   $$\text{Reduction}_{\text{span}}(\alpha) = \frac{1}{N_{\text{test}}} \sum_{r=1}^{N_{\text{test}}} \left(1 - \frac{|\mathcal{C}_\alpha(s_r)|}{m_r}\right)$$
 4. **No-Evidence Abstention Precision, Recall, and F1:** Evaluated using standard classification metrics against the task-specific `always_abstain` floor:
-   $$	ext{F1}_{	ext{always\_abstain}}(	ext{task}) = \frac{2 \cdot b_{	ext{task}}}{1 + b_{	ext{task}}}$$
+   $$\text{F1}_{\text{always\_abstain}}(\text{task}) = \frac{2 \cdot b_{\text{task}}}{1 + b_{\text{task}}}$$
 5. **Inter-Annotator Agreement (Cohen's $\kappa$):**
    $$\kappa = \frac{P_o - P_e}{1 - P_e}$$
 6. **Response-Level Hallucination F1 (Fusion):** Evaluated across the $1,509$ test responses following the RAGTruth benchmark protocol.
@@ -117,7 +108,7 @@ ight)$$
 
 Analyses are implemented deterministically using Python and NumPy with fixed random seeds (`np.random.default_rng(42)`):
 * **Bootstrap intervals:** Coverage bounds are derived from $1,000$ bootstrap iterations.
-* **Significance threshold:** Pipeline fusion gains must exceed Component 1's multi-seed variation ($\sigma_{	ext{seed}} = 0.384$) and its $4.18$-point bootstrap interval width.
+* **Significance threshold:** Pipeline fusion gains must exceed Component 1's multi-seed variation ($\sigma_{\text{seed}} = 0.384$) and its $4.18$-point bootstrap interval width.
 * **Stratified reporting:** To avoid Simpson's paradox, metrics are reported both overall and disaggregated across QA, Data-to-Text, and Summarization.
 
 ---
@@ -155,15 +146,15 @@ Table 4.1 specifies the functional and non-functional requirements for Component
 | :--- | :--- | :--- | :--- | :--- |
 | **FR-C4-01** | Functional | Segment raw retrieved context `context` into sentences `context_sentences` and recover exact `(start, end)` character offsets. | $100\%$ parity with backend & C3 splitter `(?<=[.!?])\s+`. | `sentences.py`, `test_c4_sentences.py`, `UAT-01` |
 | **FR-C4-02** | Functional | Score every context sentence $c_j$ against each candidate span $s_i$ (or enclosing sentence) and identify the top-1 evidence sentence $j^*$ and score $s_{j^*}$. | Unconditional Top-1 accuracy $\ge 0.85$ on matched test spans (achieved: **$0.8952$**). | `lexical.py`, `serving.py`, `UAT-02` |
-| **FR-C4-03** | Functional | Certify `no_evidence` (`abstained = True`) and return `None` for `evidence_sentence`, `evidence_index`, and `entailment_score` when $\max_j s_j < 	au$. | Calibration-fitted $	au = 0.1973$; no-evidence recall $\ge 0.80$ (achieved: **$0.8080$**). | `abstention.py`, `serving.py`, `UAT-03` |
+| **FR-C4-03** | Functional | Certify `no_evidence` (`abstained = True`) and return `None` for `evidence_sentence`, `evidence_index`, and `entailment_score` when $\max_j s_j < \tau$. | Calibration-fitted $\tau = 0.1973$; no-evidence recall $\ge 0.80$ (achieved: **$0.8080$**). | `abstention.py`, `serving.py`, `UAT-03` |
 | **FR-C4-04** | Functional | Construct a split conformal evidence prediction set $\mathcal{C}_\alpha(s_i)$ of context sentence indices at user risk level $\alpha$. | Empirical test coverage within $3\sigma$ band of $1 - \alpha$ ($90.03\%$ at $\alpha = 0.10$). | `evidence_conformal.py`, `UAT-04` |
 | **FR-C4-05** | Functional | Maintain strict set monotonicity across risk levels: $\mathcal{C}_{\alpha_2}(s_i) \subseteq \mathcal{C}_{\alpha_1}(s_i)$ whenever $\alpha_2 > \alpha_1$. | Verified for all $\alpha \in \{0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40\}$. | `test_c4_conformal.py`, `UAT-05` |
 | **FR-C4-06** | Functional | Enforce Serving Rules 1 & 2: never mutate `AnalysisResult.model_version` and block forbidden words (`"coverage"`, `"guarantee"`, `"%"`) in per-span strings. | $0$ contract violations across all $147$ unit tests. | `serving.py`, `test_c4_serving.py`, `UAT-06` |
 | **FR-C4-07** | Functional | Enforce Serving Rule 3: when `guarantee_applies == False` (OOD shift detected), continue rendering candidate evidence while withdrawing coverage claims. | `AnalysisResult` validates cleanly with `guarantee_applies=False` and `attribution_checked=True`. | `schema.py`, `serving.py`, `UAT-07` |
-| **FR-C4-08** | Functional | Provide a C1$	imes$C2$	imes$C4 tie-break fusion rule (`c4_tie_break`) that promotes C2 `ABSTAIN` spans to positive when C4 certifies `no_evidence = True`. | Statistically significant F1 gain over `c1_c2_flag_only` (achieved: **$+5.96$ F1 pts**). | `fusion.py`, `test_c4_fusion.py`, `UAT-08` |
-| **NFR-C4-01** | Non-Functional (Parity) | Guarantee zero numerical drift between the offline evaluation pipeline and the online FastAPI serving class `C4Attributor`. | Max score difference $\le 10^{-9}$ on identical inputs (achieved: **$0.00 	imes 10^0$**). | `test_c4_serving.py`, `UAT-09` |
-| **NFR-C4-02** | Non-Functional (Latency) | Execute full context segmentation and multi-span attribution within interactive real-time bounds on a standard laptop CPU. | $<50	ext{ ms}$ per response, $<5	ext{ ms}$ per span (achieved: **$1.312	ext{ ms}$ p50/span, $5.57	ext{ ms}$/resp**). | `latency_benchmark.py`, `UAT-10` |
-| **NFR-C4-03** | Non-Functional (Memory) | Co-exist in the same Python process as Component 1's `ModernBERT-base` detector on a 6 GB laptop without GPU OOM errors. | $\le 50	ext{ MB}$ additional RAM/VRAM (achieved: **$0.0	ext{ MB}$ additional model memory**). | `serving.py`, `latency_benchmark.py` |
+| **FR-C4-08** | Functional | Provide a C1$\times$C2$\times$C4 tie-break fusion rule (`c4_tie_break`) that promotes C2 `ABSTAIN` spans to positive when C4 certifies `no_evidence = True`. | Statistically significant F1 gain over `c1_c2_flag_only` (achieved: **$+5.96$ F1 pts**). | `fusion.py`, `test_c4_fusion.py`, `UAT-08` |
+| **NFR-C4-01** | Non-Functional (Parity) | Guarantee zero numerical drift between the offline evaluation pipeline and the online FastAPI serving class `C4Attributor`. | Max score difference $\le 10^{-9}$ on identical inputs (achieved: **$0.00 \times 10^0$**). | `test_c4_serving.py`, `UAT-09` |
+| **NFR-C4-02** | Non-Functional (Latency) | Execute full context segmentation and multi-span attribution within interactive real-time bounds on a standard laptop CPU. | $<50\text{ ms}$ per response, $<5\text{ ms}$ per span (achieved: **$1.312\text{ ms}$ p50/span, $5.57\text{ ms}$/resp**). | `latency_benchmark.py`, `UAT-10` |
+| **NFR-C4-03** | Non-Functional (Memory) | Co-exist in the same Python process as Component 1's `ModernBERT-base` detector on a 6 GB laptop without GPU OOM errors. | $\le 50\text{ MB}$ additional RAM/VRAM (achieved: **$0.0\text{ MB}$ additional model memory**). | `serving.py`, `latency_benchmark.py` |
 | **NFR-C4-04** | Non-Functional (Auditability) | Store all serving parameters in a diffable, human-readable JSON artefact rather than opaque binary weights or pickles. | Schema-validated `results/c4/c4_artifact.json` (`v1.0.0`). | `serving.py`, `test_c4_serving.py` |
 
 *Table 4.1: Functional and Non-Functional Requirements Specification for Component 4.*
@@ -181,7 +172,7 @@ In a request to `POST /api/analyze`:
 1. **Context Segmentation:** The input passage is split into candidate sentences using the regex `(?<=[.!?])\s+`.
 2. **Component 1 (ModernBERT-base):** Highlights candidate spans with character offsets.
 3. **Component 2 (Platt Scaling & Conformal Gate):** Assigns calibrated probabilities and decisions (`FLAG`, `ABSTAIN`, `PASS`).
-4. **Component 4 (Attribution & Abstention):** Scores sentences via IDF containment, applies the abstention cutoff $	au = 0.1973$, constructs conformal sets $\mathcal{C}_\alpha(s)$, and provides tie-breaking for uncertain spans.
+4. **Component 4 (Attribution & Abstention):** Scores sentences via IDF containment, applies the abstention cutoff $\tau = 0.1973$, constructs conformal sets $\mathcal{C}_\alpha(s)$, and provides tie-breaking for uncertain spans.
 5. **Component 3 (Explanation):** Generates hedged explanations based on risk tiers and identified evidence sentences.
 
 ---
@@ -192,8 +183,8 @@ Table 4.2 reviews key design trade-offs evaluated during development.
 
 | Design Dimension | Alternatives Evaluated | Empirical Findings on Calibration / Test Splits | Final Architectural Decision & Rationale |
 | :--- | :--- | :--- | :--- |
-| **1. Online vs. Offline Attribution Scorer** | (A) `lexical` (IDF content-token containment)<br>(B) `embed` (`bge-small-en-v1.5`)<br>(C) `hhem_support` (`Vectara HHEM`, $k=5$)<br>(D) `nli_entail` (`DeBERTa-v3-base`, $k=5$) | Unconditional Top-1 (`Table C4-5`):<br>• `lexical`: **$0.8952$** ($1.31	ext{ ms}$, $0	ext{ MB}$)<br>• `hhem_support`: $0.6959$ ($24.6	ext{ ms}$, $440	ext{ MB}$)<br>• `nli_entail`: $0.6392$ ($28.5	ext{ ms}$, $738	ext{ MB}$)<br>• `embed`: $0.3007$ ($8.42	ext{ ms}$, $133	ext{ MB}$) | **Offline 4-backend benchmark + Online `lexical` serving (`c4_artifact.json`).** `lexical` achieves the highest accuracy on both `calib` ($0.9095$) and `test` ($0.8952$) while adding $0	ext{ MB}$ RAM/VRAM on a 6 GB laptop where `ModernBERT` is already loaded. |
-| **2. Candidate Pre-Filter Strategy (Layer 4b)** | (A) Dense embedding top-$k$ pre-filter (`bge-small`)<br>(B) IDF lexical top-$k$ pre-filter<br>(C) Exhaustive full-pool lexical scoring | At $k=5$ (`Table C4-6`):<br>• Dense pre-filter drops **$21.90\%$** of gold sentences (`Recall@5` $= 0.7810$).<br>• IDF lexical drops only **$2.41\%$** (`Recall@5` $= 0.9759$). | **Report the $21.90\%$ dense pre-filter bottleneck as a primary scientific finding** and score `lexical` exhaustively over all $m$ sentences in $1.31	ext{ ms}$. |
+| **1. Online vs. Offline Attribution Scorer** | (A) `lexical` (IDF content-token containment)<br>(B) `embed` (`bge-small-en-v1.5`)<br>(C) `hhem_support` (`Vectara HHEM`, $k=5$)<br>(D) `nli_entail` (`DeBERTa-v3-base`, $k=5$) | Unconditional Top-1 (`Table C4-5`):<br>• `lexical`: **$0.8952$** ($1.31\text{ ms}$, $0\text{ MB}$)<br>• `hhem_support`: $0.6959$ ($24.6\text{ ms}$, $440\text{ MB}$)<br>• `nli_entail`: $0.6392$ ($28.5\text{ ms}$, $738\text{ MB}$)<br>• `embed`: $0.3007$ ($8.42\text{ ms}$, $133\text{ MB}$) | **Offline 4-backend benchmark + Online `lexical` serving (`c4_artifact.json`).** `lexical` achieves the highest accuracy on both `calib` ($0.9095$) and `test` ($0.8952$) while adding $0\text{ MB}$ RAM/VRAM on a 6 GB laptop where `ModernBERT` is already loaded. |
+| **2. Candidate Pre-Filter Strategy (Layer 4b)** | (A) Dense embedding top-$k$ pre-filter (`bge-small`)<br>(B) IDF lexical top-$k$ pre-filter<br>(C) Exhaustive full-pool lexical scoring | At $k=5$ (`Table C4-6`):<br>• Dense pre-filter drops **$21.90\%$** of gold sentences (`Recall@5` $= 0.7810$).<br>• IDF lexical drops only **$2.41\%$** (`Recall@5` $= 0.9759$). | **Report the $21.90\%$ dense pre-filter bottleneck as a primary scientific finding** and score `lexical` exhaustively over all $m$ sentences in $1.31\text{ ms}$. |
 | **3. Query Hypothesis Formation (Layer 4)** | (A) `span`: raw flagged span substring $s_i$<br>(B) `sentence`: enclosing answer sentence $h(s_i)$ | On `calib` (`Table C4-5`):<br>• `lexical\|sentence`: **$0.9095$** (Conv A), **$0.9629$** (Conv B)<br>• `lexical\|span`: $0.8886$ (Conv A), $0.9629$ (Conv B) | **Select `sentence` hypothesis offline on `calib`** for enclosing-context disambiguation; support direct `span_text` in `C4Attributor` for fast single-call API annotation. |
 | **4. Conformal Prediction Formalism (Layer 6)** | (A) Least Ambiguous Set-Valued Classifiers (LAC) [13]<br>(B) Conformal Risk Control (CRC) [14] | At $\alpha = 0.10$ (`Table C4-10`):<br>• LAC: coverage $= 0.9003$, mean set $= 4.61$<br>• CRC: coverage $= 0.9003$, mean set $= 4.61$<br>• $\Delta = 0.0000$ | **Implement and report both LAC and CRC side-by-side (`evidence_conformal.py`)**, shipping LAC quantiles $\hat{q}_{1-\alpha}$ in `c4_artifact.json` due to their closed-form $O(m)$ evaluation. |
 
@@ -345,16 +336,16 @@ The code in `src/c4_attribution/` comprises $18$ Python files. Table 5.2 outline
 | `evidence_labels.py` | Layer 1 | `original_snippet`, `is_no_evidence`, `label_from_annotation`, `marker_counts` | Extracts `Original:` blocks up to the closed marker tuple `(original, generative, generated, aigc, aogc)` and detects no-evidence phrases. |
 | `dataset.py` | Layer 1 | `load_responses`, `span_records`, `predicted_span_records` | Loads frozen C1 `calib` and `test` splits (`split_ids.json`) and pairs responses with gold or C1-predicted spans. |
 | `evidence_audit.py` | Layer 1 & 1b | `measure`, `build_report`, `hand_check_agreement`, `_cohens_kappa` | Audits verbatim/containment rates, convention disagreement, splitter ablation, and dual-rater blind agreement ($\kappa = 0.8466$). |
-| `matching.py` | Layer 2 | `match_span`, `theta_sweep`, `build_report` | Implements the $	heta = 0.50$ content-token containment gold-sentence matcher under Conventions A and B. |
+| `matching.py` | Layer 2 | `match_span`, `theta_sweep`, `build_report` | Implements the $\theta = 0.50$ content-token containment gold-sentence matcher under Conventions A and B. |
 | `lexical.py` | Layer 3 | `idf_overlap_scores`, `best_sentence`, `containment`, `floor_prediction` | Implements within-context IDF lexical containment and the four trivial floors (`first`, `longest`, `random`, `abstain`). |
-| `prefilter.py` | Layer 4 & 4b | `score_row`, `prefilter_ceiling`, `select_operating_point` | Evaluates the 4 backends $	imes$ 2 hypothesis rules and measures the pre-filter Recall@k error ceiling. |
+| `prefilter.py` | Layer 4 & 4b | `score_row`, `prefilter_ceiling`, `select_operating_point` | Evaluates the 4 backends $\times$ 2 hypothesis rules and measures the pre-filter Recall@k error ceiling. |
 | `calibration.py` | Layer 5 | `TemperatureCalibrator`, `PlattCalibrator`, `IsotonicCalibrator`, `ece_mce` | Fits post-hoc probability calibrators on `calib` and scores ECE, MCE, Brier, NLL, and AUROC on `test` against the constant floor. |
 | `evidence_conformal.py` | Layer 6 | `lac_quantile`, `lac_sets`, `crc_threshold`, `evaluate_alpha`, `per_task_breakdown` | Implements split conformal LAC and CRC prediction sets, $3\sigma$ coverage bands, bootstrap CIs, and task-conditional sets. |
-| `abstention.py` | Layer 7 | `fit_threshold`, `evaluate_threshold`, `task_floors` | Fits the no-evidence abstention threshold ($	au = 0.1973$) on `calib` and evaluates precision, recall, and F1 against task floors. |
+| `abstention.py` | Layer 7 | `fit_threshold`, `evaluate_threshold`, `task_floors` | Fits the no-evidence abstention threshold ($\tau = 0.1973$) on `calib` and evaluates precision, recall, and F1 against task floors. |
 | `faithfulness.py` | Layer 8 | `build_report`, `audit_false_citations` | Measures how often an unthresholded attributor fabricates citations on baseless spans vs. post-abstention gate. |
 | `transfer.py` | Layer 9 | `leave_one_task_out`, `evaluate_fold` | Runs Leave-One-Task-Out cross-task transfer across `qa`, `data2text`, and `summarization`. |
 | `review_cost.py` | Layer 10 | `span_reading_cost`, `response_compression`, `build_report` | Computes the reviewer reading-cost curve (`4.61` vs. `19.05` sentences, `70.63%` reduction). |
-| `fusion.py` | Layer 11 | `rebuild_c2_decisions`, `disagreement_cells`, `fuse`, `example_f1` | Rebuilds C2 conformal decisions (`0.8808` coverage verified) and evaluates the four C1$	imes$C2$	imes$C4 fusion rules. |
+| `fusion.py` | Layer 11 | `rebuild_c2_decisions`, `disagreement_cells`, `fuse`, `example_f1` | Rebuilds C2 conformal decisions (`0.8808` coverage verified) and evaluates the four C1$\times$C2$\times$C4 fusion rules. |
 | `serving.py` | Layer 12 | `C4Attributor`, `build_artifact`, `evidence_is_safe` | Ships the dependency-free online attributor, `c4_artifact.json`, and Serving Rules 1–3. |
 | `latency_benchmark.py` | Layer 13 | `run_benchmark` | Benchmarks CPU/GPU p50/p95 latency, span throughput, and RAM/VRAM footprint across all four backends (`C4-15`). |
 | `uat_validation.py` | Layer 14 | `run_uat_suite`, `_ensure_dual_rater_audit` | Executes the 10 functional/non-functional UAT cases and compiles the internal reviewer verification timing study (`C4-16`). |
@@ -369,7 +360,7 @@ The code in `src/c4_attribution/` comprises $18$ Python files. Table 5.2 outline
 Component 4 interfaces with the rest of TrustRAG across three clear touchpoints:
 1. **Upstream with Components 1 & 2:** Contexts segmented in C4 match those used by C1 and C2 character-for-character. In Layer 11, C4 rebuilds C2 decisions to verify recorded test coverage ($0.8808$) before running fusion.
 2. **Peer with Component 3:** C3 and C4 share the regex splitter `(?<=[.!?])\s+`. C3 uses C4's sentence references to form explanations and respects C4's abstention decisions.
-3. **Live FastAPI & React Integration:** `C4Attributor` is loaded into FastAPI at startup, adding $0	ext{ MB}$ memory and annotating spans via `C4Attributor.annotate`.
+3. **Live FastAPI & React Integration:** `C4Attributor` is loaded into FastAPI at startup, adding $0\text{ MB}$ memory and annotating spans via `C4Attributor.annotate`.
 
 ---
 
@@ -379,12 +370,11 @@ We apply a five-tier testing strategy comprising **$147$ unit and contract tests
 
 | Testing Level | Test Files (`tests/`) | Number of Tests | Key Invariants Verified | Status |
 | :--- | :--- | :---: | :--- | :---: |
-| **Level 1: Unit Tests** | `test_c4_sentences.py`, `test_c4_evidence_labels.py`, `test_c4_matching.py`, `test_c4_lexical.py` | $54$ | Closed 5-marker vocabulary; non-truncation on `Weekends:`; IDF tokenisation; deterministic lowest-index tie-breaking; $	heta = 0.50$ matching; dual-rater Cohen's $\kappa = 0.8466$. | **54 / 54 PASS** |
-| **Level 2: Component & Calibration Tests** | `test_c4_calibration.py`, `test_c4_conformal.py`, `test_c4_abstention.py`, `test_c4_faithfulness.py` | $46$ | Strict fitting on `calib` only; LAC quantile finite-sample bound; CRC vs. LAC equivalence; risk-level set nesting $\mathcal{C}_{0.20} \subseteq \mathcal{C}_{0.10} \subseteq \mathcal{C}_{0.05}$; abstention threshold $	au$ bounds. | **46 / 46 PASS** |
+| **Level 1: Unit Tests** | `test_c4_sentences.py`, `test_c4_evidence_labels.py`, `test_c4_matching.py`, `test_c4_lexical.py` | $54$ | Closed 5-marker vocabulary; non-truncation on `Weekends:`; IDF tokenisation; deterministic lowest-index tie-breaking; $\theta = 0.50$ matching; dual-rater Cohen's $\kappa = 0.8466$. | **54 / 54 PASS** |
+| **Level 2: Component & Calibration Tests** | `test_c4_calibration.py`, `test_c4_conformal.py`, `test_c4_abstention.py`, `test_c4_faithfulness.py` | $46$ | Strict fitting on `calib` only; LAC quantile finite-sample bound; CRC vs. LAC equivalence; risk-level set nesting $\mathcal{C}_{0.20} \subseteq \mathcal{C}_{0.10} \subseteq \mathcal{C}_{0.05}$; abstention threshold $\tau$ bounds. | **46 / 46 PASS** |
 | **Level 3: Cross-Component Integration Tests** | `test_c4_dataset.py`, `test_c4_transfer.py`, `test_c4_review_cost.py`, `test_c4_fusion.py` | $27$ | Splitter parity across Backend, C3, and C4; C2 coverage rebuild parity ($0.8807531380753139$); 4-cell disagreement sum conservation; LOTO fold disjointness. | **27 / 27 PASS** |
 | **Level 4: Serving & Contract Safety Tests** | `test_c4_serving.py`, `test_c4_tables_figures.py` | $20$ | Serving Rule 1 (no `+c4` on `model_version`); Serving Rule 2 (no `"coverage"`, `"guarantee"`, `"%"` in span strings); Serving Rule 3 (OOD withdrawal); $\le 10^{-9}$ offline/online parity; `FIGURE_ORDER` whitelist lockstep; `C4-1`..`C4-16` contiguity. | **20 / 20 PASS** |
-| **Level 5: System Benchmark & UAT** | `latency_benchmark.py`, `uat_validation.py` | $10$ UAT cases | End-to-end `AnalyzeRequest` $
-ightarrow$ `AnalysisResult` validation, $<50	ext{ ms}$ CPU latency ($1.312	ext{ ms}$ p50/span), $0	ext{ MB}$ memory overhead, and internal reviewer effort reduction ($69.47\%$ time saved). | **10 / 10 PASS** |
+| **Level 5: System Benchmark & UAT** | `latency_benchmark.py`, `uat_validation.py` | $10$ UAT cases | End-to-end `AnalyzeRequest` $\rightarrow$ `AnalysisResult` validation, $<50\text{ ms}$ CPU latency ($1.312\text{ ms}$ p50/span), $0\text{ MB}$ memory overhead, and internal reviewer effort reduction ($69.47\%$ time saved). | **10 / 10 PASS** |
 
 *Table 5.3: Five-Level Software Verification and Regression Test Matrix (`147` C4 Tests / `861` Suite Tests).*
 
@@ -393,4 +383,4 @@ ightarrow$ `AnalysisResult` validation, $<50	ext{ ms}$ CPU latency ($1.312	ext{ 
 ## 5.5 Deployment and operation
 
 * **Offline Evaluation:** Heavy neural scoring runs once offline via `prefilter.py`, saving score files to `results/c4/scores/` and calibration thresholds to `results/c4/c4_artifact.json`.
-* **Live Serving:** In production, FastAPI loads `c4_artifact.json` at startup. Because `C4Attributor` uses only standard Python libraries and NumPy, launching the service requires **no additional model weights, zero extra VRAM, and adds only $1.312	ext{ ms}$ median latency per span**.
+* **Live Serving:** In production, FastAPI loads `c4_artifact.json` at startup. Because `C4Attributor` uses only standard Python libraries and NumPy, launching the service requires **no additional model weights, zero extra VRAM, and adds only $1.312\text{ ms}$ median latency per span**.
