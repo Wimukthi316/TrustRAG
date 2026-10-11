@@ -43,10 +43,10 @@ Table 6.3 (`C4-3`) shows the matching protocol results on the $1,533$ test spans
 
 | Protocol / Sweep | Category / $\theta$ | Count / Conv A Matched | Share / Conv A Rate | Conv B Matched | Conv B Rate | Unmatched |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Test Split Partition ($\theta = 0.50$)** | `matched_attributable` | $582$ | $0.3796$ | — | — | — |
-| | `unmatched_attributable` | $242$ | $0.1579$ | — | — | — |
-| | `no_evidence` | $224$ | $0.1461$ | — | — | — |
-| | `no_original_marker` | $485$ | $0.3164$ | — | — | — |
+| **Test Split Partition ($\theta = 0.50$)** | `matched_attributable` | $582$ | $0.3796$ | - | - | - |
+| | `unmatched_attributable` | $242$ | $0.1579$ | - | - | - |
+| | `no_evidence` | $224$ | $0.1461$ | - | - | - |
+| | `no_original_marker` | $485$ | $0.3164$ | - | - | - |
 | **$\theta$ Sensitivity Sweep ($n = 824$)** | $\theta = 0.30$ | $791$ | $0.9600$ | $791$ | $0.9600$ | $33$ |
 | | $\theta = 0.40$ | $767$ | $0.9308$ | $767$ | $0.9308$ | $57$ |
 | | **$\theta = 0.50$ (Pre-fixed)** | **$582$** | **$0.7063$** | **$582$** | **$0.7063$** | **$242$** |
@@ -106,7 +106,7 @@ To understand why `hhem_support` ($0.6959$) and `nli_entail` ($0.6392$) trailed 
 
 *Table 6.6 (C4-6): Candidate Pre-Filter Recall@k and Irrecoverable Error Floor Across $k \in \{1, 3, 5, 10\}$.*
 
-The numbers in Tables 6.5 and 6.6 reveal where multi-stage neural pipelines break down. Pre-filtering with `bge-small` at $k=5$ yields a Recall@5 of only **$0.7810$**, meaning that **$21.90\%$ of true evidence sentences are discarded before the cross-encoders even run**. When the gold sentence happens to survive into the top-$5$ pool, `hhem_support` scores **$0.8901$** Top-1 accuracy—matching our lexical scorer ($0.8952$). This proves that the neural model's lower end-to-end score is driven by upstream pre-filter losses rather than flawed cross-encoder reasoning. By contrast, in-context IDF ranking achieves **$0.9759$ Recall@5** (an error floor of just $2.41\%$). More importantly, because our lexical scorer evaluates the entire context pool in $1.312\text{ ms}$ on CPU, it completely eliminates the need for candidate pruning.
+The numbers in Tables 6.5 and 6.6 reveal where multi-stage neural pipelines break down. Pre-filtering with `bge-small` at $k=5$ yields a Recall@5 of only **$0.7810$**, meaning that **$21.90\%$ of true evidence sentences are discarded before the cross-encoders even run**. When the gold sentence happens to survive into the top-$5$ pool, `hhem_support` scores **$0.8901$** Top-1 accuracy, matching our lexical scorer ($0.8952$). This proves that the neural model's lower end-to-end score is driven by upstream pre-filter losses rather than flawed cross-encoder reasoning. By contrast, in-context IDF ranking achieves **$0.9759$ Recall@5** (an error floor of just $2.41\%$). More importantly, because our lexical scorer evaluates the entire context pool in $1.312\text{ ms}$ on CPU, it completely eliminates the need for candidate pruning.
 
 ---
 
@@ -158,7 +158,7 @@ Tables 6.8 (`C4-8`), 6.9 (`C4-9`), 6.10 (`C4-10`), and 6.13 (`C4-13`) evaluate c
 ![Figure 6.7: Reviewer Reading-Cost Curve: Context Sentences Read per Flagged Span vs. Empirical Coverage](file:///S:/Research%20New%20Project/TrustRAG/paper/figures/c4_review_cost_curve.png)
 *Figure 6.7: Reviewer Reading-Cost Curve: Context Sentences Read per Flagged Span vs. Empirical Coverage.*
 
-Table 6.8 demonstrates that across all evaluated risk levels $\alpha \in \{0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40\}$, empirical coverage closely tracks nominal targets, staying safely within the theoretical $3\sigma$ finite-sample band. At our target operating point of $\alpha = 0.10$ ($90\%$ coverage), test coverage reaches **$0.9003$** ($90.03\%$, $95\%$ CI $[0.8640, 0.9338]$), while the average prediction set shrinks from **$19.05$ sentences** to **$4.61$ sentences per span**—delivering a **$70.63\%$ reduction in reviewer reading burden**.
+Table 6.8 demonstrates that across all evaluated risk levels $\alpha \in \{0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40\}$, empirical coverage closely tracks nominal targets, staying safely within the theoretical $3\sigma$ finite-sample band. At our target operating point of $\alpha = 0.10$ ($90\%$ coverage), test coverage reaches **$0.9003$** ($90.03\%$, $95\%$ CI $[0.8640, 0.9338]$), while the average prediction set shrinks from **$19.05$ sentences** to **$4.61$ sentences per span**-delivering a **$70.63\%$ reduction in reviewer reading burden**.
 
 Table 6.9 (`C4-9`) breaks down performance across individual tasks at $\alpha = 0.10$.
 
@@ -213,13 +213,13 @@ Table 6.11 (`C4-11`) and **Figure 6.5** evaluate the no-evidence abstention thre
 | Evaluation Slice / System | $n$ | No-Evidence Base Rate | Precision | Recall | F1 Score | Abstention Rate | Always-Abstain Floor F1 | Beats Task Floor? |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Pooled Test: C4 ($\tau = 0.1973$, fitted on `calib`)** | $1,048$ | $0.2137$ | **$0.3428$** | **$0.8080$** | **$0.4814$** | $0.5038$ | $0.3522$ | **yes ($+12.92$ pts)** |
-| ↳ Floor: `always_abstain` | $1,048$ | $0.2137$ | $0.2137$ | $1.0000$ | $0.3522$ | $1.0000$ | — | — |
-| ↳ Floor: `never_abstain` | $1,048$ | $0.2137$ | $0.0000$ | $0.0000$ | $0.0000$ | $0.0000$ | — | — |
-| ↳ Baseline: `nearest_sentence, no threshold` (C3) | $1,048$ | $0.2137$ | $\text{n/a}$ | **$0.0000$** | **$0.0000$** | $0.0000$ | — | — |
+|  Floor: `always_abstain` | $1,048$ | $0.2137$ | $0.2137$ | $1.0000$ | $0.3522$ | $1.0000$ | - | - |
+|  Floor: `never_abstain` | $1,048$ | $0.2137$ | $0.0000$ | $0.0000$ | $0.0000$ | $0.0000$ | - | - |
+|  Baseline: `nearest_sentence, no threshold` (C3) | $1,048$ | $0.2137$ | $\text{n/a}$ | **$0.0000$** | **$0.0000$** | $0.0000$ | - | - |
 | **Per-Task Breakdown (`test`):** | | | | | | | | |
-| ↳ Task: **`data2text`** | $523$ | $0.1112$ | $0.2102$ | $0.8909$ | **$0.3400$** | $0.4713$ | $0.2002$ | **yes ($+13.98$ pts)** |
-| ↳ Task: **`summarization`** | $382$ | $0.2736$ | $0.3679$ | $0.7179$ | **$0.4865$** | $0.5340$ | $0.4293$ | **yes ($+5.72$ pts)** |
-| ↳ Task: **`qa`** | $143$ | **$0.7273$** | $0.7681$ | $0.8780$ | $0.8191$ | $0.8322$ | **$0.8421$** | **no ($-2.30$ pts)** |
+|  Task: **`data2text`** | $523$ | $0.1112$ | $0.2102$ | $0.8909$ | **$0.3400$** | $0.4713$ | $0.2002$ | **yes ($+13.98$ pts)** |
+|  Task: **`summarization`** | $382$ | $0.2736$ | $0.3679$ | $0.7179$ | **$0.4865$** | $0.5340$ | $0.4293$ | **yes ($+5.72$ pts)** |
+|  Task: **`qa`** | $143$ | **$0.7273$** | $0.7681$ | $0.8780$ | $0.8191$ | $0.8322$ | **$0.8421$** | **no ($-2.30$ pts)** |
 
 *Table 6.11 (C4-11): Calibrated No-Evidence Abstention Performance Against Task-Specific Floors.*
 
@@ -302,17 +302,17 @@ Layer 11 (`src/c4_attribution/fusion.py`) evaluated multi-component fusion acros
 | System / Fusion Rule / Disagreement Cell | Precision | Recall | Example F1 | Accuracy | TP / FP / FN / TN (or Cell Count & Share) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Floor: `trivial_always_positive`** | $0.3492$ | $1.0000$ | $0.5177$ | $0.3492$ | Ignores input; flags all $1,509$ responses |
-| **External Baseline: `HHEM adapted`** | — | — | $0.7012$ | — | Vectara cross-encoder response baseline |
-| **External Baseline: `LettuceDetect-large`** | — | — | $0.7918$ | — | $395\text{M}$-param `ModernBERT-large` ceiling |
+| **External Baseline: `HHEM adapted`** | - | - | $0.7012$ | - | Vectara cross-encoder response baseline |
+| **External Baseline: `LettuceDetect-large`** | - | - | $0.7918$ | - | $395\text{M}$-param `ModernBERT-large` ceiling |
 | **Rule 1: `c1_alone` (`ModernBERT-base`)** | $0.6873$ | $0.8558$ | $0.7623$ | $0.8138$ | $\text{TP}=451, \text{FP}=205, \text{FN}=76, \text{TN}=777$ |
 | **Rule 2: `c1_c2_flag_only` (C2 `FLAG` only)** | $0.7429$ | $0.6546$ | $0.6960$ | $0.8005$ | $\text{TP}=345, \text{FP}=119, \text{FN}=182, \text{TN}=863$ |
 | **Rule 3: `c1_c2_gated_by_c4` (`FLAG` $\land$ No-Ev)** | $0.7376$ | $0.4573$ | $0.5647$ | $0.7535$ | $\text{TP}=241, \text{FP}=86, \text{FN}=286, \text{TN}=896$ |
 | **Rule 4: `c4_tie_break` (`FLAG` $\lor$ (`ABSTAIN` $\land$ No-Ev))** | **$0.7130$** | **$0.8038$** | **$0.7557$** | **$0.8138$** | **$\text{TP}=410, \text{FP}=165, \text{FN}=117, \text{TN}=817$** |
 | **Isolated C4 Contribution (`c4_tie_break` vs. `c1_c2_flag_only`)** | $-2.99\text{ pts}$ | **$+14.92\text{ pts}$** | **$+5.96\text{ pts}$** | **$+1.33\text{ pts}$** | **Recovers $+65$ true-positive responses** |
-| **Span Disagreement Cell 1: `c1_flag_c4_evidence`** | — | — | — | — | $n = 323$ spans ($13.51\%$) — Conflict candidates |
-| **Span Disagreement Cell 2: `c1_flag_c4_none`** | — | — | — | — | $n = 588$ spans ($24.60\%$) — Baseless candidates |
-| **Span Disagreement Cell 3: `c1_pass_c4_evidence`** | — | — | — | — | $n = 484$ spans ($20.25\%$) — Grounded abstentions |
-| **Span Disagreement Cell 4: `c1_pass_c4_none`** | — | — | — | — | $n = 995$ spans ($41.63\%$) — Unflagged no-evidence |
+| **Span Disagreement Cell 1: `c1_flag_c4_evidence`** | - | - | - | - | $n = 323$ spans ($13.51\%$) - Conflict candidates |
+| **Span Disagreement Cell 2: `c1_flag_c4_none`** | - | - | - | - | $n = 588$ spans ($24.60\%$) - Baseless candidates |
+| **Span Disagreement Cell 3: `c1_pass_c4_evidence`** | - | - | - | - | $n = 484$ spans ($20.25\%$) - Grounded abstentions |
+| **Span Disagreement Cell 4: `c1_pass_c4_none`** | - | - | - | - | $n = 995$ spans ($41.63\%$) - Unflagged no-evidence |
 
 *Table 6.16 (C4-14): Multi-Component C1 $\times$ C2 $\times$ C4 Fusion and Disagreement Matrix on the Test Split (`results/c4/fusion/fusion_metrics.json`).*
 
@@ -334,7 +334,7 @@ When we began this investigation, we expected large pretrained cross-encoders li
 
 The primary factor is the candidate pre-filtering bottleneck. Running an expensive 184M-parameter cross-encoder over every sentence in long contexts takes too long for interactive use ($497\text{ ms/span}$), so neural pipelines must first prune the candidate pool down to the top-5 sentences using a bi-encoder like `bge-small`. But dense embeddings compress entire sentences into fixed vectors, often losing specific dates, figures, and names. In our benchmarks, `bge-small` discarded the true evidence sentence $21.90\%$ of the time at $k=5$. Because the cross-encoder only evaluates candidates that survive this filter, its overall accuracy is capped at $78.10\%$. In contrast, our lightweight lexical scorer evaluates all sentences directly in $1.312\text{ ms}$ on CPU, entirely avoiding pre-filter losses.
 
-The second factor relates to the nature of factual contradictions. In RAGTruth, $75.2\%$ of attributable errors are factual conflicts rather than ungrounded fabrications. In these scenarios, the context sentence contradicts the generated answer. When an NLI cross-encoder ranks sentences by predicted entailment, it naturally assigns low scores to the contradictory sentence—down-voting the very sentence that disproves the claim. Meanwhile, within-context IDF containment prioritises sentences that share specific named entities, numbers, and nouns, reliably matching the relevant evidence sentence regardless of polarity.
+The second factor relates to the nature of factual contradictions. In RAGTruth, $75.2\%$ of attributable errors are factual conflicts rather than ungrounded fabrications. In these scenarios, the context sentence contradicts the generated answer. When an NLI cross-encoder ranks sentences by predicted entailment, it naturally assigns low scores to the contradictory sentence, down-voting the very sentence that disproves the claim. Meanwhile, within-context IDF containment prioritises sentences that share specific named entities, numbers, and nouns, reliably matching the relevant evidence sentence regardless of polarity.
 
 ### 7.1.2 Why conformal set sizes vary across QA, Data-to-Text, and Summarization
 At $\alpha = 0.10$, conformal prediction achieved $90.03\%$ test coverage with an average set size of $4.61$ sentences. However, prediction sets varied significantly by task: $1.75$ sentences in Data-to-Text, $4.79$ in QA, and $8.13$ in Summarization. This variation stems from the structure of each domain.

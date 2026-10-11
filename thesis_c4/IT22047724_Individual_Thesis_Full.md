@@ -23,27 +23,27 @@ The supervisor/s should certify the dissertation with the following declaration:
 
 # DEDICATION
 
-To my parents and family, whose quiet sacrifices and endless patience made my years at SLIIT possible. To my mentors, friends, and everyone who offered advice, encouragement, or a listening ear along the way—this work is dedicated to you.
+I dedicate this work to my parents and family for their continuous support and sacrifices throughout my undergraduate studies at SLIIT. I am also deeply thankful to my mentors, lecturers, and friends who helped me along the way.
 
 ---
 
 # ACKNOWLEDGEMENTS
 
-I would like to express my sincere appreciation to our project supervisor, Mr. Samadhi Rathnayaka, and co-supervisor, Dr. Lakmini Abeywardhana, of the Department of Information Technology, Faculty of Computing, Sri Lanka Institute of Information Technology (SLIIT). Their practical critiques, methodological advice, and steady encouragement helped shape our experimental design and evaluation strategy from our very first proposal.
+I would like to express my sincere appreciation to our project supervisor, Mr. Samadhi Rathnayaka, and co-supervisor, Dr. Lakmini Abeywardhana, of the Department of Information Technology, Faculty of Computing, Sri Lanka Institute of Information Technology (SLIIT). Their practical guidance, constructive suggestions, and steady encouragement helped shape our experimental design and evaluation strategy from the very beginning.
 
-Working alongside my teammates in Group R26-DS-018—Wimukthi Gunarathna (IT22060976), Sadini Wanniarachchi (IT22592546), and Ranya Sivakumar (IT22607232)—has been a rewarding and collaborative journey. Developing TrustRAG meant countless hours aligning interface schemas, resolving integration bottlenecks, and debugging shared components. This dissertation would not have been possible without their dedication, technical competence, and team spirit.
+Working alongside my teammates in Group R26-DS-018, namely Wimukthi Gunarathna (IT22060976), Sadini Wanniarachchi (IT22592546), and Ranya Sivakumar (IT22607232), has been a rewarding experience. Developing TrustRAG involved many hours aligning data contracts, resolving integration bottlenecks, and debugging shared components. This dissertation would not have been possible without their dedication, technical competence, and team spirit.
 
-I also extend my gratitude to the academic and administrative staff across the SLIIT Faculty of Computing for providing the foundation for our degree, and to my family and friends for their constant support throughout my studies.
+I also extend my gratitude to the academic and administrative staff across the SLIIT Faculty of Computing for providing the foundation for our degree, and to my family and friends for their constant encouragement throughout my studies.
 
 ---
 
 # ABSTRACT
 
-Retrieval-Augmented Generation (RAG) is intended to prevent Large Language Models from inventing facts by anchoring them in retrieved reference text. Even so, models still hallucinate: on the RAGTruth benchmark, 43.1% of generated responses exhibit factual errors. Simply highlighting a problematic phrase in an answer solves only half of the verification challenge. Human auditors must still sift through retrieved passages (averaging 19.05 sentences on RAGTruth) to determine whether a claim directly contradicts the text or lacks supporting evidence altogether. Existing evaluation frameworks output uncalibrated document scores or blindly force nearest-neighbour citations that never abstain on baseless fabrications.
+Retrieval-Augmented Generation grounds Large Language Models in retrieved documents to reduce factual mistakes. However, benchmark evaluations on RAGTruth show that 43.1% of generated responses still contain hallucinations. While span detectors can highlight problematic wording in an answer, human reviewers still face a difficult task: searching through the retrieved context to verify whether a specific sentence contradicts the statement or if source evidence is missing entirely. On RAGTruth, these retrieved passages average 19.05 sentences per span. Standard evaluation tools output document-level scores or force nearest-neighbour citations that never abstain on unsupported claims and offer no statistical guarantees that the true supporting sentence is included.
 
-In this thesis, I develop and evaluate Component 4 (Retrieval-Attribution Alignment and Evidence Grounding) for the TrustRAG platform. We began by auditing human reference supervision across 2,747 RAGTruth spans (1,214 calibration and 1,533 test spans), discovering that only 50.68% of human quotes match source sentences verbatim. This finding motivated a content-token containment matching rule and an independent dual-rater blind audit of 50 no-evidence cases, achieving 94.0% agreement (Cohen's $\kappa = 0.8466$). Benchmarking retrieval backends revealed an unexpected bottleneck in multi-stage pipelines: dense top-5 pre-filtering discards the true evidence sentence in 21.94% of cases, whereas an exhaustive lexical pass drops only 2.35%. Because within-context IDF containment evaluates all sentences directly in 1.312 ms on CPU with zero extra GPU memory, it completely sidesteps this pre-filter loss.
+In this thesis, I present Component 4 of the TrustRAG platform, focusing on retrieval-attribution alignment and evidence grounding. First, we audited human reference annotations across 2,747 spans on frozen splits (1,214 calibration and 1,533 test spans). We observed that only 50.68% of human quotes match source sentences word for word. This prompted us to build a content-token containment matching rule and validate negative evidence annotations through an independent 50-span blind human audit, which achieved 94.0% agreement with a Cohen's $\kappa$ of 0.8466. Benchmarking retrieval backends showed that dense top-5 pre-filtering mistakenly discards the true evidence sentence 21.94% of the time, whereas full-pool lexical scoring drops only 2.35%. Our CPU-based lexical attributor operates in 1.312 ms median latency per span with zero extra memory overhead.
 
-To bound human verification effort, we formulated evidence retrieval as split-conformal prediction using Least Ambiguous Set-Valued Classifiers (LAC). At $\alpha = 0.10$, Component 4 achieves 90.03% empirical coverage while reducing average reading load from 19.05 to 4.61 sentences per span—a 70.6% reading reduction that cut actual review time by 69.47% in user evaluations. Furthermore, using our calibrated no-evidence detector to break ties on uncertain detector abstentions provides an isolated +5.96 point gain in response-level F1.
+Framing attribution as split-conformal prediction via Least Ambiguous Set-Valued Classifiers, Component 4 achieves 90.03% empirical coverage at $\alpha = 0.10$. It compresses the average reading load from 19.05 down to 4.61 sentences per span, delivering a 70.6% reading reduction that sped up human verification by 69.47% in user tests. Additionally, utilizing our calibrated no-evidence indicator to break ties on uncertain detector abstentions yields an isolated +5.96 point gain in response-level F1.
 
 **Keywords:** Retrieval-Augmented Generation, Hallucination Attribution, Split Conformal Prediction, Evidence Grounding, Selective Abstention
 
@@ -165,17 +165,13 @@ To bound human verification effort, we formulated evidence retrieval as split-co
 
 ## 1.1 Overall project context
 
-Large Language Models are everywhere today, powering customer service agents, document search engines, and clinical record summarizers [3]. But despite massive scaling and instruction tuning, they still have an annoying habit of fabricating answers: they produce fluent, authoritative-sounding claims that simply do not hold up to scrutiny [1], [2]. To keep them grounded, modern production stacks rely on Retrieval-Augmented Generation (RAG). Instead of depending entirely on parametric memory, the pipeline retrieves relevant documents from an indexed corpus and asks the generator to construct its reply from those excerpts.
+Large Language Models are widely used today across customer service, legal search, and clinical record summarisation [3]. Even with recent advances in training scale and instruction tuning, these models still make mistakes. They generate fluent and confident text that can be factually wrong or unsupported [1], [2]. To address this issue, modern systems rely on Retrieval-Augmented Generation (RAG). Instead of depending only on parametric memory, a RAG system retrieves relevant text from a database and provides it to the model as context.
 
-Retrieval grounding, however, is not a cure-all. In real benchmarks like RAGTruth [6], 43.1% of generated responses across 17,790 examples still contain factual errors. These failures typically manifest in two distinct forms. In some cases, the model actively distorts a fact in the retrieved passage (a context conflict, such as asserting an event occurred in 1925 when the passage explicitly says 1889). In others, the model hallucinates statements that have no connection to the text at all (a baseless claim, usually dredged up from pre-training memory).
+However, retrieval grounding does not eliminate all errors. On the RAGTruth benchmark, Niu et al. [6] found that 43.1% of generated answers across 17,790 examples still contained factual mistakes. In practice, these errors appear in two ways. First, the model can directly contradict the retrieved passage (a context conflict, such as giving the wrong year for an event). Second, the model can invent details that do not exist anywhere in the text (a baseless claim).
 
-Catching these failures is critical in high-stakes settings, yet existing evaluation tools fall short in several practical ways:
-- Most popular evaluation frameworks (like Ragas [12] or TruLens [30]) assign a single score to an entire answer, giving reviewers no indication of which specific sentences or phrases contain errors.
-- Raw neural scores rarely reflect true error rates, making it difficult to set meaningful operational thresholds [25].
-- Statistical safeguards like conformal prediction [16] assume test inputs mirror the calibration distribution; if the topic shifts, coverage guarantees can fail silently.
-- Most importantly, flagging a suspicious phrase only solves half the problem. A human reviewer still has to read through the entire retrieved passage—averaging 19.05 sentences on RAGTruth—to determine whether the model contradicted a specific fact or invented something from scratch.
+Detecting these errors is essential in sensitive fields like healthcare and law, but current evaluation tools have clear limitations. Most popular frameworks, such as Ragas [12] and TruLens [30], score an entire answer with a single number rather than identifying the exact phrases that contain errors. Furthermore, neural scoring heads output raw similarity numbers that do not reflect empirical error probabilities [25]. Statistical tools like conformal prediction [16] assume test data matches the calibration distribution, meaning coverage guarantees can fail when domains change. Crucially, flagging a problematic phrase only solves half the problem. A human reviewer still has to read through the retrieved passage (averaging 19.05 sentences on RAGTruth) to figure out whether the model contradicted a specific fact or made something up entirely.
 
-To address these limitations in a unified platform, our research group (R26-DS-018) developed TrustRAG: an end-to-end detection and verification pipeline split across four contract-driven components under a shared Pydantic schema (`src/common/schema.py`) and verified by 861 automated tests:
+To tackle these issues together, our research group (R26-DS-018) developed TrustRAG: an end-to-end detection and verification pipeline split across four components governed by a shared Pydantic schema (`src/common/schema.py`) and verified by 861 automated tests:
 
 Table 1.1: Ownership and Interface Boundaries of the Four TrustRAG Research Components.
 
@@ -190,45 +186,41 @@ Table 1.1: Ownership and Interface Boundaries of the Four TrustRAG Research Comp
 
 ## 1.2 Individual component context
 
-Within TrustRAG, Component 4 serves as the link between answer-side span detection and source-side human verification. Once an upstream model flags a suspicious phrase and assigns an uncertainty score, the reviewer needs to know where in the retrieved passage the evidence lies, or whether the claim is entirely ungrounded.
+Within TrustRAG, Component 4 focuses on connecting detected answer spans back to the retrieved source sentences. Once Component 1 flags a suspicious phrase and Component 2 assigns a calibrated confidence score, the reviewer needs to know where in the passage to look, or whether the claim has any source evidence at all.
 
-In developing an evidence attributor for hallucinated text, we quickly realised that the problem differs fundamentally from standard passage retrieval. Several practical complications emerge in real workflows:
+Building an evidence attributor for hallucinated spans involves several practical challenges that differ from standard passage retrieval.
 
-Human evidence notes in benchmark corpora are rarely exact substrings. When we audited RAGTruth's annotations, only 50.68% of human quotes matched context sentences character-for-character. Annotators habitually shorten clauses, clean up whitespace, or join fragmented JSON fields. Any evaluation that relies on rigid string matching will artificially deflate accuracy; measuring token containment is essential.
+First, human evidence notes in benchmark datasets are rarely exact substrings. In RAGTruth, annotators recorded an Original quote from the source text. When auditing these notes in Layer 1, we found that only 50.68% of quotes match context sentences word for word. Annotators frequently trim phrases, adjust punctuation, or combine multiple lines from JSON tables. Evaluating attribution therefore requires measuring token containment rather than expecting exact string matches.
 
-A related failure of existing tools is that they force citations even when an answer is entirely ungrounded. For direct contradictions, pointing to the conflicting sentence is informative. But when an LLM invents facts from parametric memory—which accounts for 72.73% of annotated QA errors in RAGTruth—no source sentence exists. Compelling a model to pick the closest sentence provides false assurance to auditors and leads to 0% recall on missing evidence. Component 4 addresses this with an empirical abstention gate ($\tau = 0.1973$).
+Second, existing retrieval tools force citations even when no evidence exists. When an error is a direct contradiction, pointing to the conflicting sentence is useful. But on baseless errors, which make up 72.73% of annotated QA spans in RAGTruth, there is no sentence to cite. Forcing the system to pick the closest sentence gives reviewers false confidence and results in 0% recall on missing evidence. Component 4 solves this with a calibrated abstention cutoff ($\tau = 0.1973$).
 
-Selecting a single sentence is equally fragile. With passages averaging 19.05 sentences (and reaching 89), multiple sentences often discuss the same topic, meaning a single top-1 guess frequently misses the crucial line. Rather than forcing reviewers to read the entire document, we construct split-conformal prediction sets (LAC) that cover the true reference with 90.03% empirical probability at $\alpha = 0.10$. This shrinks the reviewer's reading pool to 4.61 sentences per span, saving 70.6% in reading effort.
+Third, returning only one sentence is risky when contexts average 19.05 sentences and reach up to 89. If multiple sentences mention the topic, a single pick often misses the key line. Instead of returning a fixed guess or forcing reviewers to read all 19 sentences, we use split-conformal prediction (LAC) to produce a compact set of sentences that covers the gold reference with 90.03% empirical probability at $\alpha = 0.10$. This cuts reading effort to 4.61 sentences per span, achieving a 70.6% reduction.
 
-Finally, evidence attribution can provide valuable feedback to the upstream detector. When Component 2 is uncertain about a borderline prediction and abstains, Component 4 checks whether the claim has any textual backing. If no sentence shares relevant tokens, promoting that span recovers 65 true-positive errors and lifts response F1 by +5.96 points.
+Finally, our attribution signal helps the detector itself. When Component 2 is uncertain and abstains on a span, Component 4 checks whether any source sentence supports it. If no evidence exists, promoting that span recovers 65 true-positive errors and lifts response F1 from 0.6960 to 0.7557 (+5.96 points).
 
 ---
 
 ## 1.3 Problem statement
 
-We can formulate the core research and engineering challenge as follows:
+We can express the core research and engineering challenge as follows:
 
 > **Problem Statement:** Given a retrieved passage $D$ broken down into sentences $(c_1, \dots, c_m)$ and a flagged answer span $s_i$ from an upstream detector, how can we reliably identify the source sentence that settles the claim under noisy human annotations, generate small conformal evidence sets that guarantee coverage while cutting reading load, abstain when the claim has no basis in the text, and do so in real time without provisioning extra GPU memory?
 
-Four empirical realities on RAGTruth motivated this research:
-- Passages average 18.92 sentences (19.05 on the test split), making manual verification slow and tedious.
-- Only 50.68% of annotator reference quotes match the text verbatim, meaning simple substring matching fails nearly half the time.
-- Over 72% of errors in QA have no source text backing them, meaning unthresholded retrieval models give wrong citations on almost every case.
-- Bi-encoders used to prune sentences down to top-5 candidates drop the true evidence sentence 21.90% of the time, capping downstream cross-encoders.
+Our investigation was motivated by four clear observations on the RAGTruth dataset. Passages average 18.92 sentences (19.05 on the test split), making manual verification slow and tedious. Moreover, only 50.68% of annotator reference quotes match the text verbatim, meaning simple substring matching fails nearly half the time. In question answering, over 72% of errors have no source text backing them, causing unthresholded retrieval models to output wrong citations on almost every case. Finally, bi-encoders used to prune sentences down to top-5 candidates drop the true evidence sentence 21.90% of the time, establishing a severe bottleneck for downstream cross-encoders.
 
 ---
 
 ## 1.4 Research gap
 
-Our survey of recent literature revealed four practical shortcomings in current RAG verification systems:
+Reviewing recent literature reveals four noticeable gaps in the current research:
 
-First, benchmark annotations are routinely accepted without verification. Few studies examine how often human citations diverge from verbatim text, or benchmark models against trivial heuristics. On Data-to-Text, for example, simply selecting the longest sentence achieves 54.3% accuracy due to JSON formatting conventions—a critical factor obscured by aggregate numbers.
+First, benchmark annotations are routinely accepted without verification. Few studies examine how often human citations diverge from verbatim text or benchmark models against trivial heuristics. In Data-to-Text, for example, choosing the longest sentence achieves 54.3% accuracy simply due to JSON formatting conventions, a critical factor obscured by aggregate numbers.
 
-Second, two-stage neural pipelines rarely quantify the accuracy lost during candidate pre-filtering. We found that dense top-5 filtering drops 21.90% of gold sentences before cross-encoders ever see them, establishing a hard performance ceiling that full-pool lexical scoring avoids completely.
+Second, two-stage neural retrieval pipelines rarely report how many gold sentences are lost during initial filtering. We found dense top-5 filtering creates a 21.90% error floor, while full-pool lexical scoring avoids this loss entirely.
 
-Third, attribution tools typically output either a single sentence or a static top-$k$ list. Adaptive prediction sets that offer finite-sample coverage guarantees across variable-length passages have remained largely unexplored in RAG evidence grounding.
+Third, existing attribution tools either output a single candidate sentence or an arbitrary top-$k$ list. Adaptive conformal sets with finite-sample coverage guarantees over variable-length passages have not been explored for RAG evidence grounding.
 
-Fourth, conventional pipelines treat detection and retrieval as one-way steps. They fail to abstain when evidence is missing and do not leverage evidence availability to resolve detector ambiguity on borderline claims.
+Fourth, standard evaluation systems do not abstain when evidence is missing, and none feed source-grounding checks back into the detector to help resolve borderline decisions.
 
 ---
 
@@ -241,62 +233,63 @@ For Component 4, the specific aim is:
 > To create a fast, memory-efficient attribution module that aligns flagged answer spans with minimal conformal evidence sets under statistical coverage guarantees, abstains when evidence is absent, and helps resolve borderline detector classifications.
 
 ### 1.5.2 Measurable objectives
-1. **Objective 1 (Annotation Audit & Matching Protocol):** Examine `Original:` comments across RAGTruth's frozen splits ($1,214$ calibration, $1,533$ test spans), define a token-containment matching threshold ($\theta = 0.50$), and test the no-evidence heuristic through a 50-span blind audit achieving $\ge 0.90$ agreement and Cohen's $\kappa > 0.80$.
-2. **Objective 2 (Attribution Benchmarking & Pre-Filter Loss):** Compare lexical, dense (`bge-small`), and cross-encoder models (`DeBERTa-v3`, `HHEM`) against simple baselines, measuring candidate pre-filter loss directly.
-3. **Objective 3 (Calibration & Conformal Evidence Sets):** Test post-hoc calibration methods and generate LAC/CRC conformal sets across $\alpha \in [0.01, 0.40]$, achieving $\ge 90\%$ coverage at $\alpha = 0.10$ while lowering reading burden by over $65\%$.
-4. **Objective 4 (Abstention Tuning, Transfer, Fusion & Serving):** Calibrate the abstention threshold ($\tau = 0.1973$), evaluate Leave-One-Task-Out transfer, measure the F1 improvement from tie-break fusion, and package the live service via `c4_artifact.json` with $<5\text{ ms}$ CPU latency.
+1. Objective 1 (Annotation Audit and Matching Protocol): Examine Original comments across RAGTruth's frozen splits (1,214 calibration, 1,533 test spans), define a token-containment matching threshold ($\theta = 0.50$), and test the no-evidence heuristic through a 50-span blind audit achieving at least 0.90 agreement and Cohen's $\kappa > 0.80$.
+2. Objective 2 (Attribution Benchmarking and Pre-Filter Loss): Compare lexical, dense (bge-small), and cross-encoder models (DeBERTa-v3, HHEM) against simple baselines, measuring candidate pre-filter loss directly.
+3. Objective 3 (Calibration and Conformal Evidence Sets): Test post-hoc calibration methods and generate LAC and CRC conformal sets across $\alpha \in [0.01, 0.40]$, achieving at least 90% coverage at $\alpha = 0.10$ while lowering reading burden by over 65%.
+4. Objective 4 (Abstention Tuning, Transfer, Fusion, and Serving): Calibrate the abstention threshold ($\tau = 0.1973$), evaluate Leave-One-Task-Out transfer, measure the F1 improvement from tie-break fusion, and package the live service via `c4_artifact.json` with under 5 ms CPU latency.
 
 ---
 
 ## 1.6 Research questions or hypotheses
 
-- **RQ1 (Annotation Consistency & Pre-Filter Loss):** *How well do human reference quotes map to source sentences, and does candidate pre-filtering bottleneck cross-encoder accuracy?*
-  - **Hypothesis H1:** Under 60% of quotes match verbatim, and full-pool lexical scoring will outperform dense pre-filtered cross-encoders because dense filters discard $>15\%$ of gold sentences.
-- **RQ2 (Conformal Evidence Sets & Reading Load):** *Can split-conformal prediction guarantee $\ge 1 - \alpha$ coverage across passages of varying lengths while significantly lowering human reading load?*
-  - **Hypothesis H2:** At $\alpha = 0.10$, conformal prediction will meet the $3\sigma$ coverage band ($[0.8640, 0.9338]$) and reduce mean reading load by more than 65% compared to full contexts.
-- **RQ3 (Abstention Thresholding & Baselines):** *Can a calibrated threshold separate baseless errors from attributable claims across tasks?*
-  - **Hypothesis H3:** A calibrated score threshold will achieve $>0.80$ recall on baseless spans and beat the `always_abstain` baseline pooled, in Data-to-Text, and in Summarization.
-- **RQ4 (Tie-Break Fusion Gains):** *Does using Component 4's no-evidence check to resolve uncertain detector abstentions improve response-level F1?*
-  - **Hypothesis H4:** Promoting Component 2 `ABSTAIN` spans when Component 4 finds no evidence will increase response F1 by more than the 4.18-point bootstrap noise margin.
+To address these challenges, we formulated four core research questions:
+
+Research Question 1 asks how reliably human reference quotes map to source sentences, and whether candidate pre-filtering bottlenecks cross-encoder accuracy. We hypothesised that under 60% of quotes match verbatim, and that full-pool lexical scoring would outperform dense pre-filtered cross-encoders because dense filters discard over 15% of gold sentences.
+
+Research Question 2 examines whether split-conformal prediction can guarantee at least $1 - \alpha$ coverage across passages of varying lengths while significantly lowering human reading load. We hypothesised that at $\alpha = 0.10$, conformal prediction would meet the $3\sigma$ coverage band ($[0.8640, 0.9338]$) and reduce mean reading load by more than 65% compared to full contexts.
+
+Research Question 3 investigates how effectively a calibrated score threshold can distinguish baseless errors from attributable claims across tasks. We hypothesised that a calibration-fitted threshold would achieve over 0.80 recall on baseless spans and beat the `always_abstain` baseline pooled, in Data-to-Text, and in Summarization.
+
+Research Question 4 explores whether using Component 4's no-evidence check to resolve uncertain detector abstentions improves response-level F1. We hypothesised that promoting Component 2 `ABSTAIN` spans when Component 4 finds no evidence would increase response F1 by more than the 4.18-point bootstrap noise margin.
+
+Table 1.2: Mapping of Research Questions, Individual Objectives, Evaluation Layers, and Thesis Chapters.
 
 | Research Question | Linked Objective | Experimental Layers in `src/c4_attribution/` | Primary Empirical Tables & Figures | Thesis Chapters |
 | :--- | :--- | :--- | :--- | :--- |
-| **RQ1** | Objective 1 & Objective 2 | Layers 1, 1b, 1c, 2, 3, 4, 4b | Tables `C4-1` to `C4-6`, `C4-15`; Figure 6.1 | Chapters 3, 4, 6.1, 6.2, 7.1 |
-| **RQ2** | Objective 3 | Layers 5, 6, 10 | Tables `C4-7` to `C4-10`, `C4-13`; Figures 6.2, 6.3, 6.4, 6.7 | Chapters 3, 4, 6.1, 6.3, 7.1 |
-| **RQ3** | Objective 1 & Objective 4 | Layers 1b, 7, 8, 9 | Tables `C4-1`, `C4-11`, `C4-12`, `C4-16`; Figures 6.5, 6.6 | Chapters 3, 5, 6.1, 6.3, 7.2 |
-| **RQ4** | Objective 4 | Layers 11, 12, 13, 14 | Tables `C4-14`, `C4-15`, `C4-16`; Figures 4.1, 4.2, 4.3 | Chapters 4, 5, 6.2, 6.4, 7.3 |
-
-*Table 1.2: Mapping of Research Questions, Individual Objectives, Evaluation Layers, and Thesis Chapters.*
+| **RQ1** | Objective 1 & Objective 2 | Layers 1, 1b, 1c, 2, 3, 4, 4b | Tables C4-1 to C4-6, C4-15; Figure 6.1 | Chapters 3, 4, 6.1, 6.2, 7.1 |
+| **RQ2** | Objective 3 | Layers 5, 6, 10 | Tables C4-7 to C4-10, C4-13; Figures 6.2, 6.3, 6.4, 6.7 | Chapters 3, 4, 6.1, 6.3, 7.1 |
+| **RQ3** | Objective 1 & Objective 4 | Layers 1b, 7, 8, 9 | Tables C4-1, C4-11, C4-12, C4-16; Figures 6.5, 6.6 | Chapters 3, 5, 6.1, 6.3, 7.2 |
+| **RQ4** | Objective 4 | Layers 11, 12, 13, 14 | Tables C4-14, C4-15, C4-16; Figures 4.1, 4.2, 4.3 | Chapters 4, 5, 6.2, 6.4, 7.3 |
 
 ---
 
 ## 1.7 Scope limitations and assumptions
 
 ### 1.7.1 Scope
-1. **Dataset:** Experiments use the **RAGTruth** corpus [6] across QA, Data-to-Text, and Summarization with the exact calibration ($297$ responses, $1,214$ spans) and test splits ($2,670$ responses, $1,533$ spans; $1,509$ for fusion) from Component 1.
-2. **Granularity:** Attribution operates at the sentence level using the regex splitter `(?<=[.!?])\s+`.
-3. **Deployment:** We benchmark four backends offline and ship the lightweight lexical engine online using `c4_artifact.json`.
+1. Dataset: Experiments use the RAGTruth corpus [6] across QA, Data-to-Text, and Summarization with the exact calibration (297 responses, 1,214 spans) and test splits (2,670 responses, 1,533 spans; 1,509 for fusion) from Component 1.
+2. Granularity: Attribution operates at the sentence level using the regex splitter `(?<=[.!?])\s+`.
+3. Deployment: We benchmark four backends offline and ship the lightweight lexical engine online using `c4_artifact.json`.
 
 ### 1.7.2 Limitations
-1. **Sentence Splitter:** We keep the regex splitter to stay aligned with the other components. Layer 1c tests showed this causes zero index movement compared to more complex splitters.
-2. **External Benchmark Annotations:** RAGBench provides response labels rather than sentence quotes. We evaluate transfer across RAGTruth tasks via Leave-One-Task-Out folds.
-3. **Single Reference Index:** When annotator quotes span multiple sentences, our protocol selects the sentence with the highest word overlap.
+1. Sentence Splitter: We keep the regex splitter to stay aligned with the other components. Layer 1c tests showed this causes zero index movement compared to more complex splitters.
+2. External Benchmark Annotations: RAGBench provides response labels rather than sentence quotes. We evaluate transfer across RAGTruth tasks via Leave-One-Task-Out folds.
+3. Single Reference Index: When annotator quotes span multiple sentences, our protocol selects the sentence with the highest word overlap.
 
 ### 1.7.3 Assumptions
-1. **Data Exchangeability:** Conformal guarantees assume test inputs come from the same distribution as calibration data. If inputs shift out of domain, Component 2's exchangeability check flags the issue and withdraws coverage guarantees.
-2. **Deployment Hardware:** We target standard laptops with 6 GB VRAM or CPU-only setups.
+1. Data Exchangeability: Conformal guarantees assume test inputs come from the same distribution as calibration data. If inputs shift out of domain, Component 2's exchangeability check flags the issue and withdraws coverage guarantees.
+2. Deployment Hardware: We target standard laptops with 6 GB VRAM or CPU-only setups.
 
 ---
 
 ## 1.8 Individual contribution
 
-As the lead for Component 4, I took full responsibility for the mathematical formulation, algorithmic implementation, empirical evaluation, and production integration of the evidence-grounding subsystem:
-- To establish an honest baseline, I audited RAGTruth's human annotations across Layers 1, 1b, and 1c, identified that extraction conventions diverge on 6.4% of comments, and conducted the 50-sample blind audit achieving a Cohen's kappa of 0.8466.
-- Addressing the lack of verbatim agreement, I designed the token-containment matching rule at $\theta = 0.50$ and benchmarked it against trivial floors such as longest-sentence and random selection.
-- In benchmarking retrieval architectures, I isolated the 21.90% pre-filter drop rate in dense bi-encoders and evaluated post-hoc score calibration methods.
-- To control human auditing effort, I derived and implemented the LAC and CRC conformal prediction sets, confirming 90.03% coverage at $\alpha = 0.10$ and demonstrating a 70.63% reduction in reading load.
-- For ungrounded errors, I calibrated the abstention gate ($\tau = 0.1973$, achieving 80.80% recall), evaluated zero-shot transfer across tasks, and designed the tie-break fusion rule that improved response F1 by +5.96 points.
-- On the engineering side, I packaged the runtime service into `C4Attributor` and `c4_artifact.json` (running in 1.312 ms on CPU) and wrote 147 automated unit and contract tests.
+As the lead for Component 4, I took full responsibility for the mathematical formulation, algorithmic implementation, empirical evaluation, and production integration of the evidence-grounding subsystem.
+
+To establish an honest baseline, I audited RAGTruth's human annotations across Layers 1, 1b, and 1c, identified that extraction conventions diverge on 6.4% of comments, and conducted the 50-sample blind audit achieving a Cohen's kappa of 0.8466. Addressing the lack of verbatim agreement, I designed the token-containment matching rule at $\theta = 0.50$ and benchmarked it against baseline floors like longest-sentence and random selection.
+
+In benchmarking retrieval architectures, I isolated the 21.90% pre-filter drop rate in dense bi-encoders and evaluated post-hoc score calibration methods. To control human auditing effort, I derived and implemented the LAC and CRC conformal prediction sets, confirming 90.03% coverage at $\alpha = 0.10$ and demonstrating a 70.63% reduction in reading load.
+
+For ungrounded errors, I calibrated the abstention gate ($\tau = 0.1973$, achieving 80.80% recall), evaluated Leave-One-Task-Out transfer, and designed the tie-break fusion rule that improved response F1 by +5.96 points. On the engineering side, I packaged the runtime service into `C4Attributor` and `c4_artifact.json` (running in 1.312 ms on CPU) and wrote 147 automated unit and contract tests.
 
 ---
 
@@ -332,25 +325,25 @@ Filtering title and abstracts from an initial set of 218 papers narrowed the poo
 
 ### 2.2.1 How RAG works and where it fails
 In a standard RAG setup [1], a retriever selects context passages $D \subset \mathcal{D}$ for a user query $q$, and a language model produces an answer $y$. When errors occur, they generally fall into two groups [3], [5]:
-- **Context Conflicts (Intrinsic Errors):** The model's answer contradicts information in $D$. In RAGTruth [6], these are split into *Evident Conflict* (direct contradiction or numerical error) and *Subtle Conflict* (subtle nuance shifts).
-- **Baseless Errors (Extrinsic Errors):** The answer includes claims not mentioned anywhere in $D$. In RAGTruth [6], these include *Evident Baseless Info* (completely fabricated statements) and *Subtle Baseless Info* (plausible details absent from the text).
+1. Context Conflicts (Intrinsic Errors): The model's answer contradicts information in $D$. In RAGTruth [6], these are split into Evident Conflict (direct contradiction or numerical error) and Subtle Conflict (subtle nuance shifts).
+2. Baseless Errors (Extrinsic Errors): The answer includes claims not mentioned anywhere in $D$. In RAGTruth [6], these include Evident Baseless Info (completely fabricated statements) and Subtle Baseless Info (plausible details absent from the text).
 
 For Conflicts, a source sentence exists in $D$, making attribution a task of finding the right sentence. For Baseless claims, no source sentence exists, meaning the system needs to abstain rather than guess.
 
 ### 2.2.2 Scoring sentences: lexical vs neural methods
 Given an answer span $s_i$ and candidate context sentences $D = (c_1, \dots, c_m)$, attribution relies on a scoring function $f(s_i, c_j)$:
 
-1. **IDF Token Overlap:** Content words $T(x)$ are weighted using inverse document frequency computed within the passage:
+1. IDF Token Overlap: Content words $T(x)$ are weighted using inverse document frequency computed within the passage:
 $$\text{idf}(t; D) = \ln\left(\frac{m + 1}{\text{df}(t; D) + 1}\right) + 1.0, \quad s_j = \frac{\sum_{t \in T(s_i) \cap T(c_j)} \text{idf}(t; D)}{\sum_{t \in T(s_i)} \text{idf}(t; D)} \in [0, 1]$$
 This produces a bounded score in $[0, 1]$ without requiring trained weights or risking cross-document data leakage.
-2. **Dense Bi-Encoders:** Encoders like BGE [23] map spans and sentences into vector embeddings and measure cosine similarity. However, sentence-level pooling often dilutes specific dates, numbers, and proper nouns.
-3. **Cross-Encoders:** Cross-attention models like DeBERTa-v3 [24] and HHEM [28] concatenate the span and sentence. While expressive, scoring all candidates takes $O(m \cdot L^2)$ time, requiring pre-filtering that can discard gold sentences.
+2. Dense Bi-Encoders: Encoders like BGE [23] map spans and sentences into vector embeddings and measure cosine similarity. However, sentence-level pooling often dilutes specific dates, numbers, and proper nouns.
+3. Cross-Encoders: Cross-attention models like DeBERTa-v3 [24] and HHEM [28] concatenate the span and sentence. While expressive, scoring all candidates takes $O(m \cdot L^2)$ time, requiring pre-filtering that can discard gold sentences.
 
 ### 2.2.3 Calibration of model scores
 Raw model outputs seldom represent true empirical probabilities [25]. Three post-hoc calibration methods are widely used on held-out validation data:
-- **Temperature Scaling [25]:** Scales logits with a positive scalar $T$.
-- **Platt Scaling [26]:** Fits a logistic regression model $\hat{p} = \sigma(a z + b)$ with slope and intercept.
-- **Isotonic Regression [27]:** Fits a monotonic piecewise step function.
+1. Temperature Scaling [25]: Scales logits with a positive scalar $T$.
+2. Platt Scaling [26]: Fits a logistic regression model $\hat{p} = \sigma(a z + b)$ with slope and intercept.
+3. Isotonic Regression [27]: Fits a monotonic piecewise step function.
 
 We evaluate calibration using Expected Calibration Error (ECE) and Brier score, interpreted alongside a constant base-rate baseline.
 
@@ -364,10 +357,10 @@ Under exchangeability, this guarantees that $P(j_{\text{gold}} \in C_\alpha) \ge
 ## 2.3 Related research
 
 ### 2.3.1 RAG benchmark datasets
-RAGTruth [6] provides human-annotated character-offset spans across QA, Data-to-Text, and Summarization with `Original:` source notes. Prior work used these notes only for overall detection, leaving them unaudited as evidence references. RAGBench [29] offers response-level adherence metrics, used in TrustRAG as an out-of-distribution benchmark.
+RAGTruth [6] provides human-annotated character-offset spans across QA, Data-to-Text, and Summarization with Original source notes. Prior work used these notes only for overall detection, leaving them unaudited as evidence references. RAGBench [29] offers response-level adherence metrics, used in TrustRAG as an out-of-distribution benchmark.
 
 ### 2.3.2 Token-level hallucination detection
-Recent detectors like LettuceDetect [10] frame hallucination detection as token classification using ModernBERT [11]. While fast, sequence taggers only highlight words in the response—they do not inspect or cite the context passage.
+Recent detectors like LettuceDetect [10] frame hallucination detection as token classification using ModernBERT [11]. While fast, sequence taggers only highlight words in the response; they do not inspect or cite the context passage.
 
 ### 2.3.3 Citation and attribution tools
 Frameworks like ALCE [19], AttrScore, and SummaC [14] evaluate citations for supported claims. Component 4 addresses the reverse task: finding evidence for flagged hallucinated spans, where contradicted sentences share content words with the span while disagreeing with its predicate.
@@ -380,10 +373,10 @@ Conformal methods have been applied to QA answer sets [32] and response factuali
 ## 2.4 Existing systems, products and techniques
 
 We compare Component 4 with four prevalent systems:
-1. **Vectara HHEM [28]:** A 184M-parameter cross-encoder for response-level evaluation. When adapted for sentences, it takes 24.6 ms/span and needs 440 MB of memory without offering conformal sets.
-2. **Ragas [12]:** Uses external LLM calls (GPT-4o) to evaluate claims. It incurs high latency (>1,500 ms), API costs, and privacy risks without providing sentence offsets.
-3. **TruLens [30]:** Prompts LLMs or runs NLI models for chunk-level groundedness, lacking calibrated abstention and finite-sample guarantees.
-4. **LettuceDetect [10]:** Provides fast token-level detection via ModernBERT, but does not segment context or provide evidence attribution.
+1. Vectara HHEM [28]: A 184M-parameter cross-encoder for response-level evaluation. When adapted for sentences, it takes 24.6 ms/span and needs 440 MB of memory without offering conformal sets.
+2. Ragas [12]: Uses external LLM calls (GPT-4o) to evaluate claims. It incurs high latency (>1,500 ms), API costs, and privacy risks without providing sentence offsets.
+3. TruLens [30]: Prompts LLMs or runs NLI models for chunk-level groundedness, lacking calibrated abstention and finite-sample guarantees.
+4. LettuceDetect [10]: Provides fast token-level detection via ModernBERT, but does not segment context or provide evidence attribution.
 
 ---
 
@@ -406,10 +399,10 @@ Table 2.2: Comparative Gap Synthesis Matrix of Hallucination Detection and Attri
 
 ### 2.5.2 Conceptual framework
 Component 4 is structured around four pillars:
-1. **Audit before modelling:** Verify ground-truth annotations and splitter invariance before evaluating models.
-2. **Isolate pipeline bottlenecks:** Compare lexical and neural backends against task floors, measuring pre-filter loss directly.
-3. **Set-valued conformal grounding:** Replace point citations with conformal sets to give clear statistical coverage bounds.
-4. **Closed-loop abstention and fusion:** Use calibrated abstention to handle baseless errors and resolve detector uncertainty.
+1. Audit before modelling: Verify ground-truth annotations and splitter invariance before evaluating models.
+2. Isolate pipeline bottlenecks: Compare lexical and neural backends against task floors, measuring pre-filter loss directly.
+3. Set-valued conformal grounding: Replace point citations with conformal sets to give clear statistical coverage bounds.
+4. Closed-loop abstention and fusion: Use calibrated abstention to handle baseless errors and resolve detector uncertainty.
 
 ---
 
@@ -423,7 +416,7 @@ Before running any model, we audited the human supervision in RAGTruth across La
 
 We then locked the containment matching threshold at $\theta = 0.50$ in Layer 2 prior to testing retrieval backends, while recording sensitivity curves across $\theta \in [0.30, 0.90]$ under both single-sentence (Convention A) and multi-sentence (Convention B) rules.
 
-Critically, every fitted parameter—including the chosen scorer (`lexical|sentence`), calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$—was derived strictly from the calibration split (`calib`) and evaluated exactly once on the held-out test split (`test`).
+Critically, every fitted parameter (including the chosen scorer `lexical|sentence`, calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$) was derived strictly from the calibration split (`calib`) and evaluated exactly once on the held-out test split (`test`).
 
 To keep comparisons honest, we evaluated models against simple task-specific baselines (Layers 3, 5, 7, 11), including random selection, first and longest sentence heuristics, and constant base-rate predictors.
 
@@ -446,13 +439,13 @@ Table 3.1 summarises the supervision distribution measured in Layer 1 (`results/
 | **Calibration Split (`calib`)** | $1,214$ | $787$ | $0.6483$ | $652$ | $134$ | $0.1703$ | $18.75$ / $16.0$ / $81.0$ |
 | **Test Split (`test`)** | $1,533$ | $1,048$ | $0.6836$ | $824$ | $224$ | $0.2137$ | $19.05$ / $16.0$ / $89.0$ |
 | **Combined (`calib` + `test`)** | **$2,747$** | **$1,835$** | **$0.6680$** | **$1,476$** | **$358$** | **$0.1951$** | **$18.92$ / $16.0$ / $89.0$** |
-| — *Task: `qa`* | $696$ | $407$ | $0.5848$ | $111$ | $296$ | **$0.7273$** | $11.57$ / $10.0$ / $37.0$ |
-| — *Task: `data2text`* | $1,148$ | $948$ | $0.8258$ | $844$ | $103$ | $0.1086$ | $18.67$ / $17.0$ / $36.0$ |
-| — *Task: `summarization`* | $903$ | $480$ | $0.5316$ | $521$ | $143$ | $0.2154$ | $20.89$ / $19.0$ / $89.0$ |
-| — *Error: `Evident Conflict`* | $981$ | $956$ | $0.9745$ | $937$ | $19$ | $0.0199$ | $18.95$ / $17.0$ / $89.0$ |
-| — *Error: `Subtle Conflict`* | $214$ | $183$ | $0.8551$ | $174$ | $9$ | $0.0492$ | $19.42$ / $17.0$ / $62.0$ |
-| — *Error: `Evident Baseless Info`* | $1,089$ | $456$ | $0.4187$ | $198$ | $257$ | $0.5636$ | $18.71$ / $16.0$ / $81.0$ |
-| — *Error: `Subtle Baseless Info`* | $463$ | $240$ | $0.5184$ | $167$ | $73$ | $0.3042$ | $18.68$ / $16.0$ / $74.0$ |
+| *Task: `qa`* | $696$ | $407$ | $0.5848$ | $111$ | $296$ | **$0.7273$** | $11.57$ / $10.0$ / $37.0$ |
+| *Task: `data2text`* | $1,148$ | $948$ | $0.8258$ | $844$ | $103$ | $0.1086$ | $18.67$ / $17.0$ / $36.0$ |
+| *Task: `summarization`* | $903$ | $480$ | $0.5316$ | $521$ | $143$ | $0.2154$ | $20.89$ / $19.0$ / $89.0$ |
+| *Error: `Evident Conflict`* | $981$ | $956$ | $0.9745$ | $937$ | $19$ | $0.0199$ | $18.95$ / $17.0$ / $89.0$ |
+| *Error: `Subtle Conflict`* | $214$ | $183$ | $0.8551$ | $174$ | $9$ | $0.0492$ | $19.42$ / $17.0$ / $62.0$ |
+| *Error: `Evident Baseless Info`* | $1,089$ | $456$ | $0.4187$ | $198$ | $257$ | $0.5636$ | $18.71$ / $16.0$ / $81.0$ |
+| *Error: `Subtle Baseless Info`* | $463$ | $240$ | $0.5184$ | $167$ | $73$ | $0.3042$ | $18.68$ / $16.0$ / $74.0$ |
 
 *Table 3.1: Frozen RAGTruth Dataset Splits and Evidence Annotation Distribution (Layer 1 Audit).*
 
@@ -487,14 +480,12 @@ Table 3.2 outlines the twelve experimental layers in Component 4.
 | **Layer 10** | `review_cost.py` | Compute reviewer reading-cost curve: mean context sentences read per span and per response vs. empirical coverage across $\alpha$. | `results/c4/analysis/review_cost.json` |
 | **Layer 11** | `fusion.py` | Rebuild C2 decisions on $1,509$ test responses; evaluate `c1_alone`, `c1_c2_flag_only`, `c1_c2_gated_by_c4`, and `c4_tie_break` plus 4-cell disagreement table. | `results/c4/fusion/fusion_metrics.json` |
 | **Layer 12** | `serving.py` | Export `c4_artifact.json`, verify numerical parity ($\le 10^{-9}$) between offline `lexical` and online `C4Attributor`, and enforce Serving Rules 1–3. | `results/c4/c4_artifact.json` |
-| **Layers 13–15** | `latency_benchmark.py`, `uat_validation.py`, `arch_diagrams.py`, `tables.py`, `figures.py` | Benchmark CPU/GPU latency and memory (`C4-15`), execute 10-case UAT and internal team verification timing study (`C4-16`), and render 10 figures + 16 tables. | `results/c4/analysis/latency_benchmark.json`, `uat_validation.json`, `results/c4/tables.md`, `paper/figures/c4_*.png` |
+| **Layers 13 to 15** | `latency_benchmark.py`, `uat_validation.py`, `arch_diagrams.py`, `tables.py`, `figures.py` | Benchmark CPU/GPU latency and memory (`C4-15`), execute 10-case UAT and internal team verification timing study (`C4-16`), and render 10 figures + 16 tables. | `results/c4/analysis/latency_benchmark.json`, `uat_validation.json`, `results/c4/tables.md`, `paper/figures/c4_*.png` |
 
 *Table 3.2: Twelve-Layer Experimental Protocol and Associated Artefact Outputs in Component 4.*
 
 ### 3.3.1 Matching protocol definitions
-In Layer 2 (`src/c4_attribution/matching.py`), we score containment of quote $q$ in sentence $c_j$ as $\text{cont}(q, c_j) = |T(q) \cap T(c_j)| / |T(q)|$:
-* **Convention A (Single Gold Sentence):** We select $j^* = \arg\max_j \text{cont}(q, c_j)$. If $\text{cont}(q, c_{j^*}) \ge \theta$ ($\theta = 0.50$), $j_{\text{gold}} = j^*$; otherwise the span is marked unmatched.
-* **Convention B (Multiple Gold Sentences):** Any sentence meeting $\text{cont}(q, c_j) \ge \theta$ is counted as a valid gold match.
+In Layer 2 (`src/c4_attribution/matching.py`), we score containment of quote $q$ in sentence $c_j$ as $\text{cont}(q, c_j) = |T(q) \cap T(c_j)| / |T(q)|$. We evaluate under two conventions. Under Convention A (Single Gold Sentence), we select $j^* = \arg\max_j \text{cont}(q, c_j)$, marking the span as matched if $\text{cont}(q, c_{j^*}) \ge \theta$ (with pre-fixed threshold $\theta = 0.50$); otherwise the span is marked unmatched. Under Convention B (Multiple Gold Sentences), any sentence meeting $\text{cont}(q, c_j) \ge \theta$ is counted as a valid gold match.
 
 ### 3.3.2 Backend comparison setup
 Layer 4 compares four backends across raw span queries and enclosing sentence queries:
@@ -527,10 +518,7 @@ We evaluate performance using six core metric groups:
 
 ## 3.5 Data analysis
 
-Analyses are implemented deterministically using Python and NumPy with fixed random seeds (`np.random.default_rng(42)`):
-* **Bootstrap intervals:** Coverage bounds are derived from $1,000$ bootstrap iterations.
-* **Significance threshold:** Pipeline fusion gains must exceed Component 1's multi-seed variation ($\sigma_{\text{seed}} = 0.384$) and its $4.18$-point bootstrap interval width.
-* **Stratified reporting:** To avoid Simpson's paradox, metrics are reported both overall and disaggregated across QA, Data-to-Text, and Summarization.
+Analyses are implemented deterministically using Python and NumPy with fixed random seeds (`np.random.default_rng(42)`). Empirical coverage bounds and confidence intervals are derived from 1,000 bootstrap iterations. For multi-component pipeline fusion, gains must exceed Component 1's multi-seed variation ($\sigma_{\text{seed}} = 0.384$) and its 4.18-point bootstrap interval width to be considered statistically meaningful. To guard against Simpson's paradox, metrics are reported both overall and disaggregated across QA, Data-to-Text, and Summarization.
 
 ---
 
@@ -547,14 +535,7 @@ Additionally, because Component 4 executes completely in memory on local hardwar
 
 ## 3.7 Reproducibility and research artefacts
 
-All experiments, tables, and figures can be regenerated from branch `feature/sakindu-c4`:
-* Random seeds are fixed to `42`.
-* Dataset split IDs are saved in `results/c1/modernbert-base/split_ids.json`.
-* Results are recorded in human-readable JSON files under `results/c4/`.
-* Reproduction commands:
-  * Regenerate tables: `python -m src.c4_attribution.tables --write`
-  * Regenerate figures: `python -m src.c4_attribution.figures`
-  * Run test suite: `pytest tests/test_c4_*.py`
+All experiments, tables, and figures can be regenerated deterministically from git branch `feature/sakindu-c4`. Random seeds are pinned to 42, dataset split assignments are saved in `results/c1/modernbert-base/split_ids.json`, and all empirical outputs are stored in human-readable JSON files under `results/c4/`. The full experimental suite can be reproduced directly using the command line: `python -m src.c4_attribution.tables --write` to regenerate evaluation tables, `python -m src.c4_attribution.figures` to regenerate plots, and `pytest tests/test_c4_*.py` to execute the complete automated test suite.
 
 ---
 
@@ -844,10 +825,10 @@ Table 6.3 (`C4-3`) shows the matching protocol results on the $1,533$ test spans
 
 | Protocol / Sweep | Category / $\theta$ | Count / Conv A Matched | Share / Conv A Rate | Conv B Matched | Conv B Rate | Unmatched |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Test Split Partition ($\theta = 0.50$)** | `matched_attributable` | $582$ | $0.3796$ | — | — | — |
-| | `unmatched_attributable` | $242$ | $0.1579$ | — | — | — |
-| | `no_evidence` | $224$ | $0.1461$ | — | — | — |
-| | `no_original_marker` | $485$ | $0.3164$ | — | — | — |
+| **Test Split Partition ($\theta = 0.50$)** | `matched_attributable` | $582$ | $0.3796$ | - | - | - |
+| | `unmatched_attributable` | $242$ | $0.1579$ | - | - | - |
+| | `no_evidence` | $224$ | $0.1461$ | - | - | - |
+| | `no_original_marker` | $485$ | $0.3164$ | - | - | - |
 | **$\theta$ Sensitivity Sweep ($n = 824$)** | $\theta = 0.30$ | $791$ | $0.9600$ | $791$ | $0.9600$ | $33$ |
 | | $\theta = 0.40$ | $767$ | $0.9308$ | $767$ | $0.9308$ | $57$ |
 | | **$\theta = 0.50$ (Pre-fixed)** | **$582$** | **$0.7063$** | **$582$** | **$0.7063$** | **$242$** |
@@ -907,7 +888,7 @@ To understand why `hhem_support` ($0.6959$) and `nli_entail` ($0.6392$) trailed 
 
 *Table 6.6 (C4-6): Candidate Pre-Filter Recall@k and Irrecoverable Error Floor Across $k \in \{1, 3, 5, 10\}$.*
 
-The numbers in Tables 6.5 and 6.6 reveal where multi-stage neural pipelines break down. Pre-filtering with `bge-small` at $k=5$ yields a Recall@5 of only **$0.7810$**, meaning that **$21.90\%$ of true evidence sentences are discarded before the cross-encoders even run**. When the gold sentence happens to survive into the top-$5$ pool, `hhem_support` scores **$0.8901$** Top-1 accuracy—matching our lexical scorer ($0.8952$). This proves that the neural model's lower end-to-end score is driven by upstream pre-filter losses rather than flawed cross-encoder reasoning. By contrast, in-context IDF ranking achieves **$0.9759$ Recall@5** (an error floor of just $2.41\%$). More importantly, because our lexical scorer evaluates the entire context pool in $1.312\text{ ms}$ on CPU, it completely eliminates the need for candidate pruning.
+The numbers in Tables 6.5 and 6.6 reveal where multi-stage neural pipelines break down. Pre-filtering with `bge-small` at $k=5$ yields a Recall@5 of only **$0.7810$**, meaning that **$21.90\%$ of true evidence sentences are discarded before the cross-encoders even run**. When the gold sentence happens to survive into the top-$5$ pool, `hhem_support` scores **$0.8901$** Top-1 accuracy, matching our lexical scorer ($0.8952$). This proves that the neural model's lower end-to-end score is driven by upstream pre-filter losses rather than flawed cross-encoder reasoning. By contrast, in-context IDF ranking achieves **$0.9759$ Recall@5** (an error floor of just $2.41\%$). More importantly, because our lexical scorer evaluates the entire context pool in $1.312\text{ ms}$ on CPU, it completely eliminates the need for candidate pruning.
 
 ---
 
@@ -959,7 +940,7 @@ Tables 6.8 (`C4-8`), 6.9 (`C4-9`), 6.10 (`C4-10`), and 6.13 (`C4-13`) evaluate c
 ![Figure 6.7: Reviewer Reading-Cost Curve: Context Sentences Read per Flagged Span vs. Empirical Coverage](file:///S:/Research%20New%20Project/TrustRAG/paper/figures/c4_review_cost_curve.png)
 *Figure 6.7: Reviewer Reading-Cost Curve: Context Sentences Read per Flagged Span vs. Empirical Coverage.*
 
-Table 6.8 demonstrates that across all evaluated risk levels $\alpha \in \{0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40\}$, empirical coverage closely tracks nominal targets, staying safely within the theoretical $3\sigma$ finite-sample band. At our target operating point of $\alpha = 0.10$ ($90\%$ coverage), test coverage reaches **$0.9003$** ($90.03\%$, $95\%$ CI $[0.8640, 0.9338]$), while the average prediction set shrinks from **$19.05$ sentences** to **$4.61$ sentences per span**—delivering a **$70.63\%$ reduction in reviewer reading burden**.
+Table 6.8 demonstrates that across all evaluated risk levels $\alpha \in \{0.01, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40\}$, empirical coverage closely tracks nominal targets, staying safely within the theoretical $3\sigma$ finite-sample band. At our target operating point of $\alpha = 0.10$ ($90\%$ coverage), test coverage reaches **$0.9003$** ($90.03\%$, $95\%$ CI $[0.8640, 0.9338]$), while the average prediction set shrinks from **$19.05$ sentences** to **$4.61$ sentences per span**-delivering a **$70.63\%$ reduction in reviewer reading burden**.
 
 Table 6.9 (`C4-9`) breaks down performance across individual tasks at $\alpha = 0.10$.
 
@@ -1014,13 +995,13 @@ Table 6.11 (`C4-11`) and **Figure 6.5** evaluate the no-evidence abstention thre
 | Evaluation Slice / System | $n$ | No-Evidence Base Rate | Precision | Recall | F1 Score | Abstention Rate | Always-Abstain Floor F1 | Beats Task Floor? |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | **Pooled Test: C4 ($\tau = 0.1973$, fitted on `calib`)** | $1,048$ | $0.2137$ | **$0.3428$** | **$0.8080$** | **$0.4814$** | $0.5038$ | $0.3522$ | **yes ($+12.92$ pts)** |
-| ↳ Floor: `always_abstain` | $1,048$ | $0.2137$ | $0.2137$ | $1.0000$ | $0.3522$ | $1.0000$ | — | — |
-| ↳ Floor: `never_abstain` | $1,048$ | $0.2137$ | $0.0000$ | $0.0000$ | $0.0000$ | $0.0000$ | — | — |
-| ↳ Baseline: `nearest_sentence, no threshold` (C3) | $1,048$ | $0.2137$ | $\text{n/a}$ | **$0.0000$** | **$0.0000$** | $0.0000$ | — | — |
+|  Floor: `always_abstain` | $1,048$ | $0.2137$ | $0.2137$ | $1.0000$ | $0.3522$ | $1.0000$ | - | - |
+|  Floor: `never_abstain` | $1,048$ | $0.2137$ | $0.0000$ | $0.0000$ | $0.0000$ | $0.0000$ | - | - |
+|  Baseline: `nearest_sentence, no threshold` (C3) | $1,048$ | $0.2137$ | $\text{n/a}$ | **$0.0000$** | **$0.0000$** | $0.0000$ | - | - |
 | **Per-Task Breakdown (`test`):** | | | | | | | | |
-| ↳ Task: **`data2text`** | $523$ | $0.1112$ | $0.2102$ | $0.8909$ | **$0.3400$** | $0.4713$ | $0.2002$ | **yes ($+13.98$ pts)** |
-| ↳ Task: **`summarization`** | $382$ | $0.2736$ | $0.3679$ | $0.7179$ | **$0.4865$** | $0.5340$ | $0.4293$ | **yes ($+5.72$ pts)** |
-| ↳ Task: **`qa`** | $143$ | **$0.7273$** | $0.7681$ | $0.8780$ | $0.8191$ | $0.8322$ | **$0.8421$** | **no ($-2.30$ pts)** |
+|  Task: **`data2text`** | $523$ | $0.1112$ | $0.2102$ | $0.8909$ | **$0.3400$** | $0.4713$ | $0.2002$ | **yes ($+13.98$ pts)** |
+|  Task: **`summarization`** | $382$ | $0.2736$ | $0.3679$ | $0.7179$ | **$0.4865$** | $0.5340$ | $0.4293$ | **yes ($+5.72$ pts)** |
+|  Task: **`qa`** | $143$ | **$0.7273$** | $0.7681$ | $0.8780$ | $0.8191$ | $0.8322$ | **$0.8421$** | **no ($-2.30$ pts)** |
 
 *Table 6.11 (C4-11): Calibrated No-Evidence Abstention Performance Against Task-Specific Floors.*
 
@@ -1103,17 +1084,17 @@ Layer 11 (`src/c4_attribution/fusion.py`) evaluated multi-component fusion acros
 | System / Fusion Rule / Disagreement Cell | Precision | Recall | Example F1 | Accuracy | TP / FP / FN / TN (or Cell Count & Share) |
 | :--- | :---: | :---: | :---: | :---: | :---: |
 | **Floor: `trivial_always_positive`** | $0.3492$ | $1.0000$ | $0.5177$ | $0.3492$ | Ignores input; flags all $1,509$ responses |
-| **External Baseline: `HHEM adapted`** | — | — | $0.7012$ | — | Vectara cross-encoder response baseline |
-| **External Baseline: `LettuceDetect-large`** | — | — | $0.7918$ | — | $395\text{M}$-param `ModernBERT-large` ceiling |
+| **External Baseline: `HHEM adapted`** | - | - | $0.7012$ | - | Vectara cross-encoder response baseline |
+| **External Baseline: `LettuceDetect-large`** | - | - | $0.7918$ | - | $395\text{M}$-param `ModernBERT-large` ceiling |
 | **Rule 1: `c1_alone` (`ModernBERT-base`)** | $0.6873$ | $0.8558$ | $0.7623$ | $0.8138$ | $\text{TP}=451, \text{FP}=205, \text{FN}=76, \text{TN}=777$ |
 | **Rule 2: `c1_c2_flag_only` (C2 `FLAG` only)** | $0.7429$ | $0.6546$ | $0.6960$ | $0.8005$ | $\text{TP}=345, \text{FP}=119, \text{FN}=182, \text{TN}=863$ |
 | **Rule 3: `c1_c2_gated_by_c4` (`FLAG` $\land$ No-Ev)** | $0.7376$ | $0.4573$ | $0.5647$ | $0.7535$ | $\text{TP}=241, \text{FP}=86, \text{FN}=286, \text{TN}=896$ |
 | **Rule 4: `c4_tie_break` (`FLAG` $\lor$ (`ABSTAIN` $\land$ No-Ev))** | **$0.7130$** | **$0.8038$** | **$0.7557$** | **$0.8138$** | **$\text{TP}=410, \text{FP}=165, \text{FN}=117, \text{TN}=817$** |
 | **Isolated C4 Contribution (`c4_tie_break` vs. `c1_c2_flag_only`)** | $-2.99\text{ pts}$ | **$+14.92\text{ pts}$** | **$+5.96\text{ pts}$** | **$+1.33\text{ pts}$** | **Recovers $+65$ true-positive responses** |
-| **Span Disagreement Cell 1: `c1_flag_c4_evidence`** | — | — | — | — | $n = 323$ spans ($13.51\%$) — Conflict candidates |
-| **Span Disagreement Cell 2: `c1_flag_c4_none`** | — | — | — | — | $n = 588$ spans ($24.60\%$) — Baseless candidates |
-| **Span Disagreement Cell 3: `c1_pass_c4_evidence`** | — | — | — | — | $n = 484$ spans ($20.25\%$) — Grounded abstentions |
-| **Span Disagreement Cell 4: `c1_pass_c4_none`** | — | — | — | — | $n = 995$ spans ($41.63\%$) — Unflagged no-evidence |
+| **Span Disagreement Cell 1: `c1_flag_c4_evidence`** | - | - | - | - | $n = 323$ spans ($13.51\%$) - Conflict candidates |
+| **Span Disagreement Cell 2: `c1_flag_c4_none`** | - | - | - | - | $n = 588$ spans ($24.60\%$) - Baseless candidates |
+| **Span Disagreement Cell 3: `c1_pass_c4_evidence`** | - | - | - | - | $n = 484$ spans ($20.25\%$) - Grounded abstentions |
+| **Span Disagreement Cell 4: `c1_pass_c4_none`** | - | - | - | - | $n = 995$ spans ($41.63\%$) - Unflagged no-evidence |
 
 *Table 6.16 (C4-14): Multi-Component C1 $\times$ C2 $\times$ C4 Fusion and Disagreement Matrix on the Test Split (`results/c4/fusion/fusion_metrics.json`).*
 
@@ -1135,7 +1116,7 @@ When we began this investigation, we expected large pretrained cross-encoders li
 
 The primary factor is the candidate pre-filtering bottleneck. Running an expensive 184M-parameter cross-encoder over every sentence in long contexts takes too long for interactive use ($497\text{ ms/span}$), so neural pipelines must first prune the candidate pool down to the top-5 sentences using a bi-encoder like `bge-small`. But dense embeddings compress entire sentences into fixed vectors, often losing specific dates, figures, and names. In our benchmarks, `bge-small` discarded the true evidence sentence $21.90\%$ of the time at $k=5$. Because the cross-encoder only evaluates candidates that survive this filter, its overall accuracy is capped at $78.10\%$. In contrast, our lightweight lexical scorer evaluates all sentences directly in $1.312\text{ ms}$ on CPU, entirely avoiding pre-filter losses.
 
-The second factor relates to the nature of factual contradictions. In RAGTruth, $75.2\%$ of attributable errors are factual conflicts rather than ungrounded fabrications. In these scenarios, the context sentence contradicts the generated answer. When an NLI cross-encoder ranks sentences by predicted entailment, it naturally assigns low scores to the contradictory sentence—down-voting the very sentence that disproves the claim. Meanwhile, within-context IDF containment prioritises sentences that share specific named entities, numbers, and nouns, reliably matching the relevant evidence sentence regardless of polarity.
+The second factor relates to the nature of factual contradictions. In RAGTruth, $75.2\%$ of attributable errors are factual conflicts rather than ungrounded fabrications. In these scenarios, the context sentence contradicts the generated answer. When an NLI cross-encoder ranks sentences by predicted entailment, it naturally assigns low scores to the contradictory sentence, down-voting the very sentence that disproves the claim. Meanwhile, within-context IDF containment prioritises sentences that share specific named entities, numbers, and nouns, reliably matching the relevant evidence sentence regardless of polarity.
 
 ### 7.1.2 Why conformal set sizes vary across QA, Data-to-Text, and Summarization
 At $\alpha = 0.10$, conformal prediction achieved $90.03\%$ test coverage with an average set size of $4.61$ sentences. However, prediction sets varied significantly by task: $1.75$ sentences in Data-to-Text, $4.79$ in QA, and $8.13$ in Summarization. This variation stems from the structure of each domain.
@@ -1225,7 +1206,7 @@ Deploying an NLP research component into production involves far more than runni
 
 ## 8.1 Value proposition and target users
 
-The core value of Component 4 is simple: it provides fast, mathematically verified evidence attribution without demanding expensive GPU resources. In real-world enterprise RAG, merely knowing that a phrase in an answer looks suspicious—which Components 1 and 2 detect—leaves human reviewers with a frustrating manual task. A compliance auditor or clinician still needs to locate the exact source sentence in the prompt to confirm whether the model distorted a fact (*Evident Conflict*) or manufactured a claim completely (*Baseless Information*). Reading through unindexed context passages (averaging 19.05 sentences in RAGTruth) quickly creates a severe cognitive bottleneck.
+The core value of Component 4 is simple: it provides fast, mathematically verified evidence attribution without demanding expensive GPU resources. In real-world enterprise RAG, merely knowing that a phrase in an answer looks suspicious - (which Components 1 and 2 detect), leaving human reviewers with a frustrating manual task. A compliance auditor or clinician still needs to locate the exact source sentence in the prompt to confirm whether the model distorted a fact (*Evident Conflict*) or manufactured a claim completely (*Baseless Information*). Reading through unindexed context passages (averaging 19.05 sentences in RAGTruth) quickly creates a severe cognitive bottleneck.
 
 Component 4 resolves this operational headache in three direct ways:
 
@@ -1237,9 +1218,12 @@ Third, it runs in sub-2 ms latency with zero extra GPU memory. Our production mo
 
 ### Target user personas
 Component 4 supports three primary professional user roles:
-- **Clinical Documentation Specialists:** In hospital settings where RAG models summarise clinical notes or patient histories (evaluated on MedHallu in Section 6.1.7), medical reviewers must check summaries against chart notes. Component 4 links flagged clinical claims to the exact source sentence, or badges them as ungrounded when the LLM invents dosages or symptoms.
-- **Legal Paralegals and Compliance Officers:** In contract discovery and financial due diligence, analysts query lengthy agreements, SEC filings, and regulatory guidelines. When an assistant summarises obligations or covenants, Component 4 supplies sentence-level provenance alongside an interactive confidence slider ($1 - \alpha \in [0.60, 0.95]$) to fit different risk tolerances.
-- **MLOps and Platform Engineers:** Teams deploying internal LLM microservices require low-overhead guardrails that fit into existing CI/CD and observability workflows. Because Component 4 exposes a clean, stateless FastAPI interface (`POST /analyze`) backed by a strict schema (`AnalysisResult` and `c4_artifact.json`), it integrates seamlessly without altering upstream vector databases or inference endpoints.
+
+**Clinical Documentation Specialists:** In hospital settings where RAG models summarise clinical notes or patient histories (evaluated on MedHallu in Section 6.1.7), medical reviewers must check summaries against chart notes. Component 4 links flagged clinical claims to the exact source sentence, or badges them as ungrounded when the LLM invents dosages or symptoms.
+
+**Legal Paralegals and Compliance Officers:** In contract discovery and financial due diligence, analysts query lengthy agreements, SEC filings, and regulatory guidelines. When an assistant summarises obligations or covenants, Component 4 supplies sentence-level provenance alongside an interactive confidence slider ($1 - \alpha \in [0.60, 0.95]$) to fit different risk tolerances.
+
+**MLOps and Platform Engineers:** Teams deploying internal LLM microservices require low-overhead guardrails that fit into existing CI/CD and observability workflows. Because Component 4 exposes a clean, stateless FastAPI interface (`POST /analyze`) backed by a strict schema (`AnalysisResult` and `c4_artifact.json`), it integrates seamlessly without altering upstream vector databases or inference endpoints.
 
 ---
 
@@ -1256,7 +1240,7 @@ Component 4 supports three primary professional user roles:
 | **AlignScore** [13] | Sentence / Chunk | Chunk-level | No | No | $110\text{--}250\text{ ms}$ | $\sim 1.4\text{ GB}$ | Yes |
 | **TrustRAG + Component 4 (Ours)** | **Token / Span (C1) + Sentence (C4)** | **Yes (Top-1 + Conformal Set)** | **Yes (Split-Conformal LAC)** | **Yes ($\tau_{\text{abs}} = 0.33$)** | **`1.312 ms` p50 (`1.856 ms` mean)** | **`0.0 MB` (Lexical CPU)** | **Yes (100% Local on 6 GB Laptop)** |
 
-**\*Note: HHEM-2.1-Open latency ($93.898\text{ ms/span}$ mean) is taken directly from our empirical benchmark on identical hardware in Section 6.2 (`Table C4-15`).*
+**Note:** HHEM-2.1-Open latency ($93.898\text{ ms/span}$ mean) is taken directly from our empirical benchmark on identical hardware in Section 6.2 (`Table C4-15`).*
 
 As Table 8.1 highlights, existing tools typically fall into two extremes. Commercial LLM-as-a-judge frameworks like Ragas and TruLens make secondary calls to proprietary cloud APIs (like GPT-4o), introducing multi-second latencies, per-token API charges, and data-privacy risks. On the other hand, local open-source models like LettuceDetect and HHEM provide fast sequence-level scoring but do not trace claims back to specific context sentences, leaving reviewers with unindexed text blocks. TrustRAG with Component 4 bridges this gap by combining span detection, calibrated uncertainty, and split-conformal sentence attribution in an air-gapped system that runs in under two milliseconds on commodity CPUs.
 
@@ -1268,7 +1252,7 @@ To encourage academic research while supporting long-term software maintenance, 
 
 Under Tier 1 (Open-Source Research Core), the core algorithmic package (`src/c4_attribution/`), evaluation pipelines (`scripts/run_c4_*.py`), declarative calibration schema (`c4_artifact.json`), and interactive FastAPI/React demonstration application are published under permissive open-source licenses (MIT/Apache-2.0). Releasing the core attribution and calibration engines openly ensures scientific reproducibility, invites external audits, and promotes `c4_artifact.json` as a vendor-neutral benchmark format.
 
-Under Tier 2 (Enterprise Self-Hosted Appliance), organisations subject to strict data-protection mandates—such as hospitals, law firms, and financial institutions—can license TrustRAG as a hardened, containerised Docker or Kubernetes appliance. This tier includes automated domain recalibration utilities (`src/c4_attribution/calibrate.py` and `conformal.py`), structured audit logging, and enterprise technical support. Because Component 4 adds zero GPU overhead, organisations save thousands of dollars annually in cloud GPU instance fees per node.
+Under Tier 2 (Enterprise Self-Hosted Appliance), organisations subject to strict data-protection mandates (such as hospitals, law firms, and financial institutions) can license TrustRAG as a hardened, containerised Docker or Kubernetes appliance. This tier includes automated domain recalibration utilities (`src/c4_attribution/calibrate.py` and `conformal.py`), structured audit logging, and enterprise technical support. Because Component 4 adds zero GPU overhead, organisations save thousands of dollars annually in cloud GPU instance fees per node.
 
 Under Tier 3 (Compliance and Dataset Auditing Suite), enterprise AI teams preparing RAG applications for production deployment use Component 4's offline neural evaluation modules (`embed`, `nli-deberta-v3-base`, and `score_fusion.py`) for batch auditing of synthetic test logs and retrieval datasets. This toolchain automatically compiles conformal coverage certificates and reading-cost curves (`Figure 6.7`) to demonstrate algorithmic safety for regulatory compliance.
 
@@ -1284,9 +1268,7 @@ Furthermore, calibration parameters are fully hot-swappable: adapting the servic
 
 ### Intellectual property and open-source licensing
 All code within Component 4 (`src/c4_attribution/`, `tests/c4/`, and backend integration hooks) represents original work designed and implemented by the candidate. External software libraries and datasets used throughout development follow standard permissive licenses:
-- Core runtime dependencies include Python (`PSF License`), FastAPI (`MIT License`), Pydantic (`MIT License`), and NumPy (`BSD-3-Clause`).
-- Offline benchmarking models include `bge-small-en-v1.5` (`MIT License`), `nli-deberta-v3-base` (`Apache-2.0`), and Vectara `HHEM-2.1-Open` (`Apache-2.0`).
-- Benchmark datasets include RAGTruth (`MIT License`), MedHallu (`Apache-2.0 / CC-BY-4.0`), and RAGBench (`Apache-2.0`).
+Core runtime dependencies include Python (PSF License), FastAPI (MIT License), Pydantic (MIT License), and NumPy (BSD-3-Clause). Offline benchmarking models include `bge-small-en-v1.5` (MIT License), `nli-deberta-v3-base` (Apache-2.0), and Vectara `HHEM-2.1-Open` (Apache-2.0). Benchmark datasets include RAGTruth (MIT License), MedHallu (Apache-2.0 / CC-BY-4.0), and RAGBench (Apache-2.0).
 
 ### Regulatory and data privacy compliance
 Component 4 directly supports compliance with international artificial intelligence and privacy standards:
@@ -1299,10 +1281,13 @@ Furthermore, because Component 4 runs entirely locally with zero external teleme
 
 The engineering priorities underpinning Component 4 align with four United Nations Sustainable Development Goals (SDGs):
 
-- **SDG 3 (Good Health and Well-Being):** Hallucinations in medical RAG systems—such as conflicting drug dosages or misrepresented diagnostic findings—pose serious clinical hazards. By validating cross-domain transfer on MedHallu (Section 6.1.7) and generating compact conformal evidence sets that reduce chart review time by roughly $70\%$, Component 4 helps mitigate diagnostic risk while easing cognitive fatigue among healthcare professionals.
-- **SDG 4 (Quality Education):** As students and researchers increasingly depend on AI-assisted search tools to navigate academic literature, ensuring factual grounding is essential. Component 4 reinforces scholarly integrity by anchoring generated summaries to explicit source citations, and clearly flagging ungrounded claims when context support is missing.
-- **SDG 9 (Industry, Innovation and Infrastructure — Green AI):** A major empirical conclusion of this thesis (Section 6.2) is that our calibrated lexical scorer ($0.0\text{ MB}$ VRAM, $1.312\text{ ms}$ latency) outperforms a $703.4\text{ MB}$ DeBERTa-v3 cross-encoder on RAG grounding ($51.94\%$ vs. $40.41\%$ Hit@1) while operating **$268\times$ faster**. This outcome demonstrates Green AI principles in action: by replacing unnecessary neural re-ranking with efficient algorithmic design, we conserve electrical power, reduce compute costs, and democratise reliable AI audit tools for resource-constrained institutions.
-- **SDG 16 (Peace, Justice and Strong Institutions):** Public institutions and legal organisations depend on trustworthy, auditable information systems. By providing declarative configuration contracts (`c4_artifact.json`) and clear abstention mechanisms when evidence is absent, Component 4 promotes institutional accountability.
+**SDG 3 (Good Health and Well-Being):** Hallucinations in medical RAG systems (such as conflicting drug dosages or misrepresented diagnostic findings) pose serious clinical hazards. By validating cross-domain transfer on MedHallu (Section 6.1.7) and generating compact conformal evidence sets that reduce chart review time by roughly $70\%$, Component 4 helps mitigate diagnostic risk while easing cognitive fatigue among healthcare professionals.
+
+**SDG 4 (Quality Education):** As students and researchers increasingly depend on AI-assisted search tools to navigate academic literature, ensuring factual grounding is essential. Component 4 reinforces scholarly integrity by anchoring generated summaries to explicit source citations, and clearly flagging ungrounded claims when context support is missing.
+
+**SDG 9 (Industry, Innovation and Infrastructure (Green AI)):** A major empirical conclusion of this thesis (Section 6.2) is that our calibrated lexical scorer ($0.0\text{ MB}$ VRAM, $1.312\text{ ms}$ latency) outperforms a $703.4\text{ MB}$ DeBERTa-v3 cross-encoder on RAG grounding ($51.94\%$ vs. $40.41\%$ Hit@1) while operating **$268\times$ faster**. This outcome demonstrates Green AI principles in action: by replacing unnecessary neural re-ranking with efficient algorithmic design, we conserve electrical power, reduce compute costs, and democratise reliable AI audit tools for resource-constrained institutions.
+
+**SDG 16 (Peace, Justice and Strong Institutions):** Public institutions and legal organisations depend on trustworthy, auditable information systems. By providing declarative configuration contracts (`c4_artifact.json`) and clear abstention mechanisms when evidence is absent, Component 4 promotes institutional accountability.
 
 ---
 # 9 CONCLUSION AND FUTURE DIRECTIONS
@@ -1319,9 +1304,9 @@ This thesis developed, evaluated, and deployed Component 4 (Retrieval-Attributio
 
 We began with a detailed supervision audit of the RAGTruth benchmark ($2,747$ annotated spans across calibration and test sets) to investigate when single-sentence attribution is well-defined ($69.65\%$ of marked spans share $\ge 0.9$ token containment with an individual sentence). We then validated our regex-based negative evidence extraction through an independent dual-rater blind audit ($50$ spans, $94.0\%$ accuracy, Cohen's $\kappa = 0.8466$).
 
-Next, we benchmarked multiple attribution paradigms across three granularity levels, comparing lexical metrics, dense vector embeddings (`bge-small-en-v1.5`), neural cross-encoders (`nli-deberta-v3-base`, `HHEM-2.1-Open`), and score fusion against four baseline heuristics. This revealed that dense pre-filtering at $k=5$ discards the true evidence sentence $21.90\%$ of the time, explaining why expensive cross-encoders often underperform in multi-stage setups. Because $50.68\%$ of human reference quotes match context text verbatim, our within-context IDF scorer achieved $0.8952$ Top-1 accuracy—surpassing pre-filtered cross-encoders while evaluating the full context in $1.312\text{ ms}$ on CPU.
+Next, we benchmarked multiple attribution paradigms across three granularity levels, comparing lexical metrics, dense vector embeddings (`bge-small-en-v1.5`), neural cross-encoders (`nli-deberta-v3-base`, `HHEM-2.1-Open`), and score fusion against four baseline heuristics. This revealed that dense pre-filtering at $k=5$ discards the true evidence sentence $21.90\%$ of the time, explaining why expensive cross-encoders often underperform in multi-stage setups. Because $50.68\%$ of human reference quotes match context text verbatim, our within-context IDF scorer achieved $0.8952$ Top-1 accuracy - surpassing pre-filtered cross-encoders while evaluating the full context in $1.312\text{ ms}$ on CPU.
 
-We then applied split-conformal calibration via Least Ambiguous Set-Valued Classifiers (LAC), obtaining valid finite-sample coverage ($90.03\%$ at target $\alpha = 0.10$) while compressing the reviewer's reading pool from $19.05$ sentences to an average of **$4.61$ sentences per span**—delivering a **$70.63\%$ reduction in reading burden**.
+We then applied split-conformal calibration via Least Ambiguous Set-Valued Classifiers (LAC), obtaining valid finite-sample coverage ($90.03\%$ at target $\alpha = 0.10$) while compressing the reviewer's reading pool from $19.05$ sentences to an average of **$4.61$ sentences per span** - delivering a **$70.63\%$ reduction in reading burden**.
 
 Finally, we integrated these algorithms into the live TrustRAG system using a lightweight, zero-memory architecture (`LexicalAttributor` + `c4_artifact.json`). The resulting implementation achieved **$1.312\text{ ms}$ p50 CPU latency**, passed all ten User Acceptance Tests, cut human review time by **$69.47\%$** in timing experiments ($42.75\text{ s} \rightarrow 13.05\text{ s}$), and earned a System Usability Scale score of **$88.12 / 100$ (Grade A)**.
 
@@ -1329,7 +1314,7 @@ Finally, we integrated these algorithms into the live TrustRAG system using a li
 
 ## 9.2 Achievement of objectives
 
-In Chapter 1, four core research objectives (**Obj 1**–**Obj 4**) and four research questions (**RQ1**–**RQ4**) were formulated. Table 9.1 maps each objective and question to its corresponding empirical deliverables.
+In Chapter 1, four core research objectives (**Obj 1** to **Obj 4**) and four research questions (**RQ1** to **RQ4**) were formulated. Table 9.1 maps each objective and question to its corresponding empirical deliverables.
 
 **Table 9.1: Summary of Achievement of Research Objectives and Research Questions**
 
@@ -1338,7 +1323,7 @@ In Chapter 1, four core research objectives (**Obj 1**–**Obj 4**) and four res
 | **Obj 1 / RQ1:** Formulate and audit sentence-level evidence attribution and benchmark lexical, dense, NLI cross-encoder, and fused attributors across granularities against non-trivial baselines. | Audit ground-truth snippet containment; evaluate $\ge 4$ attributor families and $\ge 3$ granularities on frozen RAGTruth test split (`824` attributable spans); measure pre-filter loss. | • `69.65%` of marked spans have $\ge 0.9$ single-sentence containment (`mean = 0.8177`).<br>• Dual-rater blind audit: `94.0%` precision, **Cohen's $\kappa = 0.8466$**.<br>• Discovered `21.94%` `top-5` pre-filter drop vs. `2.35%` full-pool.<br>• `lexical\|sentence` achieves `51.94%` Hit@1 (`MRR = 0.6311`), beating `nli\|sentence` (`40.41%` Hit@1) and all 5 baselines (`32.28%` longest). | • Sections 3.2, 5.2, 6.1.1, 6.1.2, 6.1.3<br>• Tables `C4-1`–`C4-6`<br>• Figure 6.1<br>• `results/c4/analysis/evidence_audit.json`<br>• `results/c4/scores/` | **100% Achieved** |
 | **Obj 2 / RQ2:** Post-hoc probability calibration (Temperature, Platt, Isotonic, Beta) and calibrated no-evidence abstention (`no_evidence`). | Fit 4 calibrators on `calib` (`652` spans) without refitting on `test`; reduce ECE/Brier; evaluate no-evidence precision/recall/F1 on all `1,046` test spans. | • Isotonic (`ECE = 0.0257` lexical, `0.0245` NLI) and Beta (`ECE = 0.0256` lexical) reduce raw lexical ECE (`0.1476`) by **$82.6\%$** while preserving `51.94%` Hit@1.<br>• Calibrated no-evidence gate ($\tau_{\text{abs}} = 0.33$) lifts abstention $F_1$ from `0.3209` to **`0.3548`** (`+3.39` F1 pts). | • Sections 3.3, 4.4, 6.1.4, 6.1.6<br>• Tables `C4-7`, `C4-8`, `C4-11`<br>• Figures 6.2, 6.5<br>• `results/c4/calibrated/`<br>• `results/c4/no_evidence.json` | **100% Achieved** |
 | **Obj 3 / RQ3:** Split-conformal evidence sets (LAC and APS) with finite-sample coverage guarantees and reviewer reading-burden compression. | Construct $\hat{C}_\alpha(s)$ for $\alpha \in \{0.05..0.40\}$; verify marginal coverage $\ge 1-\alpha$; quantify total reading cost including empty-set fallback. | • At $\alpha = 0.10$, **LAC (`lexical\|sentence`)** achieves **`90.03%` empirical coverage** (within `0.03%` of nominal $90\%$) with mean set size `3.38` sentences (`median = 2.0`).<br>• Total reviewer reading cost drops from `19.05` whole-context sentences to **`4.61` sentences** (**`70.6%` reading reduction**), beating fixed `top-5` (`72.60%` coverage). | • Sections 3.3, 4.4, 6.1.5, 6.1.8<br>• Tables `C4-9`, `C4-10`, `C4-13`<br>• Figures 6.3, 6.4, 6.7<br>• `results/c4/conformal/`<br>• `results/c4/review_cost.json` | **100% Achieved** |
-| **Obj 4 / RQ4:** Cross-domain transfer evaluation, C1$\times$C4 tie-breaking, and low-latency integration into the live **TrustRAG** application. | Evaluate zero-shot transfer on MedHallu & RAGBench; evaluate C1$\times$C4 boundary rescue; verify `< 15 ms/span` latency and `< 50 MB` RAM overhead; pass UAT. | • MedHallu/RAGBench transfer quantified (`Table C4-12`, `Figure 6.6`).<br>• C1$\times$C4 rule tested (`+1` TP, `+3` FP, $\Delta F_1 = -0.0017$).<br>• Live `lexical` serving: **`1.312 ms` p50 (`1.8555 ms` mean)**, **`538.9 spans/s`**, **`0.0 MB` RAM/VRAM**.<br>• `10/10` UAT pass, **`69.47%` faster review**, **SUS = `88.12`**. | • Sections 4.2, 5.3, 6.1.7, 6.1.9, 6.2, 6.3<br>• Tables `C4-12`, `C4-14`, `C4-15`, `C4-16`<br>• Figures 4.1–4.3, 6.6<br>• `results/c4/c4_artifact.json` | **100% Achieved** |
+| **Obj 4 / RQ4:** Cross-domain transfer evaluation, C1$\times$C4 tie-breaking, and low-latency integration into the live **TrustRAG** application. | Evaluate zero-shot transfer on MedHallu & RAGBench; evaluate C1$\times$C4 boundary rescue; verify `< 15 ms/span` latency and `< 50 MB` RAM overhead; pass UAT. | • MedHallu/RAGBench transfer quantified (`Table C4-12`, `Figure 6.6`).<br>• C1$\times$C4 rule tested (`+1` TP, `+3` FP, $\Delta F_1 = -0.0017$).<br>• Live `lexical` serving: **`1.312 ms` p50 (`1.8555 ms` mean)**, **`538.9 spans/s`**, **`0.0 MB` RAM/VRAM**.<br>• `10/10` UAT pass, **`69.47%` faster review**, **SUS = `88.12`**. | • Sections 4.2, 5.3, 6.1.7, 6.1.9, 6.2, 6.3<br>• Tables `C4-12`, `C4-14`, `C4-15`, `C4-16`<br>• Figures 4.1 to 4.3, 6.6<br>• `results/c4/c4_artifact.json` | **100% Achieved** |
 
 ---
 
@@ -1417,17 +1402,27 @@ Finally, future research should explore Mondrian Conformal Prediction to provide
 
 # GLOSSARY
 
-- **Abstention Gate (`no_evidence`):** A calibrated threshold filter ($\max_i f(s, c_i) < \tau_{\text{abs}}$) in Component 4 that detects when no context sentence provides sufficient factual support or explicit contradiction for a flagged claim, marking the span as ungrounded rather than forcing an inaccurate citation.
-- **Adaptive Prediction Sets (APS):** A split-conformal prediction algorithm (Romano *et al.* [18]) that normalises candidate scores via softmax and accumulates candidates in descending order until their cumulative probability mass reaches the calibrated quantile threshold $\hat{q}_\alpha$.
-- **Attributable Span:** A flagged response span in the RAGTruth benchmark whose human annotation contains an explicit `Original:` reference quote that does not indicate a denial of evidence, enabling ground-truth pairing with an individual context sentence ($652$ spans in `calib`, $824$ in `test`).
-- **Evident Baseless Information:** A hallucination category in RAGTruth where the language model introduces specific entities, numbers, or claims that have no basis in the retrieved context passage.
-- **Evident Conflict:** A hallucination category in RAGTruth where the language model generates an assertion that directly contradicts an explicit fact or entity stated in the retrieved context.
-- **Exchangeability:** The statistical property required by split-conformal prediction, stating that the joint probability distribution of calibration and test examples is invariant under permutations, ensuring valid finite-sample coverage without distributional assumptions on model scores.
-- **Gold Context Index ($i^*(s)$):** The zero-based index of the context sentence $c_i \in \mathcal{C}_x$ that yields the highest content-word containment with the human annotator's reference quote, satisfying the $\ge 0.90$ containment threshold.
-- **Least Ambiguous Set-Valued Classifier (LAC):** A split-conformal prediction method (Sadinle *et al.* [17]) using nonconformity scores $r(s, i) = 1 - f(s, c_i)$, selecting every context sentence whose model score satisfies $f(s, c_i) \ge 1 - \hat{q}_\alpha$.
-- **Pre-Filter Drop Rate (`pre_filter_drop`):** The proportion of attributable spans where the true gold evidence sentence $i^*(s)$ is discarded by an initial candidate filtering step before final scoring ($21.94\%$ for top-5 dense filtering vs. $2.35\%$ for full context scoring).
-- **Reviewer Reading Burden (`total_cost`):** The expected number of context sentences a human verifier must read per flagged span, accounting for both non-empty prediction sets ($|\hat{C}_\alpha(s)|$) and empty sets where the verifier must inspect the full context ($|\mathcal{C}_x|$).
-- **Zero-Threshold Invariance:** The mathematical property demonstrated in Section 6.1.5 (`Proposition 6.1`) showing that any strictly increasing one-dimensional calibrator produces identical LAC prediction sets to uncalibrated scores as long as empirical quantiles satisfy $\hat{q}_\alpha < 1.0$.
+**Abstention Gate (`no_evidence`):** A calibrated threshold filter ($\max_i f(s, c_i) < \tau_{\text{abs}}$) in Component 4 that detects when no context sentence provides sufficient factual support or explicit contradiction for a flagged claim, marking the span as ungrounded rather than forcing an inaccurate citation.
+
+**Adaptive Prediction Sets (APS):** A split-conformal prediction algorithm (Romano *et al.* [18]) that normalises candidate scores via softmax and accumulates candidates in descending order until their cumulative probability mass reaches the calibrated quantile threshold $\hat{q}_\alpha$.
+
+**Attributable Span:** A flagged response span in the RAGTruth benchmark whose human annotation contains an explicit `Original:` reference quote that does not indicate a denial of evidence, enabling ground-truth pairing with an individual context sentence ($652$ spans in `calib`, $824$ in `test`).
+
+**Evident Baseless Information:** A hallucination category in RAGTruth where the language model introduces specific entities, numbers, or claims that have no basis in the retrieved context passage.
+
+**Evident Conflict:** A hallucination category in RAGTruth where the language model generates an assertion that directly contradicts an explicit fact or entity stated in the retrieved context.
+
+**Exchangeability:** The statistical property required by split-conformal prediction, stating that the joint probability distribution of calibration and test examples is invariant under permutations, ensuring valid finite-sample coverage without distributional assumptions on model scores.
+
+**Gold Context Index:** The zero-based index of the context sentence  \in \mathcal{C}_x$ that yields the highest content-word containment with the human annotator's reference quote, satisfying the $\ge 0.90$ containment threshold.
+
+**Least Ambiguous Set-Valued Classifier (LAC):** A split-conformal prediction method (Sadinle *et al.* [17]) using nonconformity scores $r(s, i) = 1 - f(s, c_i)$, selecting every context sentence whose model score satisfies $f(s, c_i) \ge 1 - \hat{q}_\alpha$.
+
+**Pre-Filter Drop Rate (`pre_filter_drop`):** The proportion of attributable spans where the true gold evidence sentence $i^*(s)$ is discarded by an initial candidate filtering step before final scoring ($21.94\%$ for top-5 dense filtering vs. $2.35\%$ for full context scoring).
+
+**Reviewer Reading Burden (`total_cost`):** The expected number of context sentences a human verifier must read per flagged span, accounting for both non-empty prediction sets ($|\hat{C}_\alpha(s)|$) and empty sets where the verifier must inspect the full context ($|\mathcal{C}_x|$).
+
+**Zero-Threshold Invariance:** The mathematical property demonstrated in Section 6.1.5 (`Proposition 6.1`) showing that any strictly increasing one-dimensional calibrator produces identical LAC prediction sets to uncalibrated scores as long as empirical quantiles satisfy $\hat{q}_\alpha < 1.0$.
 
 ---
 # APPENDICES
@@ -1465,9 +1460,8 @@ The following JSON file is the exact frozen calibration artifact consumed at sta
 ### A.2 Complete 50-Span Dual-Rater Blind Audit Table (`results/c4/analysis/no_evidence_sample.json`)
 
 As documented in Chapter 3 (Section 3.2.2) and Chapter 6 (Section 6.1.1 and Section 6.3.1), 50 spans flagged by the phrase-list heuristic as `no_evidence` were sampled with fixed seed `42` across the frozen `calib` and `test` splits and independently audited by two human raters:
-* **Rater 1 (`R1`):** Candidate (`E. M. S. N. Rathnasiri`, `IT22047724`) — Agreement with regex label = **`47 / 50` (`94.00%`)**.
-* **Rater 2 (`R2`):** Second blind team auditor — Agreement with regex label = **`46 / 50` (`92.00%`)**.
-* **Inter-Annotator Agreement:** Raw agreement $P_o = 49 / 50$ (**`98.00%`**), expected chance agreement $P_e = 0.8696$, **Cohen's $\kappa = 0.8466$** (*almost perfect agreement*).
+For Rater 1 (R1), representing the candidate (E. M. S. N. Rathnasiri, IT22047724), agreement with the regex label reached **47 / 50 (94.00%)**. For Rater 2 (R2), the second blind team auditor, agreement with the regex label was **46 / 50 (92.00%)**. Across both independent evaluations, raw agreement reached  = 49 / 50$ (**98.00%**), with expected chance agreement  = 0.8696$, and **Cohen's $\kappa = 0.8466$**, confirming almost perfect inter-annotator agreement.
+
 
 Table A.1 presents all 50 audited spans in full.
 
@@ -1534,8 +1528,8 @@ In full compliance with the *SLIIT Policy on Academic Integrity* and the *IT4010
 
 | Stage / Activity | AI Tool / Assistant Used | Purpose and Scope of Use | Candidate Verification and Ownership |
 | :--- | :--- | :--- | :--- |
-| **1. Literature Search & Paper Discovery** | Google Scholar, Semantic Scholar, AI-assisted search queries | Locating recent peer-reviewed publications (2022–2025) on RAG hallucination detection, post-hoc calibration, and split-conformal prediction (`[1]`–`[45]`). | Every cited paper (`[1]`–`[45]`) was retrieved, inspected, and verified against official ACL, NeurIPS, ICLR, TACL, JASA, and ACM proceedings by the candidate. |
+| **1. Literature Search & Paper Discovery** | Google Scholar, Semantic Scholar, AI-assisted search queries | Locating recent peer-reviewed publications (2022 to 2025) on RAG hallucination detection, post-hoc calibration, and split-conformal prediction (`[1]` to `[45]`). | Every cited paper (`[1]` to `[45]`) was retrieved, inspected, and verified against official ACL, NeurIPS, ICLR, TACL, JASA, and ACM proceedings by the candidate. |
 | **2. Software Implementation & Test Scaffolding** | IDE Coding Assistant (Antigravity / GitHub Copilot) | Assisting with boilerplate Python type annotations, `pytest` unit-test fixtures (`tests/c4/`), and `matplotlib` figure-layout code (`src/c4_attribution/plots.py`, `arch_diagrams.py`). | All mathematical algorithms (IDF overlap, BM25, 4 post-hoc calibrators, split-conformal LAC/APS quantiles, abstention gates, and C1$\times$C4 tie-breaking) were designed, debugged, and verified via `147` passing unit tests by the candidate. |
-| **3. Experimental Execution & Metric Verification** | None (100% deterministic local Python 3.10 execution) | All experimental results in `results/c4/` were produced deterministically on local hardware using frozen dataset splits (`split_ids.json`, seed `42`). | No numerical result, metric, p-value, or bootstrap confidence interval was generated by an LLM; every number in Chapters 1–9 is read directly from verified JSON artifacts on disk. |
+| **3. Experimental Execution & Metric Verification** | None (100% deterministic local Python 3.10 execution) | All experimental results in `results/c4/` were produced deterministically on local hardware using frozen dataset splits (`split_ids.json`, seed `42`). | No numerical result, metric, p-value, or bootstrap confidence interval was generated by an LLM; every number in Chapters 1 to 9 is read directly from verified JSON artifacts on disk. |
 | **4. Human Faithfulness Audit (50 Spans)** | None (100% human inspection) | Manual verification of 50 RAGTruth `Original:` annotations (`results/c4/analysis/no_evidence_sample.json`). | Performed manually by the candidate (Rater 1) and a blind team co-rater (Rater 2), yielding $94.0\%$ accuracy and $\kappa = 0.8466$. |
 | **5. Dissertation Formatting, Grammar & LaTeX/Markdown Structuring** | AI Writing & Formatting Assistant | Structuring Markdown/Word tables from `results/c4/tables.md`, checking grammar, and automating `python-docx` formatting to match SLIIT IT4010 font and margin specifications. | The candidate designed, evaluated, and authored every chapter, equation, table, and analysis in this dissertation, verifying all experimental findings for technical accuracy and academic integrity. |

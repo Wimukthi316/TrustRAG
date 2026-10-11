@@ -8,7 +8,7 @@ Before running any model, we audited the human supervision in RAGTruth across La
 
 We then locked the containment matching threshold at $\theta = 0.50$ in Layer 2 prior to testing retrieval backends, while recording sensitivity curves across $\theta \in [0.30, 0.90]$ under both single-sentence (Convention A) and multi-sentence (Convention B) rules.
 
-Critically, every fitted parameter—including the chosen scorer (`lexical|sentence`), calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$—was derived strictly from the calibration split (`calib`) and evaluated exactly once on the held-out test split (`test`).
+Critically, every fitted parameter (including the chosen scorer `lexical|sentence`, calibrators, conformal quantiles, and the abstention cutoff $\tau = 0.1973$) was derived strictly from the calibration split (`calib`) and evaluated exactly once on the held-out test split (`test`).
 
 To keep comparisons honest, we evaluated models against simple task-specific baselines (Layers 3, 5, 7, 11), including random selection, first and longest sentence heuristics, and constant base-rate predictors.
 
@@ -31,13 +31,13 @@ Table 3.1 summarises the supervision distribution measured in Layer 1 (`results/
 | **Calibration Split (`calib`)** | $1,214$ | $787$ | $0.6483$ | $652$ | $134$ | $0.1703$ | $18.75$ / $16.0$ / $81.0$ |
 | **Test Split (`test`)** | $1,533$ | $1,048$ | $0.6836$ | $824$ | $224$ | $0.2137$ | $19.05$ / $16.0$ / $89.0$ |
 | **Combined (`calib` + `test`)** | **$2,747$** | **$1,835$** | **$0.6680$** | **$1,476$** | **$358$** | **$0.1951$** | **$18.92$ / $16.0$ / $89.0$** |
-| — *Task: `qa`* | $696$ | $407$ | $0.5848$ | $111$ | $296$ | **$0.7273$** | $11.57$ / $10.0$ / $37.0$ |
-| — *Task: `data2text`* | $1,148$ | $948$ | $0.8258$ | $844$ | $103$ | $0.1086$ | $18.67$ / $17.0$ / $36.0$ |
-| — *Task: `summarization`* | $903$ | $480$ | $0.5316$ | $521$ | $143$ | $0.2154$ | $20.89$ / $19.0$ / $89.0$ |
-| — *Error: `Evident Conflict`* | $981$ | $956$ | $0.9745$ | $937$ | $19$ | $0.0199$ | $18.95$ / $17.0$ / $89.0$ |
-| — *Error: `Subtle Conflict`* | $214$ | $183$ | $0.8551$ | $174$ | $9$ | $0.0492$ | $19.42$ / $17.0$ / $62.0$ |
-| — *Error: `Evident Baseless Info`* | $1,089$ | $456$ | $0.4187$ | $198$ | $257$ | $0.5636$ | $18.71$ / $16.0$ / $81.0$ |
-| — *Error: `Subtle Baseless Info`* | $463$ | $240$ | $0.5184$ | $167$ | $73$ | $0.3042$ | $18.68$ / $16.0$ / $74.0$ |
+| *Task: `qa`* | $696$ | $407$ | $0.5848$ | $111$ | $296$ | **$0.7273$** | $11.57$ / $10.0$ / $37.0$ |
+| *Task: `data2text`* | $1,148$ | $948$ | $0.8258$ | $844$ | $103$ | $0.1086$ | $18.67$ / $17.0$ / $36.0$ |
+| *Task: `summarization`* | $903$ | $480$ | $0.5316$ | $521$ | $143$ | $0.2154$ | $20.89$ / $19.0$ / $89.0$ |
+| *Error: `Evident Conflict`* | $981$ | $956$ | $0.9745$ | $937$ | $19$ | $0.0199$ | $18.95$ / $17.0$ / $89.0$ |
+| *Error: `Subtle Conflict`* | $214$ | $183$ | $0.8551$ | $174$ | $9$ | $0.0492$ | $19.42$ / $17.0$ / $62.0$ |
+| *Error: `Evident Baseless Info`* | $1,089$ | $456$ | $0.4187$ | $198$ | $257$ | $0.5636$ | $18.71$ / $16.0$ / $81.0$ |
+| *Error: `Subtle Baseless Info`* | $463$ | $240$ | $0.5184$ | $167$ | $73$ | $0.3042$ | $18.68$ / $16.0$ / $74.0$ |
 
 *Table 3.1: Frozen RAGTruth Dataset Splits and Evidence Annotation Distribution (Layer 1 Audit).*
 
@@ -72,14 +72,12 @@ Table 3.2 outlines the twelve experimental layers in Component 4.
 | **Layer 10** | `review_cost.py` | Compute reviewer reading-cost curve: mean context sentences read per span and per response vs. empirical coverage across $\alpha$. | `results/c4/analysis/review_cost.json` |
 | **Layer 11** | `fusion.py` | Rebuild C2 decisions on $1,509$ test responses; evaluate `c1_alone`, `c1_c2_flag_only`, `c1_c2_gated_by_c4`, and `c4_tie_break` plus 4-cell disagreement table. | `results/c4/fusion/fusion_metrics.json` |
 | **Layer 12** | `serving.py` | Export `c4_artifact.json`, verify numerical parity ($\le 10^{-9}$) between offline `lexical` and online `C4Attributor`, and enforce Serving Rules 1–3. | `results/c4/c4_artifact.json` |
-| **Layers 13–15** | `latency_benchmark.py`, `uat_validation.py`, `arch_diagrams.py`, `tables.py`, `figures.py` | Benchmark CPU/GPU latency and memory (`C4-15`), execute 10-case UAT and internal team verification timing study (`C4-16`), and render 10 figures + 16 tables. | `results/c4/analysis/latency_benchmark.json`, `uat_validation.json`, `results/c4/tables.md`, `paper/figures/c4_*.png` |
+| **Layers 13 to 15** | `latency_benchmark.py`, `uat_validation.py`, `arch_diagrams.py`, `tables.py`, `figures.py` | Benchmark CPU/GPU latency and memory (`C4-15`), execute 10-case UAT and internal team verification timing study (`C4-16`), and render 10 figures + 16 tables. | `results/c4/analysis/latency_benchmark.json`, `uat_validation.json`, `results/c4/tables.md`, `paper/figures/c4_*.png` |
 
 *Table 3.2: Twelve-Layer Experimental Protocol and Associated Artefact Outputs in Component 4.*
 
 ### 3.3.1 Matching protocol definitions
-In Layer 2 (`src/c4_attribution/matching.py`), we score containment of quote $q$ in sentence $c_j$ as $\text{cont}(q, c_j) = |T(q) \cap T(c_j)| / |T(q)|$:
-* **Convention A (Single Gold Sentence):** We select $j^* = \arg\max_j \text{cont}(q, c_j)$. If $\text{cont}(q, c_{j^*}) \ge \theta$ ($\theta = 0.50$), $j_{\text{gold}} = j^*$; otherwise the span is marked unmatched.
-* **Convention B (Multiple Gold Sentences):** Any sentence meeting $\text{cont}(q, c_j) \ge \theta$ is counted as a valid gold match.
+In Layer 2 (`src/c4_attribution/matching.py`), we score containment of quote $q$ in sentence $c_j$ as $\text{cont}(q, c_j) = |T(q) \cap T(c_j)| / |T(q)|$. We evaluate under two conventions. Under Convention A (Single Gold Sentence), we select $j^* = \arg\max_j \text{cont}(q, c_j)$, marking the span as matched if $\text{cont}(q, c_{j^*}) \ge \theta$ (with pre-fixed threshold $\theta = 0.50$); otherwise the span is marked unmatched. Under Convention B (Multiple Gold Sentences), any sentence meeting $\text{cont}(q, c_j) \ge \theta$ is counted as a valid gold match.
 
 ### 3.3.2 Backend comparison setup
 Layer 4 compares four backends across raw span queries and enclosing sentence queries:
@@ -112,10 +110,7 @@ We evaluate performance using six core metric groups:
 
 ## 3.5 Data analysis
 
-Analyses are implemented deterministically using Python and NumPy with fixed random seeds (`np.random.default_rng(42)`):
-* **Bootstrap intervals:** Coverage bounds are derived from $1,000$ bootstrap iterations.
-* **Significance threshold:** Pipeline fusion gains must exceed Component 1's multi-seed variation ($\sigma_{\text{seed}} = 0.384$) and its $4.18$-point bootstrap interval width.
-* **Stratified reporting:** To avoid Simpson's paradox, metrics are reported both overall and disaggregated across QA, Data-to-Text, and Summarization.
+Analyses are implemented deterministically using Python and NumPy with fixed random seeds (`np.random.default_rng(42)`). Empirical coverage bounds and confidence intervals are derived from 1,000 bootstrap iterations. For multi-component pipeline fusion, gains must exceed Component 1's multi-seed variation ($\sigma_{\text{seed}} = 0.384$) and its 4.18-point bootstrap interval width to be considered statistically meaningful. To guard against Simpson's paradox, metrics are reported both overall and disaggregated across QA, Data-to-Text, and Summarization.
 
 ---
 
@@ -132,14 +127,7 @@ Additionally, because Component 4 executes completely in memory on local hardwar
 
 ## 3.7 Reproducibility and research artefacts
 
-All experiments, tables, and figures can be regenerated from branch `feature/sakindu-c4`:
-* Random seeds are fixed to `42`.
-* Dataset split IDs are saved in `results/c1/modernbert-base/split_ids.json`.
-* Results are recorded in human-readable JSON files under `results/c4/`.
-* Reproduction commands:
-  * Regenerate tables: `python -m src.c4_attribution.tables --write`
-  * Regenerate figures: `python -m src.c4_attribution.figures`
-  * Run test suite: `pytest tests/test_c4_*.py`
+All experiments, tables, and figures can be regenerated deterministically from git branch `feature/sakindu-c4`. Random seeds are pinned to 42, dataset split assignments are saved in `results/c1/modernbert-base/split_ids.json`, and all empirical outputs are stored in human-readable JSON files under `results/c4/`. The full experimental suite can be reproduced directly using the command line: `python -m src.c4_attribution.tables --write` to regenerate evaluation tables, `python -m src.c4_attribution.figures` to regenerate plots, and `pytest tests/test_c4_*.py` to execute the complete automated test suite.
 
 ---
 
