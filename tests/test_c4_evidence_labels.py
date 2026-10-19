@@ -138,3 +138,18 @@ def test_a_rerun_never_wipes_labels_somebody_entered_by_hand(tmp_path, monkeypat
     monkeypatch.setattr(evidence_audit, "load_responses", lambda *a, **k: [])
     evidence_audit.main([])
     assert json.loads(sample.read_text())[0]["human_says_no_evidence"] is True
+
+
+def test_committed_hand_check_is_complete_and_meets_threshold():
+    """Verify the 50-snippet human audit on disk is 100% labelled and >= 0.90 agreement."""
+    from src.c4_attribution import evidence_audit
+
+    block = evidence_audit.hand_check_agreement()
+    assert block["n_sampled"] == 50
+    assert block["labelled"] == 50
+    assert block["agreement"] == 0.94
+    assert block["rater_2_agreement"] == 0.92
+    assert block["inter_annotator_agreement"] == 0.98
+    assert block["cohens_kappa"] == 0.8466
+    assert "may be quoted as a label" in block["verdict"]
+

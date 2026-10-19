@@ -15,7 +15,11 @@ import sys
 from pathlib import Path
 from typing import Any, Callable, Dict, Optional, Sequence
 
-RESULTS = Path("results/c4")
+ROOT = Path(__file__).resolve().parents[2]
+if str(ROOT) not in sys.path:
+    sys.path.insert(0, str(ROOT))
+
+RESULTS = ROOT / "results/c4"
 OUT = RESULTS / "tables.md"
 
 TODO = "TODO"
@@ -84,11 +88,29 @@ def c4_1_supervision() -> str:
         ["split", "spans", "with Original:", "share", "attributable", "no evidence", "share"],
         rows,
     )
+    hc = report.get("hand_check", {})
+    hc_line = ""
+    if hc:
+        irr_extra = ""
+        if hc.get("cohens_kappa") is not None:
+            irr_extra = (
+                f" Dual-rater blind audit: Rater 2 agreement = {_f(hc.get('rater_2_agreement'))}, "
+                f"inter-annotator P_o = {_f(hc.get('inter_annotator_agreement'))}, "
+                f"Cohen's kappa = {_f(hc.get('cohens_kappa'))}."
+            )
+        hc_line = (
+            f"\n\nHand check (n = {hc.get('n_sampled', 50)}, labelled = {hc.get('labelled', 0)}): "
+            f"agreement = {_f(hc.get('agreement'))} ({hc.get('status', TODO)})."
+            f"{irr_extra} "
+            f"{hc.get('verdict', '')}"
+        ).rstrip()
     return (
         "### C4-1  Evidence supervision on the frozen splits\n\n"
         + body
         + "\n\nC1's frozen calibration split and the untouched corpus test split. "
-        "Corpus-wide figures are a different quantity and are never mixed in.\n"
+        "Corpus-wide figures are a different quantity and are never mixed in."
+        + hc_line
+        + "\n"
     )
 
 
@@ -549,6 +571,110 @@ def c4_14_fusion() -> str:
     )
 
 
+def c4_15_latency() -> str:
+    report = _load("analysis/latency_benchmark.json")
+    if not report:
+        return _missing("C4-15  Runtime latency, throughput, and memory footprint",
+                        "results/c4/analysis/latency_benchmark.json")
+    rows = [
+        [
+            r["backend"],
+            r["model_checkpoint"],
+            _f(r["parameters_m"], 1),
+            _f(r["memory_mb"], 1),
+            _f(r["cpu_p50_ms_per_span"], 3),
+            _f(r["cpu_p95_ms_per_span"], 3),
+            _f(r["throughput_spans_per_sec"], 1),
+            _f(r["unconditional_top1"]),
+            _f(r["mrr"]),
+        ]
+        for r in report.get("backend_comparison", [])
+    ]
+    seg = report.get("segmentation", {})
+    served = report.get("served_lexical_c4", {})
+    return (
+        "### C4-15  Runtime latency, throughput, and memory footprint\n\n"
+        + _table(
+            [
+                "backend",
+                "checkpoint",
+                "params (M)",
+                "RAM/VRAM (MB)",
+                "CPU p50 (ms/span)",
+                "CPU p95 (ms/span)",
+                "throughput (spans/s)",
+                "top-1",
+                "MRR",
+            ],
+            rows,
+        )
+        + f"\n\nSentence segmentation (`split_sentences` + `sentence_offsets`): "
+        f"p50 = {_f(seg.get('p50_ms'), 4)} ms, p95 = {_f(seg.get('p95_ms'), 4)} ms. "
+        f"Full multi-span response attribution (`served_lexical_c4`): "
+        f"mean = {_f(served.get('mean_ms_per_response'), 4)} ms/response, "
+        f"p95 = {_f(served.get('p95_ms_per_response'), 4)} ms/response.\n\n"
+        + f"{report.get('note', '')}\n"
+    )
+
+
+def c4_16_uat() -> str:
+    report = _load("analysis/uat_validation.json")
+    if not report:
+        return _missing("C4-16  User acceptance testing and internal reviewer validation",
+                        "results/c4/analysis/uat_validation.json")
+    cases = [
+        [
+            c["uat_id"],
+            c["requirement_id"],
+            c["title"],
+            c["actual"],
+            _f(c["elapsed_ms"], 3),
+            c["status"],
+        ]
+        for c in report.get("functional_uat_cases", [])
+    ]
+    irr = report.get("blind_dual_rater_audit", {})
+    study = report.get("internal_reviewer_effort_study", {})
+    eval_rows = [
+        [
+            e["evaluator_id"],
+            str(e["spans_verified"]),
+            _f(e["mean_sec_full_context_19_1_sents"], 1),
+            _f(e["mean_sec_c4_conformal_4_6_sents"], 1),
+            _f(e["time_reduction_pct"], 2) + "%",
+            _f(e["sus_score"], 1),
+        ]
+        for e in study.get("evaluators", [])
+    ]
+    return (
+        "### C4-16  User acceptance testing and internal reviewer validation\n\n"
+        + _table(
+            ["UAT ID", "Req ID", "Acceptance Test Case", "Measured Result", "Time (ms)", "Status"],
+            cases,
+        )
+        + "\n\n**Internal Reviewer Effort & System Usability Scale (SUS) Study**\n\n"
+        + _table(
+            [
+                "Evaluator",
+                "Spans",
+                "Full Context (19.05 sents, s)",
+                "C4 Conformal (4.61 sents, s)",
+                "Time Saved",
+                "SUS Score",
+            ],
+            eval_rows,
+        )
+        + f"\n\nBlind 50-span dual-rater audit: Rater 1 = {_f(irr.get('rater_1_agreement'))}, "
+        f"Rater 2 = {_f(irr.get('rater_2_agreement'))}, "
+        f"inter-annotator P_o = {_f(irr.get('inter_annotator_agreement'))}, "
+        f"Cohen's kappa = {_f(irr.get('cohens_kappa'))} ({irr.get('interpretation', '')}). "
+        f"Mean verification time reduced from {_f(study.get('mean_verification_time_full_context_sec'), 2)} s "
+        f"to {_f(study.get('mean_verification_time_c4_conformal_sec'), 2)} s "
+        f"({_f(study.get('verification_time_reduction_pct'), 2)}% reduction); "
+        f"mean SUS = {_f(study.get('mean_sus_score'), 2)} ({study.get('sus_grade', '')}).\n"
+    )
+
+
 BUILDERS: Sequence[Callable[[], str]] = (
     c4_1_supervision,
     c4_2_verbatim,
@@ -564,6 +690,8 @@ BUILDERS: Sequence[Callable[[], str]] = (
     c4_12_transfer,
     c4_13_cost,
     c4_14_fusion,
+    c4_15_latency,
+    c4_16_uat,
 )
 
 

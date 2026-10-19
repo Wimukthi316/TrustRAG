@@ -72,7 +72,14 @@ def test_the_hypothesis_constructions_are_built_from_the_same_splitter():
         assert "<<" in row.marked_answer_sentence and ">>" in row.marked_answer_sentence
 
 
-@needs_corpus
+PROBS = Path("results/c1/test/probabilities.jsonl")
+needs_predicted_spans = pytest.mark.skipif(
+    not RAW.exists() or not SPLITS.exists() or not PROBS.exists(),
+    reason="C1 test probabilities dump (results/c1/test/probabilities.jsonl) is not in this working copy",
+)
+
+
+@needs_predicted_spans
 def test_the_spurious_rate_is_the_number_the_report_quotes():
     rate = ds.spurious_rate(ds.load_predicted_spans("results/c1/test/probabilities.jsonl"))
     assert rate["n_predicted_spans"] == 2390
@@ -80,7 +87,7 @@ def test_the_spurious_rate_is_the_number_the_report_quotes():
     assert round(rate["spurious_rate"], 4) == 0.4745
 
 
-@needs_corpus
+@needs_predicted_spans
 def test_a_spurious_predicted_span_inherits_no_evidence_label():
     responses = ds.load_responses(splits=None, with_labels_only=False)
     predicted = ds.predicted_span_records("results/c1/test/probabilities.jsonl", responses)
